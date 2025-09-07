@@ -9,7 +9,7 @@
 
 - [GitHub](https://github.com/viviansongg)
 - [LinkedIn](https://www.linkedin.com/in/vivian-songg/)
-- [Resume](https://drive.google.com/open?id=1LfvtYT7vqGTDPuM_cxuDNeQC-4xG2Cis)
+- [Resume](https://drive.google.com/file/d/1OGSQJzmIGdAph5yDgpgFG4yRAHPtc0Z8/view?usp=sharing)
 - [Portfolio](https://viviansongg.github.io/)
 
 ## About Vivian
