@@ -9,8 +9,8 @@
 
 - [GitHub](https://github.com/oliviaw12)
 - [LinkedIn](https://www.linkedin.com/in/olivia-wongg/)
-- [Instagram](https://www.instagram.com/olivia.wnng/)
-- [CV](https://drive.google.com/file/d/1li8uqmdt30mq2-G46KcSnnGeRMkSOErD/view?usp=sharing)
+- [Resume](https://drive.google.com/file/d/1li8uqmdt30mq2-G46KcSnnGeRMkSOErD/view?usp=sharing)
+- [Portfolio] (https://olivia-wong.vercel.app/)
 
 ## About Olivia
 
