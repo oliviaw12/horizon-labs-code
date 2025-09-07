@@ -4,7 +4,7 @@ People at Horizon Labs
 ---
 
 - [Kyle, Computer Science](./kyle.md)
-- [Samuel Ruo, Engineering](./sam_ruo.md)
+- [Samuel Ruo, Computer Science](./sam_ruo.md)
 - [Olivia Wong, Computer Science](./olivia_wong.md)
 - [Vivian Song, Computer Science](./viviansong.md)
 
