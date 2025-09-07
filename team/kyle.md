@@ -19,8 +19,10 @@ Kyle is from China and currently a fourth-year student at the University of Toro
 
 - High adaptive, willing to learn new things
 - Keeping work until meet the expectations
+- Being positive all the time
 
 ## Weaknesses
 
 - Sometimes understanding informations slow 
 - Sometimes having procrastination for non-emergencies
+- I am a bit lack of imagination
