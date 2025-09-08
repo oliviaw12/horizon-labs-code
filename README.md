@@ -1,16 +1,11 @@
-# Team Repo Template
+# Horizon Labs
 
-This Repository includes a template for your Team's Repository. https://github.com/dcsil/klutch is a good example of an implementation of this!
+![Team Logo](./logo.jpeg)
 
-**README template starts below this line 👇👇👇 Delete above this line :)**
+#### Team Discord Channel: #team-horizon-labs
 
-# COMPANY NAME
-
-![Team Logo](./logo.png)
-
-#### Team Slack Channel: #team\-\<your\-company\-name\-here\>
-
-COMPANY NAME is a company founded in the THEME industry. COMPANY NAME aims to VISION STATEMENT.
+Horizon Labs is a company founded in the THEME industry. Horizon Labs aims to VISION STATEMENT.
+*This is a placeholder description and is subject to change.*
 
 Table of Contents
 ---
