@@ -1,28 +1,39 @@
 Diversity
 ---
 
-Diversity is ... Intro Statement
+At Horizon Labs, diversity is at the heart of our project as our primary user base (students) come from varied cultural, linguistic, socioeconomic, and cognitive backgrounds. Our LLM solution is designed to foster critical thinking in any mind, of any background, meaning it must be able to understand and adapt to these differences and provide meaningful and respectful prompts to its users. We believe that embracing diverse perspectives in both our team and our design ensures the creation of a tool that doesn’t just teach, but empowers and grows with the unique minds it serves. 
 
 
-Team Background
+Team Background & Strengths
 ---
+The software development side of our team is composed of 4 individuals with different backgrounds and a variety of skill sets:
 
-Our team has a varied background. We have people from multiple continents who speak many languages combined....
+Kyle has experienced making his coding and web-development skills into projects, and taken entry-level Machine Learning Courses which can help with AI related tasks. He is able to handle the front-end system development tasks and can help with education market analysis and give suggestions due to his working experience in that field. 
 
-## Strengths & Weaknesses
+Olivia brings a strong foundation in UI/UX design and is currently doing AI/HCI research, exploring how emerging technologies can shape the way people interact and communicate, insights valuable to this project. Alongside this, she has gained hands-on startup experience, applying both technical and business skills to building impactful solutions. Her past projects within the EdTech field further demonstrates her ability to design innovative, accessible and meaningful tools that improve learning experiences. 
 
-Our team has....
+Sam’s strength stems from his variety of experiences in both research and industry. This includes experience in Fullstack development and some introductory experience with AI/LLMs. He also has experience building a mobile app centered around increasing productivity which could aid in the team's selected problem domain. His ability to pick up new technologies and fill whatever role the team needs will aid the team in the rapid startup development process.
+
+Vivian brings a diverse skill set in full-stack development as a result of her industry experience gained through multiple internships. She has contributed to projects across fields including pharmacy, HCM, and education, while also gaining hands-on experience in game development and UI/UX design through a research project focused on creating an educational forensic science game. Moreover, her background in visual art and graphic design enhances her ability to deliver products that provide both functionality and also visual appeal to its end-users.
+
+By combining our diverse work and project experience our team stands ready to tackle this high relevant intersection of AI and education.
+## Weaknesses & Gaps
+
+Despite our strengths and mix of skills we recognize that there are still blind spots which could limit our potential impact on the AI × EdTech space. While we’re comfortable with software development and have some working familiarity with AI/LLMs, we are not deep ML specialists. Therefore interacting with specialists and research in this domain will be crucial in ensuring our software solution actually solves the issues we are seeking to address. Additionally while we have insight on the student side of the education space we lack the perspective of the instructor side. Without this perspective it will be difficult for any solution we create to have its intended impact as instructors not only provide insight on the teaching side of education, but the institution side of it as well.
+
+Aside from these more obvious gaps, there are also some unseen weaknesses and lack of diversity that could affect our project's development. For instance the demographic of our team is quite homogeneous, which means we may not be able to fully understand the unique struggles faced by underrepresented groups in education (in particular post secondary education). These groups face different challenges in regards to support and access to the same level of resources/technology. Our place as students at the University of Toronto also puts us in an earned but privileged position. As such it will be important for us to ensure our proposed solution can serve the different styles of learnings and resources available at other institutions. Finally, while we all have variations in our learning this does not encapsulate all the accessibility needs faced by different learners. This includes those who may be ESL, have ADHD, vision or hearing impairments, or other needs that may make the use of our developed software more difficult. 
+
+There may be more gaps in our knowledge that our team identifies as we continue to work on the project. However, we hope that in identifying these weaknesses we will be able to actively work around them, strengthening our end product for all that are exposed to it.
 
 ### Subject Matter Experts
 
-Subject matter experts (SMEs) who can help us address our expertise gaps are...
+To address our current expertise gaps, we plan to consult with a range of subject matter experts. While our team brings experience in EdTech and perspective as students, we lack the experience that teachers, deep technical specialization in AI, and diverse cultural and accessibility perspectives have. Educators such as teachers, curriculum designers, and school administrators can provide insight into challenges students and instructors face and validate whether our tools can support student learning. AI researchers and technologists can guide us on feasibility, technical safeguards, and ethical considerations we might overlook. Additionally, accessibility specialists and inclusion advocates will help us make sure our solution works for students of different abilities and backgrounds. We plan to engage with these experts through interviews, regular check-ins and small pilot tests, starting with local educations within our network and then reaching out to the wider education and EdTech community for broader perspectives.
 
-## Diversity
 
-Our team has a varied background, but we acknowledge that we do not have people experienced in/who are....
+## Customer Diversity
+
+Our team has a varied background, but we acknowledge that there are still limits. We do not have people experienced in different communities, such as accessibility needs, races other than Asian, and we are all from U of T. This might cause a lack of vision on the other side of our product in the future. Additionally, as our group is primarily composed of individuals with technical expertise, it may take us more time to navigate non-technical areas, such as user experience and sensitivity considerations. To be able to address these problems, one possible solution for us would be to conduct research and analysis in unfamiliar areas to identify and mitigate potential blind spots.
 
 ### How this can impact us
 
-A potential impact of this is...
-
-People with backgrounds that differ from out own can help us in the THEME industry because...
+The lack of disciplinary and cultural diversity in our team can lead to a tool that is strung with bias and a lack of inclusivity if we aren’t careful. We plan to mitigate this bias by not only conducting thorough research from a wide range of cultures, industries, and demographics, but we will also have discussions with field experts. For instance, we may consult educators and students of various backgrounds about their experiences with AI in the classroom in order to ensure that our software is reflective of individuals of different teaching and learning styles. In addition, we will also ensure that we test our product on a diverse set of users, thus allowing us to collect feedback from a wide range of perspectives. Furthermore, since our product involves the use of an LLM, there’s a high risk of biases being present in the responses given to our end-users which can do more harm than good. Therefore, it is absolutely critical that we are conscientious about the types of data we will be using to train our model and ultimately use it in our software. By taking these measures, we aim to address the limitations of our team’s lack of diversity so we can build a product that is both equitable and inclusive. While we recognize that it's not possible to eliminate all forms of bias, acknowledging our group’s constraints and being proactive with mitigating them, will allow us to create a tool that better serves the diverse needs of its users.
