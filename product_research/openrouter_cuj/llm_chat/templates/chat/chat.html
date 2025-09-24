@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LLM Chatbot</title>
+</head>
+<body>
+  <h1>Ask me anything</h1>
+  <button id="model-button" type="button">Model: loading...</button>
+  <div id="chat-box"></div>
+  <input type="text" id="user-input" placeholder="Type your message..." autofocus>
+  <button onclick="sendMessage()">Send</button>
+<script>
+    const modelOptions = [
+      { id: "google/gemini-2.0-flash-exp:free", label: "Gemini 2.0 Flash" },
+      { id: "x-ai/grok-4-fast:free", label: "Grok 4 Fast" },
+      { id: "mistralai/mistral-nemo:free", label: "Mistral Nemo" },
+    ];
+
+    let currentModelIndex = 0;
+
+    function updateModelButton() {
+      const btn = document.getElementById("model-button");
+      const model = modelOptions[currentModelIndex];
+      btn.textContent = `Model: ${model.label}`;
+    }
+
+    function cycleModel() {
+      currentModelIndex = (currentModelIndex + 1) % modelOptions.length;
+      updateModelButton();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const modelButton = document.getElementById("model-button");
+      modelButton.addEventListener("click", cycleModel);
+      updateModelButton();
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value;
+      if (!message.trim()) {
+        return;
+      }
+      input.value = "";
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<p><b>You:</b> ${message}</p>`;
+      const res = await fetch("", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          model: modelOptions[currentModelIndex].id,
+        }),
+      });
+      const data = await res.json();
+      chatBox.innerHTML += `<p><b>Bot (${data.model_label}):</b> ${data.reply}</p>`;
+    }
+  </script>
+</body>
+</html>
