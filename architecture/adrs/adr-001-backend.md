@@ -6,15 +6,11 @@
 ### Options
 **FastAPI**: Modern Python framework, supports async operations, automatic OpenAPI documentation, high performance, and easy integration with AI and database services. Excellent DX and widely adopted in AI/ML ecosystems.
 
-
 **Django (REST Framework)**: Mature Python framework with built-in ORM, authentication, and admin interface. Slightly heavier and more opinionated, but robust for full-featured apps.
-
 
 **Flask**: Lightweight Python microframework, simple and flexible, but requires more boilerplate for async support, validation, and documentation.
 
-
 **Node.js/Express**: JavaScript/TypeScript option, widely used, async by default, but adds a different tech stack compared to Python-based AI pipelines.
-
 
 ### Decision
  We chose FastAPI for its combination of high performance, async support, seamless API documentation, and strong integration with Python-based AI/ML tools. It enables rapid development of REST endpoints and will streamline the connection between our frontend and AI services.
