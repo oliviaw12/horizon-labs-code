@@ -6,5 +6,6 @@ This folder contains content and research about our product, including market re
 Table of Contents
 ---
 
-- [Market](./market.md)
+- [Market *IPR*](./market.md)
+- [Use Cases](./use_cases.md)
 - [Roadmap](./roadmap.md)
