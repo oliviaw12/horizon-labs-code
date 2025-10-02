@@ -22,6 +22,7 @@
 6. When the student returns to the chat later, the LLM first asks about topics that were mentioned in the last session focusing on problem topics.
 
 **UI/UX Sketches:**
+![Student CUJ 1](cuj_sketches/cuj1.png)
 
 ---
 
@@ -38,6 +39,7 @@
 7. Session summary: accuracy by concept, streaks, and next-review steps.
 
 **UI/UX Sketches:**
+![Student CUJ 2](cuj_sketches/cuj2.png)
 
 ---
 
@@ -54,6 +56,7 @@
 6. Presses publish updated and pushing policies to the student side.
 
 **UI/UX Sketches:**
+![Instructor CUJ 1](cuj_sketches/cuj3.png)
 
 ---
 
