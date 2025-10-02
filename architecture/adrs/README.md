@@ -10,3 +10,15 @@ For any architectural/engineering decisions we make, we will create an ADR (Arch
 **The common sections that each ADR should have are:**
 * Title, Context, Decision, Status, Consequences
 * Use this article as a reference: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
+
+**Current ADRs:**
+The following ADRs have been accepted and are in effect for the project, these will be revisted and updated throughout the development process as needed.
+- [ADR 001: Backend Framework — FastAPI](adr-001-backend.md)
+- [ADR 002: Frontend Framework — Next.js (with React)](adr-002-frontend.md)
+- [ADR 003: Frontend Hosting — Vercel](adr-003-frontend-hosting.md)
+- [ADR 004: Backend Deployment — Railway](adr-004-backendHosting.md)
+- [ADR 005: Primary Database - Firestore](adr-005-database.md)
+- [ADR 006: Vector Store — Pinecone](adr-006-vectorDatabase.md)
+- [ADR 007: Monitoring — Sentry + Google Analytics](adr-007-monitoring.md)
+- [ADR 008: Embeddings Provider — OpenAI](adr-008-embeddings.md)
+- [ADR 009: LLM Provider — OpenRouter](adr-009-LLM.md)
