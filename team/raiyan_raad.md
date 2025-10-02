@@ -9,7 +9,7 @@
 
 - [GitHub](https://github.com/Raiyankr)
 - [LinkedIn](https://www.linkedin.com/in/raiyan-raad/)
-- [Instagram]([https://www.instagram.com/samuelruo11/](https://www.instagram.com/raiyan_raad/))
+- [Instagram](https://www.instagram.com/raiyan_raad/)
 - [CV](https://github.com/user-attachments/files/22670827/Raiyan_Raad_Resume.pdf)
 
 
