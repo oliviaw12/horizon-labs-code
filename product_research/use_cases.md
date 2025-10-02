@@ -67,6 +67,7 @@
 4. Instructor uses information externally to adjust course plans (i.e. tutorials) and can recommend topics of study to students (Depending on time this could be added to the platform).
 
 **UI/UX Sketches:**
+![Instructor CUJ 2](cuj_sketches/cuj4.png)
 
 ---
 
