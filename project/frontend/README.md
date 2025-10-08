@@ -1,6 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
+First, install the dependencies:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+# or
+bun install
+```
 
 First, run the development server:
 
@@ -12,6 +23,12 @@ yarn dev
 pnpm dev
 # or
 bun dev
+```
+
+Set `NEXT_PUBLIC_BACKEND_URL` in an `.env.local` file if your FastAPI service is not running on `http://localhost:8000`:
+
+```
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
