@@ -11,8 +11,8 @@ Our MVP system is designed as a modular web application that supports both stude
 We use Next.js to build both student- and teacher-facing interfaces. Students interact with learning modules, progress tracking, and AI tutoring, while teachers use dashboards for course management and monitoring. Hosting on Vercel provides instant deployments, preview environments, and global CDN delivery.
 Trade-off: Vercel simplifies frontend deployment but advanced backend logic must be hosted separately.
 
-### Backend: FastAPI on Railway
-FastAPI serves as the backend, exposing APIs for authentication, course management, progress tracking, and AI-powered features. Railway was chosen for its developer-friendly deployment, GitHub integration, and auto-scaling.
+### Backend: FastAPI on Render
+FastAPI serves as the backend, exposing APIs for authentication, course management, progress tracking, and AI-powered features. Render was chosen for its developer-friendly deployment, GitHub integration, and auto-scaling.
 Trade-off: Offers less control than AWS/GCP, but accelerates MVP development and iteration.
 
 ### Database: Firestore
