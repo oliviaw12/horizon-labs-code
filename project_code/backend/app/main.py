@@ -162,3 +162,10 @@ async def quiz_stream(
     }
 
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+
+@app.get("/")
+@app.get("/health")
+def healthcheck() -> dict[str, str]:
+    """Simple uptime probe for orchestrators, Render, and cron-job.org."""
+    return {"status": "ok", "message": "Chatroom backend is running"}
