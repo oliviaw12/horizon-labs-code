@@ -16,9 +16,12 @@ The following ADRs have been accepted and are in effect for the project, these w
 - [ADR 001: Backend Framework — FastAPI](adr-001-backend.md)
 - [ADR 002: Frontend Framework — Next.js (with React)](adr-002-frontend.md)
 - [ADR 003: Frontend Hosting — Vercel](adr-003-frontend-hosting.md)
-- [ADR 004: Backend Deployment — Railway](adr-004-backendHosting.md)
+- [ADR 004: Backend Deployment — Render](adr-004-backendHosting.md)
 - [ADR 005: Primary Database - Firestore](adr-005-database.md)
 - [ADR 006: Vector Store — Pinecone](adr-006-vectorDatabase.md)
 - [ADR 007: Monitoring — Sentry + Google Analytics](adr-007-monitoring.md)
 - [ADR 008: Embeddings Provider — OpenAI](adr-008-embeddings.md)
 - [ADR 009: LLM Provider — OpenRouter](adr-009-LLM.md)
+
+### History of Changes
+- **October 8, 2025:** Backend deployment updated from Railway to Render to address free-tier limitations.
