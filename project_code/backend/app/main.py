@@ -168,4 +168,4 @@ async def quiz_stream(
 @app.get("/health")
 def healthcheck() -> dict[str, str]:
     """Simple uptime probe for orchestrators, Render, and cron-job.org."""
-    return {"status": "ok", "message": "Chatroom backend is running"}
+    return {"status": "ok"}
