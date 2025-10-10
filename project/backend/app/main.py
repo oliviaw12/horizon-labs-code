@@ -14,6 +14,8 @@ from clients.llm.settings import get_settings
 
 from .schemas import ChatResetRequest, ChatStreamRequest, QuizStreamRequest
 
+from app.ping_app import ping_app
+
 # Set up logging early so LLMService can use it during initialization.
 _TELEMETRY_ENABLED = False
 
@@ -162,3 +164,8 @@ async def quiz_stream(
     }
 
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
+
+
+# Mount lightweight ping app at /ping
+app.mount("/ping", ping_app)
+
