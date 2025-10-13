@@ -6,16 +6,23 @@ export default function ConditionalHeader() {
 
   if (pathname.startsWith('/Student')) {
     return (
-        <header className="bg-white relative h-16 flex items-center justify-between px-10 mt-10">
+        <header className="bg-white flex items-center justify-between px-10 py-4">
             <img src="/logo2.png" alt="Logo"/>
             <img src="/profile.png" alt="Profile"/>
         </header>
     )
   }
+  if (pathname.startsWith('/LoginPage')) {
+    return (
+        <header className="bg-purple-100 px-10 py-4">
+            <img src="/logo2.png" alt="Logo" className=""/>
+        </header>
+    )
+  }
   
   return (
-    <header className="border-b bg-white">
-      <img src="/logo2.png" alt="Logo" style={{ float: "left" }}/>
+    <header className="bg-white px-10 py-4">
+      <img src="/logo2.png" alt="Logo"/>
     </header>
   );
 }

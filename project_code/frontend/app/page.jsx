@@ -22,7 +22,7 @@ export default function home() {
   }, [role]);
 
   const onStart = () => {
-    router.push("/Student/chat");
+    router.push("/LoginPage");
   };
 
   
