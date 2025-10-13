@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { flags } from "../../lib/flag.js";
-
+import { flags } from "../../../lib/flag.js";
+import { Poppins } from 'next/font/google'
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, "");
 const STREAM_ENDPOINT = `${API_BASE_URL}/chat/stream`;
 
@@ -158,26 +162,85 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Hello Chat</h1>
-      <Banner />
-      <div ref={listRef} className="h-[420px] w-full overflow-y-auto rounded-lg border bg-white p-4">
-        {messages.map(m => (
-          <div key={m.id} className={`mb-3 flex ${m.role==="user"?"justify-end":"justify-start"}`}>
-            <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow ${
-              m.role==="user"?"bg-black text-white":m.role==="assistant"?"bg-gray-100":"bg-blue-50"}`}>
-              <div className="text-[11px] opacity-60 mb-1">{m.role.toUpperCase()}</div>
-              <div className="whitespace-pre-wrap">{m.text}</div>
-            </div>
+    <div className="bg-white flex flex-col mt-50">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
+        {/* Chat Icon */}
+        <img src="/chat.png" alt="" />
+        {/* Title */}
+        <h1 className={`text-[48.52px] font-bold font-[700] tracking-[0.03em] ${poppins.className}`}>New Chat Session</h1>
+        {/* Messages Area - Hidden when no messages */}
+        {messages.length > 1 && (
+          <div ref={listRef} className="w-full max-w-4xl mb-8 max-h-96 overflow-y-auto">
+            {messages.slice(1).map(m => (
+              <div key={m.id} className={`mb-4 flex ${m.role==="user"?"justify-end":"justify-start"}`}>
+                <div className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                  m.role==="user"?"bg-purple-600 text-white":"bg-gray-100 text-gray-800"}`}>
+                  <div className="whitespace-pre-wrap">{m.text}</div>
+                </div>
+              </div>
+            ))}
+            {isStreaming && (
+              <div className="flex justify-start mb-4">
+                <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        ))}
-        {isStreaming && <div className="animate-pulse text-xs text-gray-500">streaming…</div>}
+        )}
       </div>
-      {error && <div className="mt-2 text-sm text-red-600">{error}</div>}
-      <div className="mt-4 flex items-center gap-2">
-        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleSend()}
-          placeholder="Type your message…" className="flex-1 rounded-lg border px-3 py-2" />
-        <button onClick={handleSend} disabled={isStreaming} className="rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50">Send</button>
+
+      {/* Input Section */}
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto flex items-center gap-3">
+          {/* Plus Button */}
+          <button className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+
+          {/* Thinking Button */}
+          {isStreaming && (
+            <button className="px-4 py-2 rounded-full bg-purple-100 text-purple-600 text-sm font-medium">
+              Thinking
+            </button>
+          )}
+
+          {/* Input Field */}
+          <div className="flex-1 relative">
+            <input 
+              value={input} 
+              onChange={e=>setInput(e.target.value)} 
+              onKeyDown={e=>e.key==="Enter"&&handleSend()}
+              placeholder="What do you need help with today?"
+              className="w-full px-4 py-3 rounded-2xl bg-purple-50 border-0 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 placeholder-purple-400"
+            />
+          </div>
+
+          {/* Send Button */}
+          <button 
+            onClick={handleSend} 
+            disabled={isStreaming || !input.trim()}
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="max-w-4xl mx-auto mt-3 text-sm text-red-600 text-center">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );
