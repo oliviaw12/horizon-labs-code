@@ -7,6 +7,7 @@ on:
       - demo-2
       - feature/**
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -41,7 +42,9 @@ jobs:
           pip install -r requirements.txt pytest
 
       - name: Run backend tests
-        run: pytest -q
+        run: |
+          echo "Running pytest for backend"
+          pytest ../tests -q
 
   frontend:
     name: Frontend App
