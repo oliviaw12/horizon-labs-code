@@ -85,6 +85,7 @@ export default function ChatPage() {
   const listRef = useRef(null);
   const abortRef = useRef(null);
   const sessionRef = useRef(activeSessionId || null);
+  const skipNextHydrateRef = useRef(false);
 
   const applyGuidanceState = useCallback((ready) => {
     setGuidanceReady((prev) => {
@@ -130,10 +131,14 @@ export default function ChatPage() {
 
     if (parsed.length > 0) {
       const last = window.localStorage.getItem(LAST_SESSION_STORAGE_KEY);
-      const initial = parsed.find((session) => session.id === last)?.id ?? parsed[0].id;
-      sessionRef.current = initial;
-      setActiveSessionId(initial);
-      window.localStorage.setItem(LAST_SESSION_STORAGE_KEY, initial);
+      if (last && parsed.some((session) => session.id === last)) {
+        sessionRef.current = last;
+        setActiveSessionId(last);
+      } else {
+        sessionRef.current = null;
+        setActiveSessionId(null);
+        window.localStorage.removeItem(LAST_SESSION_STORAGE_KEY);
+      }
     } else {
       sessionRef.current = null;
       setActiveSessionId(null);
@@ -164,7 +169,9 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (sessions.length === 0) {
-      setActiveSessionId(null);
+      if (activeSessionId !== null) {
+        setActiveSessionId(null);
+      }
       sessionRef.current = null;
       setMessages([createWelcomeMessage()]);
       setSessionState(null);
@@ -172,13 +179,14 @@ export default function ChatPage() {
       return;
     }
 
-    setActiveSessionId((prev) => {
-      if (prev && sessions.some((session) => session.id === prev)) {
-        return prev;
-      }
-      return sessions[0].id;
-    });
-  }, [sessions, applyGuidanceState]);
+    if (activeSessionId && !sessions.some((session) => session.id === activeSessionId)) {
+      setActiveSessionId(null);
+      sessionRef.current = null;
+      setMessages([createWelcomeMessage()]);
+      setSessionState(null);
+      applyGuidanceState(false);
+    }
+  }, [sessions, activeSessionId, applyGuidanceState]);
 
   const fetchHistory = useCallback(async (sessionId, signal) => {
     const url = `${HISTORY_ENDPOINT}?session_id=${encodeURIComponent(sessionId)}`;
@@ -293,6 +301,11 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!activeSessionId) {
+      return;
+    }
+
+    if (skipNextHydrateRef.current) {
+      skipNextHydrateRef.current = false;
       return;
     }
 
@@ -431,6 +444,7 @@ export default function ChatPage() {
     ]);
     setActiveSessionId(id);
     sessionRef.current = id;
+    skipNextHydrateRef.current = true;
     return id;
   }, [activeSessionId, sessions]);
 
@@ -459,8 +473,11 @@ export default function ChatPage() {
     ]);
     setActiveSessionId(id);
     sessionRef.current = id;
+    skipNextHydrateRef.current = true;
     setMessages([createWelcomeMessage()]);
     setSessionState(null);
+    setIsLoadingHistory(false);
+    setIsLoadingState(false);
     setError(null);
     applyGuidanceState(false);
   };
@@ -473,8 +490,11 @@ export default function ChatPage() {
     }
     setIsStreaming(false);
     setIsClassifying(false);
+    setIsLoadingHistory(true);
+    setIsLoadingState(true);
     setActiveSessionId(id);
     sessionRef.current = id;
+    skipNextHydrateRef.current = false;
     setMessages([createWelcomeMessage()]);
     setSessionState(null);
     setError(null);
@@ -681,6 +701,8 @@ export default function ChatPage() {
     [messages]
   );
 
+  const showLanding = !isLoadingHistory && nonSystemMessages.length === 0;
+
   const attempts = Number(sessionState?.friction_attempts ?? 0);
   const threshold = Number(sessionState?.friction_threshold ?? 0);
   const remaining =
@@ -831,257 +853,337 @@ export default function ChatPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h1 className={`text-3xl font-semibold ${poppins.className}`}>Adaptive Coach</h1>
-              {!activeSessionId && (
+              {showLanding && (
                 <p className="text-sm text-gray-500">Select or create a session to begin.</p>
               )}
             </div>
           </div>
 
-          <div
-            ref={listRef}
-            className="mt-4 h-[360px] w-full overflow-y-auto rounded-2xl border border-gray-100 bg-gray-50 p-4"
-          >
-            {isLoadingHistory && (
-              <div className="mb-3 text-xs text-gray-500">Restoring previous messages…</div>
-            )}
-            {!nonSystemMessages.length && (
-              <div className="flex h-full items-center justify-center text-sm text-gray-400">
-                Start the conversation by sending a question.
-              </div>
-            )}
-            {nonSystemMessages.map((message) => {
-              const isUser = message.role === "user";
-              return (
-                <div
-                  key={message.id}
-                  className={`mb-3 flex ${isUser ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] break-words rounded-2xl px-4 py-3 text-sm shadow ${
-                      isUser ? "bg-purple-600 text-white" : "bg-white text-gray-800"
-                    }`}
+          {showLanding ? (
+            <>
+              <div className="mt-8 flex h-[360px] flex-col items-center justify-center gap-6 rounded-2xl border border-dashed border-purple-200 bg-purple-50/70 text-center">
+                <img src="/chat.png" alt="" className="h-16 w-16" />
+                <div>
+                  <h2
+                    className={`text-[48.52px] font-bold tracking-[0.03em] text-gray-900 ${poppins.className}`}
                   >
-                    <div className="whitespace-pre-wrap">{message.text}</div>
-                    {showMessageDiagnostics && message.turnClassification && (
-                      <div className="mt-2 text-[11px] opacity-80">
-                        Classification: {message.turnClassification}
-                        {message.classificationSource && (
-                          <span className="ml-1">
-                            • {describeSource(message.classificationSource)}
-                          </span>
+                    New Chat Session
+                  </h2>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Ask a question to begin. Select a session from the left or start a fresh chat
+                    below.
+                  </p>
+                </div>
+              </div>
+
+              {error && (
+                <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+                <div className="flex w-full flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    aria-label="Add context"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-colors hover:bg-gray-300"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v12m6-6H6"
+                      />
+                    </svg>
+                  </button>
+                  {isStreaming && (
+                    <button
+                      type="button"
+                      className="rounded-full bg-purple-100 px-4 py-2 text-sm font-medium text-purple-600"
+                    >
+                      Thinking
+                    </button>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      value={input}
+                      onChange={(event) => setInput(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder="What do you need help with today?"
+                      className="w-full rounded-2xl bg-purple-50 px-4 py-3 text-sm text-gray-800 placeholder-purple-400 outline-none ring-0 transition focus:bg-white focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSend}
+                    disabled={isStreaming || isLoadingHistory || isClassifying || !input.trim()}
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition hover:from-purple-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div
+                ref={listRef}
+                className="mt-4 h-[360px] w-full overflow-y-auto rounded-2xl border border-gray-100 bg-gray-50 p-4"
+              >
+                {isLoadingHistory && (
+                  <div className="mb-3 text-xs text-gray-500">Restoring previous messages…</div>
+                )}
+                {nonSystemMessages.map((message) => {
+                  const isUser = message.role === "user";
+                  return (
+                    <div
+                      key={message.id}
+                      className={`mb-3 flex ${isUser ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[80%] break-words rounded-2xl px-4 py-3 text-sm shadow ${
+                          isUser ? "bg-purple-600 text-white" : "bg-white text-gray-800"
+                        }`}
+                      >
+                        <div className="whitespace-pre-wrap">{message.text}</div>
+                        {showMessageDiagnostics && message.turnClassification && (
+                          <div className="mt-2 text-[11px] opacity-80">
+                            Classification: {message.turnClassification}
+                            {message.classificationSource && (
+                              <span className="ml-1">
+                                • {describeSource(message.classificationSource)}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {showMessageDiagnostics && message.classificationRationale && (
+                          <div className="mt-1 text-[11px] opacity-60">
+                            {message.classificationRationale}
+                          </div>
+                        )}
+                        {message.createdAt && (
+                          <div className="mt-2 text-[10px] opacity-50">
+                            {new Date(message.createdAt).toLocaleString()}
+                          </div>
                         )}
                       </div>
-                    )}
-                    {showMessageDiagnostics && message.classificationRationale && (
-                      <div className="mt-1 text-[11px] opacity-60">
-                        {message.classificationRationale}
-                      </div>
-                    )}
-                    {message.createdAt && (
-                      <div className="mt-2 text-[10px] opacity-50">
-                        {new Date(message.createdAt).toLocaleString()}
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  );
+                })}
+                {isStreaming && <div className="text-xs text-gray-500">streaming…</div>}
+              </div>
+
+              {error && (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {error}
                 </div>
-              );
-            })}
-            {isStreaming && <div className="text-xs text-gray-500">streaming…</div>}
-          </div>
+              )}
 
-          {error && (
-            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </div>
+              {guidanceReady ? (
+                guidanceModalOpen ? (
+                  <div className="mt-4 relative rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                    <button
+                      type="button"
+                      onClick={() => setGuidanceModalOpen(false)}
+                      className="absolute right-3 top-3 text-base text-blue-500 hover:text-blue-700"
+                      aria-label="Dismiss guidance prompt"
+                    >
+                      ×
+                    </button>
+                    <h3 className="text-sm font-semibold">Guidance mode unlocked</h3>
+                    <p className="mt-1 text-xs">
+                      Toggle to let Horizon Labs provide direct guidance on the next response. The
+                      toggle resets after one turn so you can stay in friction mode when you prefer.
+                    </p>
+                    <label className="mt-3 flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={guidanceToggle}
+                        onChange={(event) => setGuidanceToggle(event.target.checked)}
+                      />
+                      Use guidance on the next response
+                    </label>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setGuidanceModalOpen(true)}
+                    className="mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800 hover:border-blue-300"
+                  >
+                    Guidance ready — click to configure
+                  </button>
+                )
+              ) : (
+                <div className="mt-4 rounded-xl border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700">
+                  Guidance unlocks after{" "}
+                  <span className="font-semibold">
+                    {typeof remaining === "number" ? Math.max(remaining, 0) : "a few more"}
+                  </span>{" "}
+                  qualifying responses.
+                </div>
+              )}
+
+              <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
+                <textarea
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="What do you need help with today?"
+                  rows={2}
+                  className="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow focus:border-purple-400 focus:outline-none focus:ring-0"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={isStreaming || isLoadingHistory || isClassifying || !input.trim()}
+                  className="rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:from-purple-600 hover:to-blue-600 disabled:opacity-60"
+                >
+                  Send
+                </button>
+              </div>
+            </>
           )}
+        </div>
 
-          {guidanceReady ? (
-            guidanceModalOpen ? (
-              <div className="mt-4 relative rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+        {!showLanding && (
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-lg font-semibold ${poppins.className}`}>Session Diagnostics</h2>
+              <button
+                type="button"
+                onClick={() => setShowSessionDiagnostics((prev) => !prev)}
+                className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400"
+              >
+                {showSessionDiagnostics ? "Hide" : "Show"} diagnostics
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Inspect the friction gate state and classifier output powering guidance mode.
+            </p>
+            {showSessionDiagnostics && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setGuidanceModalOpen(false)}
-                  className="absolute right-3 top-3 text-base text-blue-500 hover:text-blue-700"
-                  aria-label="Dismiss guidance prompt"
+                  onClick={() => setShowMessageDiagnostics((prev) => !prev)}
+                  className={`rounded-xl border px-3 py-2 text-sm transition ${
+                    showMessageDiagnostics
+                      ? "border-purple-500 bg-purple-50 text-purple-900"
+                      : "border-gray-200 hover:border-purple-400"
+                  }`}
                 >
-                  ×
+                  {showMessageDiagnostics ? "Hide" : "Show"} message classifications
                 </button>
-                <h3 className="text-sm font-semibold">Guidance mode unlocked</h3>
-                <p className="mt-1 text-xs">
-                  Toggle to let Horizon Labs provide direct guidance on the next response. The
-                  toggle resets after one turn so you can stay in friction mode when you prefer.
-                </p>
-                <label className="mt-3 flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={guidanceToggle}
-                    onChange={(event) => setGuidanceToggle(event.target.checked)}
-                  />
-                  Use guidance on the next response
-                </label>
+                <button
+                  type="button"
+                  onClick={handleRefreshClick}
+                  disabled={!activeSessionId || isLoadingState}
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400 disabled:opacity-60"
+                >
+                  Refresh
+                </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setGuidanceModalOpen(true)}
-                className="mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800 hover:border-blue-300"
-              >
-                Guidance ready — click to configure
-              </button>
-            )
-          ) : (
-            <div className="mt-4 rounded-xl border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700">
-              Guidance unlocks after{" "}
-              <span className="font-semibold">
-                {typeof remaining === "number" ? Math.max(remaining, 0) : "a few more"}
-              </span>{" "}
-              qualifying responses.
-            </div>
-          )}
+            )}
 
-          <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
-            <textarea
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="What do you need help with today?"
-              rows={2}
-              className="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow focus:border-purple-400 focus:outline-none focus:ring-0"
-            />
-            <button
-              onClick={handleSend}
-              disabled={isStreaming || isLoadingHistory || isClassifying || !input.trim()}
-              className="rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:from-purple-600 hover:to-blue-600 disabled:opacity-60"
-            >
-              Send
-            </button>
+            {showSessionDiagnostics ? (
+              isLoadingState ? (
+                <div className="mt-6 text-sm text-gray-500">Loading session state…</div>
+              ) : sessionState ? (
+                <div className="mt-6 space-y-6">
+                  <div className="grid gap-4 text-sm md:grid-cols-2">
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Session ID</div>
+                      <div className="font-medium text-gray-900">
+                        {activeSessionId ?? sessionState.session_id ?? "--"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Guidance ready</div>
+                      <div>
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs ${
+                            guidanceReadyNow
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          {guidanceReadyNow ? "Yes" : "No"}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Next prompt</div>
+                      <div className="font-medium text-gray-900">{nextPrompt}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Last prompt</div>
+                      <div className="font-medium text-gray-900">{lastPrompt}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Qualifying attempts</div>
+                      <div className="font-medium text-gray-900">
+                        {attempts} / {threshold}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Responses needed</div>
+                      <div className="font-medium text-gray-900">{Math.max(remaining, 0)}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">Last classification</h3>
+                    <div className="mt-2 grid gap-3 text-sm md:grid-cols-2">
+                      <div>
+                        <div className="text-xs uppercase text-gray-400">Label</div>
+                        <div className="font-medium text-gray-900">{classificationLabel}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase text-gray-400">Source</div>
+                        <div className="font-medium text-gray-900">{classificationSourceDisplay}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase text-gray-400">LLM used</div>
+                        <div className="font-medium text-gray-900">{classificationLLM}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase text-gray-400">Rationale</div>
+                        <div className="font-medium text-gray-900">{classificationRationale}</div>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="text-xs uppercase text-gray-400">Raw output</div>
+                      <pre className="mt-1 max-h-48 overflow-x-auto overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
+                        {classificationRawDisplay}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 text-sm text-gray-500">
+                  Select a session to view friction diagnostics.
+                </div>
+              )
+            ) : null}
           </div>
-        </div>
-
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className={`text-lg font-semibold ${poppins.className}`}>Session Diagnostics</h2>
-            <button
-              type="button"
-              onClick={() => setShowSessionDiagnostics((prev) => !prev)}
-              className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400"
-            >
-              {showSessionDiagnostics ? "Hide" : "Show"} diagnostics
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-gray-500">
-            Inspect the friction gate state and classifier output powering guidance mode.
-          </p>
-          {showSessionDiagnostics && (
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowMessageDiagnostics((prev) => !prev)}
-                className={`rounded-xl border px-3 py-2 text-sm transition ${
-                  showMessageDiagnostics
-                    ? "border-purple-500 bg-purple-50 text-purple-900"
-                    : "border-gray-200 hover:border-purple-400"
-                }`}
-              >
-                {showMessageDiagnostics ? "Hide" : "Show"} message classifications
-              </button>
-              <button
-                type="button"
-                onClick={handleRefreshClick}
-                disabled={!activeSessionId || isLoadingState}
-                className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400 disabled:opacity-60"
-              >
-                Refresh
-              </button>
-            </div>
-          )}
-
-          {showSessionDiagnostics ? (
-            isLoadingState ? (
-              <div className="mt-6 text-sm text-gray-500">Loading session state…</div>
-            ) : sessionState ? (
-              <div className="mt-6 space-y-6">
-              <div className="grid gap-4 text-sm md:grid-cols-2">
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Session ID</div>
-                  <div className="font-medium text-gray-900">
-                    {activeSessionId ?? sessionState.session_id ?? "--"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Guidance ready</div>
-                  <div>
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs ${
-                        guidanceReadyNow
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {guidanceReadyNow ? "Yes" : "No"}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Next prompt</div>
-                  <div className="font-medium text-gray-900">{nextPrompt}</div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Last prompt</div>
-                  <div className="font-medium text-gray-900">{lastPrompt}</div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Qualifying attempts</div>
-                  <div className="font-medium text-gray-900">
-                    {attempts} / {threshold}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-gray-400">Responses needed</div>
-                  <div className="font-medium text-gray-900">{Math.max(remaining, 0)}</div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold text-gray-800">Last classification</h3>
-                <div className="mt-2 grid gap-3 text-sm md:grid-cols-2">
-                  <div>
-                    <div className="text-xs uppercase text-gray-400">Label</div>
-                    <div className="font-medium text-gray-900">{classificationLabel}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs uppercase text-gray-400">Source</div>
-                    <div className="font-medium text-gray-900">{classificationSourceDisplay}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs uppercase text-gray-400">LLM used</div>
-                    <div className="font-medium text-gray-900">{classificationLLM}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs uppercase text-gray-400">Rationale</div>
-                    <div className="font-medium text-gray-900">{classificationRationale}</div>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <div className="text-xs uppercase text-gray-400">Raw output</div>
-                  <pre className="mt-1 max-h-48 overflow-x-auto overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
-                    {classificationRawDisplay}
-                  </pre>
-                </div>
-              </div>
-            </div>
-            ) : (
-              <div className="mt-6 text-sm text-gray-500">
-                Select a session to view friction diagnostics.
-              </div>
-            )
-          ) : null}
-        </div>
+        )}
       </section>
     </div>
   );
