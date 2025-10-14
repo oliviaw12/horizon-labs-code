@@ -5,14 +5,20 @@ from typing import AsyncGenerator
 
 import logging
 
-from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from clients.llm import LLMService, get_llm_service
 from clients.llm.settings import get_settings
 
-from .schemas import ChatResetRequest, ChatStreamRequest, QuizStreamRequest
+from .schemas import (
+    ChatHistoryResponse,
+    ChatResetRequest,
+    ChatSessionListResponse,
+    ChatStreamRequest,
+    QuizStreamRequest,
+)
 
 # Set up logging early so LLMService can use it during initialization.
 _TELEMETRY_ENABLED = False
@@ -44,10 +50,10 @@ app.add_middleware(
 )
 
 
-# @app.get("/health")
-# def healthcheck() -> dict[str, str]:
-#     # Simple uptime probe for orchestrators and frontend checks.
-#     return {"status": "ok"}
+@app.get("/health")
+def healthcheck() -> dict[str, str]:
+    # Simple uptime probe for orchestrators and frontend checks.
+    return {"status": "ok"}
 
 
 @app.post("/chat/stream")
@@ -65,6 +71,7 @@ async def chat_stream(
                 question=request.message,
                 context=request.context,
                 metadata=request.metadata,
+                use_guidance=request.use_guidance,
             ):
                 payload = json.dumps({"type": "token", "data": chunk})
                 yield f"data: {payload}\n\n"
@@ -90,6 +97,34 @@ async def chat_reset(
 ) -> dict[str, str]:
     llm_service.reset_session(request.session_id)
     return {"status": "reset"}
+
+
+@app.get("/chat/history", response_model=ChatHistoryResponse)
+async def chat_history(
+    session_id: str = Query(..., description="Session identifier to fetch"),
+    llm_service: LLMService = Depends(get_llm_service),
+) -> ChatHistoryResponse:
+    """Return persisted chat turns for the requested session."""
+    history = llm_service.get_chat_history(session_id)
+    return ChatHistoryResponse(**history)
+
+
+@app.get("/chat/sessions", response_model=ChatSessionListResponse)
+def chat_sessions(
+    llm_service: LLMService = Depends(get_llm_service),
+) -> ChatSessionListResponse:
+    """Return all known chat sessions."""
+    sessions = llm_service.list_sessions()
+    return ChatSessionListResponse(sessions=sessions)
+
+
+@app.get("/debug/friction-state")
+def friction_state(
+    session_id: str = Query(..., description="Session to inspect"),
+    llm_service: LLMService = Depends(get_llm_service),
+) -> dict[str, object]:
+    state = llm_service.get_session_state(session_id)
+    return {"session_id": session_id, **state}
 
 
 @app.post("/ingest/upload")
@@ -162,9 +197,3 @@ async def quiz_stream(
     }
 
     return StreamingResponse(event_generator(), media_type="text/event-stream", headers=headers)
-
-
-@app.get("/ping")
-def ping():
-    # Tiny plain text route, safest for cron-job.org
-    return "ok"
