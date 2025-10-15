@@ -5,6 +5,11 @@
 - Next.js frontend that renders the Horizon Labs demo chat experience and consumes the streaming API.
 - Shared research notes, product artifacts, and engineering utilities that support the Horizon Labs project.
 
+## Hosting and Configuration
+- The frontend (Next.js) is hosted on Vercel and the backend (FastAPI) on Render, both with automated deployments.
+- Due to permission restrictions on the original class repository, the hosting and CI/CD workflows were migrated to a cloned repo where deployment now runs successfully:
+  https://github.com/oliviaw12/horizon-labs-code
+  
 ## Tech Stack at a Glance
 - **Backend:** Python, FastAPI, LangChain, Playwright tests under `backend/tests`.
 - **Frontend:** Next.js (App Router), React, Playwright end-to-end tests under `frontend/tests`.
