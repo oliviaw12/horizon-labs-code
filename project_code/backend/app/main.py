@@ -7,7 +7,7 @@ import logging
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 
 from clients.llm import LLMService, get_llm_service
 from clients.llm.settings import get_settings
@@ -62,6 +62,18 @@ def root() -> dict[str, str]:
     (Render, Vercel health checks, or browser requests).
     """
     return {"status": "ok"}
+
+
+@app.head("/health")
+def health_head() -> Response:
+    """Respond to HEAD probes for /health."""
+    return Response(status_code=200)
+
+
+@app.head("/")
+def root_head() -> Response:
+    """Respond to HEAD probes for root path."""
+    return Response(status_code=200)
 
 
 @app.post("/chat/stream")
