@@ -17,6 +17,8 @@ Core Flow: Choose Role → Login → Landing Page → New Chat Session → Promp
 
 ## Frame-by-Frame Design Explanation
 
+<img width="1058" height="684" alt="image" src="https://github.com/user-attachments/assets/22585139-d14b-4ec9-b0b7-918eba9cc172" />
+
 ### Frame 1 - Choose Role Page
 
 Purpose: This screen introduces users to the application and lets them choose whether to enter as a Student or Instructor.
@@ -28,6 +30,8 @@ Key Elements:
 
 UX Explanation: By prompting role selection upfront, the system tailors the experience early on and keeps the flow streamlined. The contrasting colors improve recognition, while avatars add a friendly human touch.
 
+<img width="1051" height="677" alt="image" src="https://github.com/user-attachments/assets/9ccb5834-85f5-4b61-a90f-b459f4ac2792" />
+
 ### Frame 2 - Sign-In Page
 
 Purpose: Authenticate the user and route them into the correct environment based on their selected role.
@@ -38,6 +42,8 @@ Key Elements:
 - “Sign In” button styled with brand color.
 
 UX Explanation: A minimalist login form reduces distractions. The gentle purple gradient maintains visual consistency with the brand palette introduced in the previous screen.
+
+<img width="1057" height="688" alt="image" src="https://github.com/user-attachments/assets/a3db37a5-afbd-4d84-a4c2-0787f1d80630" />
 
 ### Frame 3 - Student Dashboard Page
 
@@ -52,6 +58,8 @@ Key Elements:
 
 UX Explanation: This hub focuses on clarity and motivation. Each button is visually distinct (pink, purple, yellow) to help users identify their next step quickly.
 
+<img width="1062" height="690" alt="image" src="https://github.com/user-attachments/assets/745041d2-3e8c-4eb4-b22e-c05f192d694a" />
+
 ### Frame 4 - New Chat Session Page
 
 Purpose: Start an interaction with the AI tutor.
@@ -62,6 +70,8 @@ Key Elements:
 - Chat icon header with role indicator (“Student”).
 
 UX Explanation: Encourages exploration while minimizing blank-state confusion by offering predefined topic suggestions. The interface mirrors modern chat layouts users already understand.
+
+<img width="1056" height="678" alt="image" src="https://github.com/user-attachments/assets/6f9c1cf5-3595-476f-97e4-616622868eb9" />
 
 ### Frame 5a - Prompt 1 - Specific
 
@@ -74,6 +84,8 @@ Key Elements:
 
 UX Explanation: Familiar chat UX reduces learning curve. AI messages use slightly darker background to differentiate speaker roles.
 
+<img width="1057" height="684" alt="image" src="https://github.com/user-attachments/assets/3ea6f8ab-61e3-4f34-849b-4d7d5a206e4c" />
+
 ### Frame 5b - Prompt 2 - Vague
 
 Purpose: Display AI and user messages during an active session with a vague prompt.
@@ -84,6 +96,8 @@ Key Elements:
 - Typing indicator to signal processing.
 
 UX Explanation: Familiar chat UX reduces learning curve. AI messages use slightly darker background to differentiate speaker roles.
+
+<img width="1060" height="694" alt="image" src="https://github.com/user-attachments/assets/cdaf3e99-0803-4957-ab23-d31c43b7228e" />
 
 ### Frame 6 - Previous Chat Session Page
 
