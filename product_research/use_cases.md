@@ -25,6 +25,8 @@ We will focus on having our platform support text and pdf/image based materials 
 8. At any point, the student can ask for a summary of the key points discussed in the chat session to reinforce their understanding.
 
 *Update: These next steps may be added in a later phase and are based on [previous versions](use_cases_archive/use_cases_v1.md) of the CUJ.*
+9. After each LLM response, the system offers a quick micro-check (MCQ or short answer) to test understanding of the concept just discussed.
+10. When the student returns to the chat later, the LLM first asks about topics that were mentioned in the last session focusing on problem topics.
 
 **UI/UX Sketches:**
 The updated Figma design and details can be found in [Student UI/UX Session 1](uiux/student_uiux_1.md). These designs do not align 1 to 1 with the actual CUJ flow, but they give a good idea of the intended user experience and showcase the basis and evolution of our design. An update with the final UI/UX flow will be added soon.
