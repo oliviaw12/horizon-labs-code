@@ -1,4 +1,4 @@
-# LearnLLM UI/UX Design Overview
+# LearnLLM UI/UX Design Overview (Student-Facing View)
 
 ## Introduction
 
