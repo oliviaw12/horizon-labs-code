@@ -56,6 +56,14 @@ def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    """Root endpoint. Returns the same payload as /health so GET / doesn't 404 on platforms
+    (Render, Vercel health checks, or browser requests).
+    """
+    return {"status": "ok"}
+
+
 @app.post("/chat/stream")
 async def chat_stream(
     request: ChatStreamRequest,
