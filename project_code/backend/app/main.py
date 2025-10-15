@@ -50,6 +50,18 @@ app.add_middleware(
 )
 
 
+# Try to mount a lightweight ping app if it exists in the backend directory. This
+# keeps the /ping warmup endpoint separate from the heavy LLM startup and is
+# optional — if the module isn't present we just log and continue.
+try:
+    import ping_app  # type: ignore
+
+    app.mount("/ping", ping_app.app)
+    logging.getLogger("uvicorn.error").info("Mounted lightweight ping_app at /ping")
+except Exception as exc:  # pragma: no cover - optional runtime component
+    logging.getLogger("uvicorn.error").info("ping_app not mounted: %s", exc)
+
+
 @app.get("/health")
 def healthcheck() -> dict[str, str]:
     # Simple uptime probe for orchestrators and frontend checks.
