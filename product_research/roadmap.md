@@ -10,11 +10,11 @@ The current roadmap overview (as of A4) is as follows:
 
 **Duration:** October - November 2025
 
-We intend to ship our MVP which is composed of our 4 CUJs (2 student, 2 instructor). This will allow us to gather user feedback and validate our product concept.
+We aim to finalize our MVP by completing core adaptive learning features, including AI-driven quiz and feedback tools that extend beyond the study chat. This phase focuses on testing, stabilizing the full-stack system, and preparing the student and instructor quiz experiences.
 
 The Short Term tasks can be found in our Github Projects [Kanban Board](https://github.com/orgs/dcsil/projects/95/views/2).
 
-The issues and milestones currently in work for the MVP are as follows:
+The issues and milestones we recently completed:
 - [T1 — Initial Tech Stack Review and ADR Creation](https://github.com/dcsil/Horizon-Labs/issues/96)
 - [M0 Foundations](https://github.com/dcsil/Horizon-Labs/milestone/11)
   - [[M0-01] Repo, env & local stack boot](https://github.com/dcsil/Horizon-Labs/issues/42)
@@ -25,12 +25,16 @@ The issues and milestones currently in work for the MVP are as follows:
   - [[M1-01] Turn classification service](https://github.com/dcsil/Horizon-Labs/issues/48)
   - [[M1-02] Adaptive friction gate](https://github.com/dcsil/Horizon-Labs/issues/49)
   - [[M1-03] Coaching answer generator + graded-work block](https://github.com/dcsil/Horizon-Labs/issues/50)
-  - [[M1-04] Micro-checks + memory & revisit](https://github.com/dcsil/Horizon-Labs/issues/51)
-- [L1 — Pre MVP User Test](https://github.com/dcsil/Horizon-Labs/milestone/27)
-  - [Separate Component Feature Test](https://github.com/dcsil/Horizon-Labs/issues/94)
 - [R1 — Customer Persona, Customer Profile and Profile/Value Proposition](https://github.com/dcsil/Horizon-Labs/milestone/23)
   - [Customer Persona, Customer Profile and Profile Validation](https://github.com/dcsil/Horizon-Labs/issues/88)
   - [Customer Value Proposition and User Research Round 1](https://github.com/dcsil/Horizon-Labs/issues/89)
+
+The issues and milestones currently in work for the MVP are as follows:
+- [[M1-04] Micro-checks + memory & revisit](https://github.com/dcsil/Horizon-Labs/issues/51)
+- [L1 — Pre MVP User Test](https://github.com/dcsil/Horizon-Labs/milestone/27)
+  - [Separate Component Feature Test](https://github.com/dcsil/Horizon-Labs/issues/94)
+- [M2 Slide Quiz v1 (Student Side)](https://github.com/dcsil/Horizon-Labs/milestone/14)
+- [M2.5 Slide Quiz and Dashboard v1 (Instructor Side)](https://github.com/dcsil/Horizon-Labs/milestone/32)
 
 This section will be updated as issues are completed and new issues are added.
 
@@ -41,7 +45,6 @@ This section will be updated as issues are completed and new issues are added.
 We intend to polish and launch our MVP (possibly with additional features) to a small group of users (students and instructors). This will allow us to gather more feedback and validate our product-market fit. We will also extend and test our system in course level pilots at this stage. This phase will also include continued plans for user research and market analysis.
 
 The milestones associated with this phase are as follows:
-- [M2 Slide Quiz v1](https://github.com/dcsil/Horizon-Labs/milestone/14)
 - [M3 Policies v1](https://github.com/dcsil/Horizon-Labs/milestone/15)
 - [M4 Analytics + “LLM TA” v1](https://github.com/dcsil/Horizon-Labs/milestone/16)
 - [M5 MVP Hardening & Next Steps](https://github.com/dcsil/Horizon-Labs/milestone/17)
