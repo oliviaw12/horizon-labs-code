@@ -55,7 +55,7 @@ class TurnClassifier:
 
             history_excerpt = self._summarise_history(conversation)
             prompt = self._build_prompt(history_excerpt, learner_text)
-            response = await llm.apredict_messages(prompt)
+            response = await llm.ainvoke(prompt)
             raw_response_text = response.content
             parsed = self._parse_response(raw_response_text)
             if parsed:
