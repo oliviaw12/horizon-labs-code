@@ -27,6 +27,49 @@ backend/
 └── .env (local)            # API keys and model configuration (not committed)
 ```
 
+## Local Development Setup
+
+1. **Install prerequisites**
+   - Python 3.10+ (the project is tested with Python 3.11).
+   - Optional: `pipx` or another virtual-env manager.
+   - Optional: `google-cloud-firestore` credentials if you want persistence beyond the in-memory store.
+
+2. **Create and activate a virtual environment**
+   ```bash
+   cd backend
+   python3 -m venv .venv
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+4. **Create your environment file**
+   ```bash
+   cp .env.example .env
+   ```
+   Open `.env` and replace the placeholder values. At minimum you must supply a valid `OPENROUTER_API_KEY`. Commit the real key to a secure secret manager—never to git.
+
+5. **(Optional) Configure Firestore persistence**
+   - Visit the Firebase console for your project and create a service account with Firestore access.
+   - Download the JSON key file (e.g., `horizon-labs-xxxx.json`) and save it inside `backend/` or another secure directory that is ignored by git.
+   - In `.env`, set:
+     ```bash
+     FIREBASE_PROJECT_ID=<your-project-id>
+     GOOGLE_APPLICATION_CREDENTIALS=backend/<service-account-file>.json  # or an absolute path
+     ```
+   - If you skip this step the backend falls back to the in-memory repository, which is fine for quick local testing but does not persist sessions across restarts.
+
+6. **Run the API**
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+Once the server is running you can call `http://localhost:8000/health` or open `http://localhost:8000/docs` for interactive Swagger docs.
+
 ## Configuration
 
 The service reads the following environment variables (populate `backend/.env`):
@@ -111,7 +154,7 @@ Visit Swagger docs at `http://localhost:8000/docs` for interactive requests. Whe
 
 ## Chat Persistence
 
-- Provide a Firebase project (`FIREBASE_PROJECT_ID`) and service account credentials (`GOOGLE_APPLICATION_CREDENTIALS`) so the backend can write to Cloud Firestore.
+- Provide a Firebase project (`FIREBASE_PROJECT_ID`) and service account credentials (`GOOGLE_APPLICATION_CREDENTIALS`) so the backend can write to Cloud Firestore. The path can be relative (inside `backend/`) or absolute.
 - Each chat session is stored under the `chat_sessions` collection with the following document shape:
   - `messages`: ordered array of `{ role, content, display_content, created_at }` records.
   - `friction_progress`, `session_mode`, `last_prompt`: friction state needed for continuum gating.
