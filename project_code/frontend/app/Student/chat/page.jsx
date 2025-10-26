@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -34,6 +36,8 @@ const createWelcomeMessage = () => ({
 
 const defaultSessionName = (count) => `Chat ${count}`;
 
+const mergeClassNames = (...classes) => classes.filter(Boolean).join(" ");
+
 const describeSource = (sourceRaw) => {
   if (sourceRaw === "model") return "LLM (model)";
   if (sourceRaw === "heuristic") return "Heuristic fallback";
@@ -44,21 +48,6 @@ const describeSource = (sourceRaw) => {
 const describeLLMUsage = (sourceRaw, label) => {
   if (sourceRaw === "model") return "Yes";
   if (sourceRaw === "heuristic") return label && label !== "--" ? "No – heuristic used" : "--";
-  return "--";
-};
-
-const formatRawOutput = (sourceRaw, rawValue, label) => {
-  if (typeof rawValue === "string" && rawValue.trim().length > 0) {
-    const trimmed = rawValue.trim();
-    try {
-      return JSON.stringify(JSON.parse(trimmed), null, 2);
-    } catch {
-      return trimmed;
-    }
-  }
-  if (sourceRaw === "heuristic" && label && label !== "--") {
-    return "Heuristic used – no LLM response.";
-  }
   return "--";
 };
 
@@ -81,6 +70,7 @@ export default function ChatPage() {
   const [sessionMenuId, setSessionMenuId] = useState(null);
   const [showMessageDiagnostics, setShowMessageDiagnostics] = useState(false);
   const [showSessionDiagnostics, setShowSessionDiagnostics] = useState(true);
+  const [showDiagnosticsInfo, setShowDiagnosticsInfo] = useState(false);
 
   const listRef = useRef(null);
   const abortRef = useRef(null);
@@ -209,7 +199,6 @@ export default function ChatPage() {
       turnClassification: msg.turn_classification ?? null,
       classificationRationale: msg.classification_rationale ?? null,
       classificationSource: msg.classification_source ?? null,
-      classificationRaw: msg.classification_raw ?? null,
     }));
     const latest =
       restored.length && restored[restored.length - 1].createdAt
@@ -574,7 +563,7 @@ export default function ChatPage() {
     setMessages((prev) => [
       ...prev,
       { id: userId, role: "user", text: trimmed, createdAt: now },
-      { id: assistantId, role: "assistant", text: "", createdAt: now },
+      { id: assistantId, role: "assistant", text: "", createdAt: now, isStreaming: true },
     ]);
     setInput("");
     setIsStreaming(true);
@@ -601,7 +590,7 @@ export default function ChatPage() {
         if (eventType === "error") {
           encounteredError = true;
           const message = payload.message || "An error occurred";
-          updateMessage(assistantId, () => ({ text: `⚠️ ${message}` }));
+          updateMessage(assistantId, () => ({ text: `⚠️ ${message}`, isStreaming: false }));
           setError(message);
           controller.abort();
           return;
@@ -616,7 +605,7 @@ export default function ChatPage() {
         encounteredError = true;
         const message =
           err instanceof Error ? err.message : "Failed to parse response from server.";
-        updateMessage(assistantId, () => ({ text: `⚠️ ${message}` }));
+        updateMessage(assistantId, () => ({ text: `⚠️ ${message}`, isStreaming: false }));
         setError(message);
         controller.abort();
       }
@@ -659,6 +648,7 @@ export default function ChatPage() {
         }
 
         await readStream(response);
+        updateMessage(assistantId, () => ({ isStreaming: false }));
 
         if (!encounteredError) {
           await runHydrate(currentSession, { withLoaders: false });
@@ -667,7 +657,7 @@ export default function ChatPage() {
       } catch (err) {
         if (!controller.signal.aborted) {
           const message = err instanceof Error ? err.message : "Unknown error";
-          updateMessage(assistantId, () => ({ text: `⚠️ ${message}` }));
+          updateMessage(assistantId, () => ({ text: `⚠️ ${message}`, isStreaming: false }));
           setError(message);
         }
       } finally {
@@ -701,6 +691,92 @@ export default function ChatPage() {
     [messages]
   );
 
+  const markdownComponents = useMemo(
+    () => ({
+      table: ({ node, className, ...props }) => (
+        <div className="chat-markdown-table-wrapper overflow-x-auto">
+          <table
+            {...props}
+            className={mergeClassNames(
+              "chat-markdown-table w-full border-collapse text-left text-sm",
+              className
+            )}
+          />
+        </div>
+      ),
+      th: ({ node, className, ...props }) => (
+        <th
+          {...props}
+          className={mergeClassNames(
+            "border-b border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-700",
+            className
+          )}
+        />
+      ),
+      td: ({ node, className, ...props }) => (
+        <td
+          {...props}
+          className={mergeClassNames("border-b border-gray-100 px-3 py-2 align-top text-sm", className)}
+        />
+      ),
+      code: ({ inline, className, children, ...props }) => {
+        if (inline) {
+          return (
+            <code
+              {...props}
+              className={mergeClassNames(
+                "rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-[12px] text-purple-700",
+                className
+              )}
+            >
+              {children}
+            </code>
+          );
+        }
+        return (
+          <pre className="chat-markdown-pre overflow-x-auto rounded-xl bg-gray-900 p-4 text-[13px] text-gray-100">
+            <code {...props} className={mergeClassNames("font-mono", className)}>
+              {children}
+            </code>
+          </pre>
+        );
+      },
+      a: ({ className, ...props }) => (
+        <a
+          {...props}
+          className={mergeClassNames(
+            "text-purple-600 underline-offset-2 transition hover:text-purple-500 hover:underline",
+            className
+          )}
+          target="_blank"
+          rel="noreferrer"
+        />
+      ),
+      ul: ({ className, ...props }) => (
+        <ul {...props} className={mergeClassNames("ml-5 list-disc space-y-1", className)} />
+      ),
+      ol: ({ className, ...props }) => (
+        <ol {...props} className={mergeClassNames("ml-5 list-decimal space-y-1", className)} />
+      ),
+      p: ({ className, ...props }) => (
+        <p {...props} className={mergeClassNames("mb-3 leading-relaxed text-[15px]", className)} />
+      ),
+      strong: ({ className, ...props }) => (
+        <strong {...props} className={mergeClassNames("font-semibold text-gray-900", className)} />
+      ),
+      blockquote: ({ className, ...props }) => (
+        <blockquote
+          {...props}
+          className={mergeClassNames(
+            "border-l-4 border-purple-200 bg-purple-50/60 px-4 py-2 text-sm italic text-purple-900",
+            className
+          )}
+        />
+      ),
+    }),
+    []
+  );
+
   const showLanding = !isLoadingHistory && nonSystemMessages.length === 0;
 
   const attempts = Number(sessionState?.friction_attempts ?? 0);
@@ -727,15 +803,9 @@ export default function ChatPage() {
   const classificationSource = sessionState?.classification_source ?? null;
   const classificationSourceDisplay = describeSource(classificationSource);
   const classificationLLM = describeLLMUsage(classificationSource, classificationLabel);
-  const classificationRaw = sessionState?.classification_raw ?? null;
-  const classificationRawDisplay = formatRawOutput(
-    classificationSource,
-    classificationRaw,
-    classificationLabel
-  );
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 md:flex-row md:px-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 md:flex-row md:px-8">
       <aside className="w-full md:w-72">
         <div className="rounded-3xl bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
@@ -861,7 +931,7 @@ export default function ChatPage() {
 
           {showLanding ? (
             <>
-              <div className="mt-8 flex h-[360px] flex-col items-center justify-center gap-6 rounded-2xl border border-dashed border-purple-200 bg-purple-50/70 text-center">
+              <div className="mt-8 flex h-[520px] flex-col items-center justify-center gap-6 rounded-2xl border border-dashed border-purple-200 bg-purple-50/70 text-center">
                 <img src="/chat.png" alt="" className="h-16 w-16" />
                 <div>
                   <h2
@@ -942,13 +1012,18 @@ export default function ChatPage() {
             <>
               <div
                 ref={listRef}
-                className="mt-4 h-[360px] w-full overflow-y-auto rounded-2xl border border-gray-100 bg-gray-50 p-4"
+                className="mt-4 h-[520px] w-full overflow-y-auto rounded-2xl border border-gray-100 bg-gray-50 p-4"
               >
                 {isLoadingHistory && (
                   <div className="mb-3 text-xs text-gray-500">Restoring previous messages…</div>
                 )}
                 {nonSystemMessages.map((message) => {
                   const isUser = message.role === "user";
+                  const shouldRenderMarkdown =
+                    !isUser &&
+                    !message.isStreaming &&
+                    typeof message.text === "string" &&
+                    message.text.trim().length > 0;
                   return (
                     <div
                       key={message.id}
@@ -959,7 +1034,18 @@ export default function ChatPage() {
                           isUser ? "bg-purple-600 text-white" : "bg-white text-gray-800"
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{message.text}</div>
+                        {shouldRenderMarkdown ? (
+                          <div className="chat-markdown">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={markdownComponents}
+                            >
+                              {message.text}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <div className="whitespace-pre-wrap">{message.text}</div>
+                        )}
                         {showMessageDiagnostics && message.turnClassification && (
                           <div className="mt-2 text-[11px] opacity-80">
                             Classification: {message.turnClassification}
@@ -1067,17 +1153,59 @@ export default function ChatPage() {
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className={`text-lg font-semibold ${poppins.className}`}>Session Diagnostics</h2>
-              <button
-                type="button"
-                onClick={() => setShowSessionDiagnostics((prev) => !prev)}
-                className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400"
-              >
-                {showSessionDiagnostics ? "Hide" : "Show"} diagnostics
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDiagnosticsInfo((prev) => !prev)}
+                  className="flex items-center gap-1 rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-blue-400"
+                  aria-expanded={showDiagnosticsInfo ? "true" : "false"}
+                  aria-controls="session-diagnostics-info"
+                >
+                  <span>Info</span>
+                  <span className="text-base leading-none text-blue-500">ℹ️</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSessionDiagnostics((prev) => !prev)}
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm hover:border-purple-400"
+                >
+                  {showSessionDiagnostics ? "Hide" : "Show"} diagnostics
+                </button>
+              </div>
             </div>
             <p className="mt-1 text-xs text-gray-500">
               Inspect the friction gate state and classifier output powering guidance mode.
             </p>
+            {showDiagnosticsInfo && (
+              <div
+                id="session-diagnostics-info"
+                className="mt-3 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-900 shadow-sm"
+              >
+                <h3 className="text-sm font-semibold">How your coach reads each turn</h3>
+                <ul className="mt-2 list-outside list-disc space-y-2 pl-5">
+                  <li>
+                    <strong>Qualifying response</strong>: When you stay focused on the task, share your thinking, and
+                    suggest a next step, the coach counts it as progress toward unlocking fuller support.
+                  </li>
+                  <li>
+                    <strong>Friction vs guidance</strong>: Friction mode keeps you in the driver’s seat with hints and
+                    questions; after enough qualifying responses, guidance mode opens up and the coach can be more direct.
+                  </li>
+                  <li>
+                    <strong>Classifier labels</strong>: <em>good</em> means your reply is on track. If you see{" "}
+                    <em>needs_focusing</em>, it’s a nudge that you may not be unlocking the full learning moment yet, so
+                    try to slow down, explain your thinking, and connect your next step back to the goal.
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setShowDiagnosticsInfo(false)}
+                  className="mt-3 text-xs font-medium text-blue-600 underline-offset-2 hover:underline"
+                >
+                  Got it
+                </button>
+              </div>
+            )}
             {showSessionDiagnostics && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <button
@@ -1160,20 +1288,14 @@ export default function ChatPage() {
                         <div className="font-medium text-gray-900">{classificationSourceDisplay}</div>
                       </div>
                       <div>
-                        <div className="text-xs uppercase text-gray-400">LLM used</div>
-                        <div className="font-medium text-gray-900">{classificationLLM}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs uppercase text-gray-400">Rationale</div>
-                        <div className="font-medium text-gray-900">{classificationRationale}</div>
-                      </div>
+                      <div className="text-xs uppercase text-gray-400">LLM used</div>
+                      <div className="font-medium text-gray-900">{classificationLLM}</div>
                     </div>
-                    <div className="mt-3">
-                      <div className="text-xs uppercase text-gray-400">Raw output</div>
-                      <pre className="mt-1 max-h-48 overflow-x-auto overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
-                        {classificationRawDisplay}
-                      </pre>
+                    <div>
+                      <div className="text-xs uppercase text-gray-400">Rationale</div>
+                      <div className="font-medium text-gray-900">{classificationRationale}</div>
                     </div>
+                  </div>
                   </div>
                 </div>
               ) : (
