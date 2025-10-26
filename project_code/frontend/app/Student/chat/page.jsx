@@ -38,6 +38,68 @@ const defaultSessionName = (count) => `Chat ${count}`;
 
 const mergeClassNames = (...classes) => classes.filter(Boolean).join(" ");
 
+const BLOCK_LEVEL_MARKDOWN_TAGS = new Set([
+  "article",
+  "aside",
+  "blockquote",
+  "div",
+  "figure",
+  "figcaption",
+  "footer",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "header",
+  "hr",
+  "li",
+  "main",
+  "nav",
+  "ol",
+  "p",
+  "pre",
+  "section",
+  "table",
+  "tbody",
+  "thead",
+  "tfoot",
+  "tr",
+  "td",
+  "th",
+  "ul",
+]);
+
+const isMultilineCodeNode = (node) => {
+  if (!node || node.type !== "element" || node.tagName !== "code") return false;
+  const textContent = node.children
+    ?.filter((child) => child.type === "text" && typeof child.value === "string")
+    .map((child) => child.value)
+    .join("");
+  if (textContent && textContent.includes("\n")) {
+    return true;
+  }
+  const start = node.position?.start?.line;
+  const end = node.position?.end?.line;
+  return typeof start === "number" && typeof end === "number" && end > start;
+};
+
+const markdownNodeHasBlockElement = (node) => {
+  if (!node || !Array.isArray(node.children)) return false;
+  return node.children.some((child) => {
+    if (child.type !== "element") return false;
+    const tag = typeof child.tagName === "string" ? child.tagName.toLowerCase() : "";
+    if (tag === "code" && isMultilineCodeNode(child)) {
+      return true;
+    }
+    if (BLOCK_LEVEL_MARKDOWN_TAGS.has(tag)) {
+      return true;
+    }
+    return markdownNodeHasBlockElement(child);
+  });
+};
+
 const describeSource = (sourceRaw) => {
   if (sourceRaw === "model") return "LLM (model)";
   if (sourceRaw === "heuristic") return "Heuristic fallback";
@@ -719,6 +781,17 @@ export default function ChatPage() {
           className={mergeClassNames("border-b border-gray-100 px-3 py-2 align-top text-sm", className)}
         />
       ),
+      pre: ({ className, children, ...props }) => (
+        <pre
+          {...props}
+          className={mergeClassNames(
+            "chat-markdown-pre overflow-x-auto rounded-xl border border-gray-300 bg-gray-100 p-4 text-[13px] text-gray-900",
+            className
+          )}
+        >
+          {children}
+        </pre>
+      ),
       code: ({ inline, className, children, ...props }) => {
         if (inline) {
           return (
@@ -734,11 +807,9 @@ export default function ChatPage() {
           );
         }
         return (
-          <pre className="chat-markdown-pre overflow-x-auto rounded-xl bg-gray-900 p-4 text-[13px] text-gray-100">
-            <code {...props} className={mergeClassNames("font-mono", className)}>
-              {children}
-            </code>
-          </pre>
+          <code {...props} className={mergeClassNames("font-mono text-gray-900", className)}>
+            {children}
+          </code>
         );
       },
       a: ({ className, ...props }) => (
@@ -758,9 +829,31 @@ export default function ChatPage() {
       ol: ({ className, ...props }) => (
         <ol {...props} className={mergeClassNames("ml-5 list-decimal space-y-1", className)} />
       ),
-      p: ({ className, ...props }) => (
-        <p {...props} className={mergeClassNames("mb-3 leading-relaxed text-[15px]", className)} />
-      ),
+      p: ({ node, className, children, ...props }) => {
+        const hasBlockChild = markdownNodeHasBlockElement(node);
+        const Tag = hasBlockChild ? "div" : "p";
+        const baseClasses = hasBlockChild ? "mb-3 space-y-3 text-[15px]" : "mb-3 leading-relaxed text-[15px]";
+        return (
+          <Tag {...props} className={mergeClassNames(baseClasses, className)}>
+            {children}
+          </Tag>
+        );
+      },
+      em: ({ node, className, children, ...props }) => {
+        const combined = mergeClassNames("italic", className);
+        if (markdownNodeHasBlockElement(node)) {
+          return (
+            <div {...props} className={combined}>
+              {children}
+            </div>
+          );
+        }
+        return (
+          <em {...props} className={combined}>
+            {children}
+          </em>
+        );
+      },
       strong: ({ className, ...props }) => (
         <strong {...props} className={mergeClassNames("font-semibold text-gray-900", className)} />
       ),
