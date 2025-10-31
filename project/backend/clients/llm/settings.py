@@ -61,6 +61,26 @@ class Settings(BaseModel):
         le=120,
         description="Timeout for classifier model calls",
     )
+    embedding_model_name: str = Field(
+        default="text-embedding-3-large",
+        description="Embedding model used for document ingestion",
+    )
+    pinecone_api_key: str | None = Field(
+        default=None,
+        description="Pinecone API key for vector indexing",
+    )
+    pinecone_index_name: str | None = Field(
+        default=None,
+        description="Pinecone index name where document chunks are stored",
+    )
+    pinecone_environment: str | None = Field(
+        default=None,
+        description="(Optional) Pinecone environment or project to target",
+    )
+    pinecone_namespace: str = Field(
+        default="slides",
+        description="Pinecone namespace used for uploaded slide decks",
+    )
 
 
 @lru_cache
@@ -85,4 +105,9 @@ def get_settings() -> Settings:
         turn_classifier_model=os.environ.get("TURN_CLASSIFIER_MODEL", "google/gemini-2.0-flash-exp:free"),
         turn_classifier_temperature=float(os.environ.get("TURN_CLASSIFIER_TEMPERATURE", "0.0")),
         turn_classifier_timeout_seconds=int(os.environ.get("TURN_CLASSIFIER_TIMEOUT_SECONDS", "20")),
+        embedding_model_name=os.environ.get("EMBEDDING_MODEL_NAME", "text-embedding-3-large"),
+        pinecone_api_key=os.environ.get("PINECONE_API_KEY"),
+        pinecone_index_name=os.environ.get("PINECONE_INDEX_NAME"),
+        pinecone_environment=os.environ.get("PINECONE_ENVIRONMENT"),
+        pinecone_namespace=os.environ.get("PINECONE_NAMESPACE", "slides"),
     )

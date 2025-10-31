@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
-from typing import AsyncGenerator
-
 import logging
+from dataclasses import asdict
+import json
+from typing import Any, AsyncGenerator
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +17,7 @@ from .schemas import (
     ChatResetRequest,
     ChatSessionListResponse,
     ChatStreamRequest,
+    IngestionResponse,
     QuizStreamRequest,
 )
 
@@ -126,7 +127,7 @@ async def chat_stream(
 async def chat_reset(
     request: ChatResetRequest,
     llm_service: LLMService = Depends(get_llm_service),
-) -> dict[str, str]:
+) -> dict[str, Any]:
     llm_service.reset_session(request.session_id)
     return {"status": "reset"}
 
@@ -159,7 +160,7 @@ def friction_state(
     return {"session_id": session_id, **state}
 
 
-@app.post("/ingest/upload")
+@app.post("/ingest/upload", response_model=IngestionResponse)
 async def ingest_upload(
     *,
     session_id: str = Form(..., description="Chat session to associate with the upload"),
@@ -182,7 +183,7 @@ async def ingest_upload(
     file_bytes = await file.read()
 
     try:
-        await llm_service.ingest_upload(
+        result = await llm_service.ingest_upload(
             session_id=session_id,
             file_bytes=file_bytes,
             filename=file.filename or "upload.bin",
@@ -190,8 +191,12 @@ async def ingest_upload(
         )
     except NotImplementedError:
         raise HTTPException(status_code=501, detail="Document ingestion not yet implemented")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
-    return {"status": "accepted"}
+    payload = asdict(result)
+    payload["status"] = "indexed" if result.chunk_count else "skipped"
+    return IngestionResponse(**payload)
 
 
 @app.post("/quiz/stream")

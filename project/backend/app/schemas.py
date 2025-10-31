@@ -55,6 +55,14 @@ class ChatSessionListResponse(BaseModel):
     sessions: List[ChatSessionSummary] = Field(default_factory=list, description="Available chat sessions")
 
 
+class IngestionResponse(BaseModel):
+    status: Literal["indexed", "skipped"] = Field(..., description="Result of the ingestion attempt")
+    document_id: str = Field(..., description="Identifier used to store slide chunks")
+    slide_count: int = Field(..., ge=0, description="Number of slides parsed from the deck")
+    chunk_count: int = Field(..., ge=0, description="Number of text chunks written to the vector store")
+    namespace: str = Field(..., description="Pinecone namespace that received the vectors")
+
+
 class QuizStreamRequest(BaseModel):
     session_id: str = Field(..., description="Identifier for the chat session")
     topic: str = Field(..., description="Subject area the quiz should cover")
