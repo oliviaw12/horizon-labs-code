@@ -17,6 +17,7 @@ const HISTORY_ENDPOINT = `${API_BASE_URL}/chat/history`;
 const STATE_ENDPOINT = `${API_BASE_URL}/debug/friction-state`;
 const SESSIONS_ENDPOINT = `${API_BASE_URL}/chat/sessions`;
 const RESET_ENDPOINT = `${API_BASE_URL}/chat/reset`;
+const UPLOAD_ENDPOINT = `${API_BASE_URL}/ingest/upload`;
 
 const SESSION_LIST_STORAGE_KEY = "hl-student-chat-sessions";
 const LAST_SESSION_STORAGE_KEY = "hl-student-chat-last-session";
@@ -81,11 +82,15 @@ export default function ChatPage() {
   const [sessionMenuId, setSessionMenuId] = useState(null);
   const [showMessageDiagnostics, setShowMessageDiagnostics] = useState(false);
   const [showSessionDiagnostics, setShowSessionDiagnostics] = useState(true);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [showFileDialog, setShowFileDialog] = useState(false);
 
   const listRef = useRef(null);
   const abortRef = useRef(null);
   const sessionRef = useRef(activeSessionId || null);
   const skipNextHydrateRef = useRef(false);
+  const fileInputRef = useRef(null);
+  const fileDialogRef = useRef(null);
 
   const applyGuidanceState = useCallback((ready) => {
     setGuidanceReady((prev) => {
@@ -404,11 +409,56 @@ export default function ChatPage() {
       ) {
         return;
       }
+      if (
+        target instanceof Node &&
+        target.closest("[data-file-dialog-root]")
+      ) {
+        return;
+      }
       setSessionMenuId(null);
+      setShowFileDialog(false);
     };
     document.addEventListener("click", handleDocumentClick);
     return () => document.removeEventListener("click", handleDocumentClick);
   }, []);
+
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const newFiles = files.map((file) => ({
+      id: createId(),
+      file,
+      name: file.name,
+      type: file.type || file.name.split(".").pop()?.toUpperCase() || "FILE",
+      size: file.size,
+    }));
+
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+    setShowFileDialog(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveFile = (fileId) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
+  };
+
+  const getFileTypeLabel = (fileItem) => {
+    if (fileItem.file?.type) {
+      const typeParts = fileItem.file.type.split("/");
+      if (typeParts.length > 1) {
+        return typeParts[1].toUpperCase();
+      }
+      return fileItem.file.type.toUpperCase();
+    }
+    if (fileItem.type) {
+      return fileItem.type;
+    }
+    const ext = fileItem.name?.split(".").pop()?.toUpperCase();
+    return ext || "FILE";
+  };
 
   const ensureSessionId = useCallback(() => {
     const existing = sessionRef.current || activeSessionId;
@@ -479,6 +529,7 @@ export default function ChatPage() {
     setIsLoadingHistory(false);
     setIsLoadingState(false);
     setError(null);
+    setUploadedFiles([]);
     applyGuidanceState(false);
   };
 
@@ -498,6 +549,7 @@ export default function ChatPage() {
     setMessages([createWelcomeMessage()]);
     setSessionState(null);
     setError(null);
+    setUploadedFiles([]);
     applyGuidanceState(false);
     setSessionMenuId(null);
   };
@@ -556,9 +608,9 @@ export default function ChatPage() {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isStreaming || isLoadingHistory || isClassifying) return;
+    if ((!trimmed && uploadedFiles.length === 0) || isStreaming || isLoadingHistory || isClassifying) return;
 
     const currentSession = ensureSessionId();
     if (!currentSession) return;
@@ -571,12 +623,20 @@ export default function ChatPage() {
     let encounteredError = false;
 
     setError(null);
+    const filesToUpload = [...uploadedFiles];
     setMessages((prev) => [
       ...prev,
-      { id: userId, role: "user", text: trimmed, createdAt: now },
+      { 
+        id: userId, 
+        role: "user", 
+        text: trimmed, 
+        createdAt: now,
+        files: filesToUpload.length > 0 ? filesToUpload.map(f => ({ name: f.name, type: f.type })) : undefined
+      },
       { id: assistantId, role: "assistant", text: "", createdAt: now },
     ]);
     setInput("");
+    setUploadedFiles([]);
     setIsStreaming(true);
     setIsClassifying(true);
 
@@ -643,13 +703,39 @@ export default function ChatPage() {
 
     (async () => {
       try {
+        // Upload files first if any
+        if (filesToUpload.length > 0) {
+          for (const fileItem of filesToUpload) {
+            try {
+              const formData = new FormData();
+              formData.append("session_id", currentSession);
+              formData.append("file", fileItem.file);
+              
+              const uploadResponse = await fetch(UPLOAD_ENDPOINT, {
+                method: "POST",
+                body: formData,
+                signal: controller.signal,
+              });
+
+              if (!uploadResponse.ok) {
+                console.warn(`File upload failed for ${fileItem.name}: ${uploadResponse.status}`);
+              }
+            } catch (uploadErr) {
+              console.warn(`Error uploading file ${fileItem.name}:`, uploadErr);
+            }
+          }
+        }
+
         const response = await fetch(STREAM_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: currentSession,
-            message: trimmed,
+            message: trimmed || (filesToUpload.length > 0 ? filesToUpload.map(f => f.name).join(", ") : ""),
             use_guidance: useGuidanceNow,
+            metadata: filesToUpload.length > 0 ? {
+              uploaded_files: filesToUpload.map(f => ({ name: f.name, type: f.type }))
+            } : undefined,
           }),
           signal: controller.signal,
         });
@@ -884,20 +970,55 @@ export default function ChatPage() {
 
               <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="flex w-full flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    aria-label="Add context"
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-colors hover:bg-gray-300"
-                  >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v12m6-6H6"
-                      />
-                    </svg>
-                  </button>
+                  <div className="relative" data-file-dialog-root={showFileDialog ? "true" : undefined}>
+                    <button
+                      type="button"
+                      aria-label="Add context"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowFileDialog((prev) => !prev);
+                      }}
+                      className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-colors hover:bg-gray-300"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                        />
+                      </svg>
+                    </button>
+                    {showFileDialog && (
+                      <div className="absolute bottom-full left-0 mb-2 z-10 w-64 rounded-lg border border-gray-200 bg-white shadow-lg">
+                        <div className="p-4">
+                          <label
+                          htmlFor="file-input"
+                          className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 hover:bg-gray-100"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                            <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                              />
+                            </svg>
+                            <span className="text-sm font-medium text-gray-800">Add photos & files</span>
+                            <input
+                              id="file-input"
+                              ref={fileInputRef}
+                              type="file"
+                              multiple
+                              onChange={handleFileSelect}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {isStreaming && (
                     <button
                       type="button"
@@ -906,7 +1027,39 @@ export default function ChatPage() {
                       Thinking
                     </button>
                   )}
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
+                    {uploadedFiles.length > 0 && (
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {uploadedFiles.map((fileItem) => (
+                          <div
+                            key={fileItem.id}
+                            className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded bg-red-500">
+                              <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="truncate text-sm font-medium text-gray-900">{fileItem.name}</div>
+                              <div className="text-xs text-gray-500">{getFileTypeLabel(fileItem)}</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(fileItem.id)}
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-black text-white hover:bg-gray-800"
+                            >
+                              <span className="text-xs leading-none">×</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <input
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
@@ -923,7 +1076,7 @@ export default function ChatPage() {
                   <button
                     type="button"
                     onClick={handleSend}
-                    disabled={isStreaming || isLoadingHistory || isClassifying || !input.trim()}
+                    disabled={isStreaming || isLoadingHistory || isClassifying || (!input.trim() && uploadedFiles.length === 0)}
                     className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition hover:from-purple-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -959,7 +1112,42 @@ export default function ChatPage() {
                           isUser ? "bg-purple-600 text-white" : "bg-white text-gray-800"
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{message.text}</div>
+                        {message.text && message.text.trim() && (
+                          <div className="whitespace-pre-wrap mb-2">{message.text}</div>
+                        )}
+                        {message.files && message.files.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {message.files.map((fileItem, index) => (
+                              <div
+                                key={index}
+                                className={`flex items-center gap-2 rounded-lg px-3 py-2 max-w-full ${
+                                  isUser ? "bg-purple-500/30" : "bg-gray-100"
+                                }`}
+                              >
+                                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded ${
+                                  isUser ? "bg-purple-400" : "bg-red-500"
+                                }`}>
+                                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    />
+                                  </svg>
+                                </div>
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <div className={`truncate text-sm font-medium ${
+                                    isUser ? "text-white" : "text-gray-900"
+                                  }`} title={fileItem.name}>{fileItem.name}</div>
+                                  <div className={`truncate text-xs ${
+                                    isUser ? "text-purple-100" : "text-gray-500"
+                                  }`}>{getFileTypeLabel({ name: fileItem.name, type: fileItem.type })}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         {showMessageDiagnostics && message.turnClassification && (
                           <div className="mt-2 text-[11px] opacity-80">
                             Classification: {message.turnClassification}
@@ -1037,27 +1225,105 @@ export default function ChatPage() {
                 </div>
               )}
 
-              <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
-                <textarea
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  placeholder="What do you need help with today?"
-                  rows={2}
-                  className="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow focus:border-purple-400 focus:outline-none focus:ring-0"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={isStreaming || isLoadingHistory || isClassifying || !input.trim()}
-                  className="rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:from-purple-600 hover:to-blue-600 disabled:opacity-60"
-                >
-                  Send
-                </button>
+              <div className="mt-4 flex flex-col gap-3">
+                <div className="relative" data-file-dialog-root={showFileDialog ? "true" : undefined}>
+                  <button
+                    type="button"
+                    aria-label="Add context"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowFileDialog((prev) => !prev);
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-colors hover:bg-gray-300"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                      />
+                    </svg>
+                  </button>
+                  {showFileDialog && (
+                    <div className="absolute bottom-full left-0 mb-2 z-10 w-64 rounded-lg border border-gray-200 bg-white shadow-lg">
+                      <div className="p-4">
+                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 hover:bg-gray-100">
+                          <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                            />
+                          </svg>
+                          <span className="text-sm font-medium text-gray-800">Add photos & files</span>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            onChange={handleFileSelect}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {uploadedFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {uploadedFiles.map((fileItem) => (
+                      <div
+                        key={fileItem.id}
+                        className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded bg-red-500">
+                          <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate text-sm font-medium text-gray-900">{fileItem.name}</div>
+                          <div className="text-xs text-gray-500">{getFileTypeLabel(fileItem)}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(fileItem.id)}
+                          className="flex h-5 w-5 items-center justify-center rounded-full bg-black text-white hover:bg-gray-800"
+                        >
+                          <span className="text-xs leading-none">×</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-3 md:flex-row md:items-center">
+                  <textarea
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder="What do you need help with today?"
+                    rows={2}
+                    className="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow focus:border-purple-400 focus:outline-none focus:ring-0"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={isStreaming || isLoadingHistory || isClassifying || (!input.trim() && uploadedFiles.length === 0)}
+                    className="rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:from-purple-600 hover:to-blue-600 disabled:opacity-60"
+                  >
+                    Send
+                  </button>
+                </div>
               </div>
             </>
           )}
