@@ -184,11 +184,8 @@ async def ingest_upload(
     file: UploadFile = File(..., description="Document to ingest"),
     metadata: str | None = Form(None, description="Optional JSON metadata for the document"),
     llm_service: LLMService = Depends(get_llm_service),
-) -> dict[str, str]:
-    """Skeleton endpoint for document ingestion.
-
-    The actual pipeline (parsing, chunking, vector store upsert, etc.) still needs to be provided.
-    """
+) -> dict[str, object]:
+    """Upload a slide deck for ingestion into the vector index."""
 
     metadata_dict = None
     if metadata:
@@ -200,16 +197,22 @@ async def ingest_upload(
     file_bytes = await file.read()
 
     try:
-        await llm_service.ingest_upload(
+        result = await llm_service.ingest_upload(
             session_id=session_id,
             file_bytes=file_bytes,
             filename=file.filename or "upload.bin",
             metadata=metadata_dict,
         )
-    except NotImplementedError:
-        raise HTTPException(status_code=501, detail="Document ingestion not yet implemented")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
-    return {"status": "accepted"}
+    return {
+        "status": "indexed",
+        "document_id": result.document_id,
+        "slide_count": result.slide_count,
+        "chunk_count": result.chunk_count,
+        "namespace": result.namespace,
+    }
 
 
 @app.post("/quiz/definitions", response_model=QuizDefinitionResponse)

@@ -25,6 +25,12 @@ from clients.quiz.generator import GeneratedQuestion
 import clients.quiz.service as quiz_service_module
 
 
+@pytest.fixture(scope="session")
+def anyio_backend() -> str:
+    """Force anyio-based tests to run under asyncio backend."""
+    return "asyncio"
+
+
 class StubQuizQuestionGenerator:
     """Deterministic question generator used for tests."""
 
