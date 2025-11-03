@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 export default function ConditionalBody({ children }) {
   const pathname = usePathname();
   
-  // Use purple background for LoginPage and Student routes
   if (pathname.startsWith('/LoginPage')) {
     return (
       <body className="min-h-screen bg-purple-100">
