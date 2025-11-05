@@ -4,7 +4,7 @@ import io
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from pptx import Presentation
 
