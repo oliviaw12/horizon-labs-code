@@ -45,5 +45,6 @@ async def test_ingest_upload_endpoint_returns_ingestion_summary(
     assert payload["chunk_count"] == 10
     assert stub.calls, "pipeline was not invoked"
     call = stub.calls[0]
+    assert call["filename"] == "Lesson.pptx"
     assert call["metadata"]["session_id"] == "session-1"
     assert call["metadata"]["document_id"] == "deck-123"

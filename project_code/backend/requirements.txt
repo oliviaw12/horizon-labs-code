@@ -18,4 +18,4 @@ pytest-asyncio
 httpx
 pinecone
 python-pptx
-trio
+pypdf
