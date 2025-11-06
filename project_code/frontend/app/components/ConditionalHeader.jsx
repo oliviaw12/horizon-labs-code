@@ -11,12 +11,8 @@ export default function ConditionalHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const role = useMemo(() => {
-    if (typeof window === "undefined") return "student";
-    const stored = window.localStorage.getItem(ROLE_STORAGE_KEY);
-    return stored === "instructor" ? "instructor" : "student";
-  }, []);
-
+  const role = localStorage.getItem("role");
+  
   const handleProfileClick = () => {
     const destination = role === "instructor" ? "/Instructor" : "/Student/chat";
     router.push(destination);
@@ -26,24 +22,26 @@ export default function ConditionalHeader() {
     return null;
   }
 
-  const renderHeader = (backgroundClass = "bg-white") => (
+  const renderHeader = (backgroundClass = "bg-white", showProfile = true) => (
     <header className={`${backgroundClass} flex items-center justify-between px-10 py-4`}>
       <Link href="/" className="flex items-center gap-3">
         <Image src="/logo2.png" alt="Learn LLM" width={230} height={150} priority />
       </Link>
-      <button
-        onClick={handleProfileClick}
-        className="flex items-center gap-3"
-        aria-label="Open account home"
-      >
-        <Image
-          src="/profile.png"
-          alt="Account"
-          width={150}
-          height={150}
-          priority
-        />
-      </button>
+      {showProfile && (
+        <button
+          onClick={handleProfileClick}
+          className="flex items-center gap-3"
+          aria-label="Open account home"
+        >
+          <Image
+            src={role === "instructor" ? "/instru.png" : "/profile.png"}
+            alt="Account"
+            width={150}
+            height={150}
+            priority
+          />
+        </button>
+      )}
     </header>
   );
 
@@ -57,6 +55,11 @@ export default function ConditionalHeader() {
 
   if (pathname.startsWith("/LoginPage")) {
     return renderHeader("bg-purple-100");
+  }
+
+  // Homepage - no profile image
+  if (pathname === "/") {
+    return renderHeader("bg-white", false);
   }
 
   return renderHeader();
