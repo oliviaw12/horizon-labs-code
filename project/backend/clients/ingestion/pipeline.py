@@ -4,9 +4,13 @@ import io
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+try:  # LangChain splitters moved to a standalone package in recent versions
+    from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - executed in newer LangChain installs
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from pptx import Presentation
+from pypdf import PdfReader
 
 from clients.database.pinecone import PineconeRepository
 from clients.llm.settings import Settings
@@ -16,19 +20,24 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SlideChunk:
-    """A semantically meaningful chunk extracted from a presentation slide."""
+    """A semantically meaningful chunk extracted from a document page or slide."""
 
     slide_number: int
     text: str
     slide_title: Optional[str]
     chunk_index: int
+    source_type: str = "slide"
 
     def metadata(self) -> Dict[str, Any]:
-        return {
+        payload: Dict[str, Any] = {
             "slide_number": self.slide_number,
             "chunk_index": self.chunk_index,
             "slide_title": self.slide_title,
+            "source_type": self.source_type,
         }
+        if self.source_type == "page":
+            payload["page_number"] = self.slide_number
+        return payload
 
 
 @dataclass
@@ -70,6 +79,33 @@ class SlideExtractor:
                     text=slide_text,
                     slide_title=title,
                     chunk_index=0,
+                    source_type="slide",
+                )
+            )
+        return chunks
+
+
+class PDFExtractor:
+    """Extracts page-level text from a PDF document."""
+
+    def extract(self, file_bytes: bytes) -> List[SlideChunk]:
+        reader = PdfReader(io.BytesIO(file_bytes))
+        chunks: List[SlideChunk] = []
+        for page_number, page in enumerate(reader.pages, start=1):
+            try:
+                page_text = (page.extract_text() or "").strip()
+            except Exception:  # pragma: no cover - defensive guard for uncommon PDFs
+                logger.exception("Failed extracting text from PDF page %s", page_number)
+                continue
+            if not page_text:
+                continue
+            chunks.append(
+                SlideChunk(
+                    slide_number=page_number,
+                    text=page_text,
+                    slide_title=f"Page {page_number}",
+                    chunk_index=0,
+                    source_type="page",
                 )
             )
         return chunks
@@ -98,6 +134,7 @@ class SlideChunker:
                         text=segment.strip(),
                         slide_title=slide.slide_title,
                         chunk_index=index,
+                        source_type=slide.source_type,
                     )
                 )
         return processed
@@ -127,12 +164,14 @@ class SlideIngestionPipeline:
         settings: Settings,
         repository: Optional[PineconeRepository] = None,
         extractor: Optional[SlideExtractor] = None,
+        pdf_extractor: Optional[PDFExtractor] = None,
         chunker: Optional[SlideChunker] = None,
         embedding_service: Optional[EmbeddingService] = None,
     ) -> None:
         self._settings = settings
         self._repository = repository or PineconeRepository(settings)
-        self._extractor = extractor or SlideExtractor()
+        self._pptx_extractor = extractor or SlideExtractor()
+        self._pdf_extractor = pdf_extractor or PDFExtractor()
         self._chunker = chunker or SlideChunker()
         self._embedding_service = embedding_service or EmbeddingService(settings)
 
@@ -141,9 +180,11 @@ class SlideIngestionPipeline:
         *,
         document_id: str,
         file_bytes: bytes,
+        filename: str | None = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> IngestionResult:
-        slides = self._extractor.extract(file_bytes)
+        extractor = self._select_extractor(filename)
+        slides = extractor.extract(file_bytes)
         chunked = self._chunker.chunk(slides)
 
         if not chunked:
@@ -180,3 +221,15 @@ class SlideIngestionPipeline:
             chunk_count=len(items),
             namespace=self._repository.namespace,
         )
+
+    def _select_extractor(self, filename: str | None) -> SlideExtractor:
+        if not filename:
+            return self._pptx_extractor
+
+        lowered = filename.lower()
+        if lowered.endswith(".pptx"):
+            return self._pptx_extractor
+        if lowered.endswith(".pdf"):
+            return self._pdf_extractor
+
+        raise RuntimeError("Unsupported file type for ingestion; expected .pptx or .pdf")

@@ -164,12 +164,13 @@ Visit Swagger docs at `http://localhost:8000/docs` for interactive requests. Whe
 
 ## Slide Ingestion Pipeline (M2.5-02)
 
-Uploading a `.pptx` deck to `POST /ingest/upload` now triggers the **parse → chunk → index** pipeline:
+Uploading a `.pptx` deck or `.pdf` handout to `POST /ingest/upload` now triggers the **parse → chunk → index** pipeline:
 
 1. **Parse** – `python-pptx` extracts per-slide titles and body text while preserving slide numbers.
+   - For PDF uploads, `pypdf` extracts page-level text (`Page N`) so downstream citations can reference page numbers.
 2. **Chunk** – slide text is split into semantic chunks (controlled via `chunk_size`/`chunk_overlap`) but chained to the original slide number for citations.
 3. **Embed** – each chunk is embedded with the configured OpenRouter-compatible embedding model (default `text-embedding-3-large`).
-4. **Index** – vectors are upserted into Pinecone with metadata `{ document_id, slide_number, chunk_index, slide_title, text, … }` so responses can cite `doc → slide` origins.
+4. **Index** – vectors are upserted into Pinecone with metadata `{ document_id, slide_number, page_number?, chunk_index, slide_title, source_type, text, … }` so responses can cite `doc → slide/page` origins.
 
 ### Configure Pinecone
 

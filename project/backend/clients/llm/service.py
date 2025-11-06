@@ -204,6 +204,7 @@ class LLMService:
         result = await pipeline.ingest(
             document_id=document_id,
             file_bytes=file_bytes,
+            filename=filename,
             metadata=base_metadata,
         )
         return result
