@@ -3,18 +3,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 const ROLE_STORAGE_KEY = "role";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const [role, setRole] = useState("student");
 
-  const role = localStorage.getItem("role");
-  
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(ROLE_STORAGE_KEY);
+    if (stored === "instructor" || stored === "student") {
+      setRole(stored);
+    }
+  }, []);
+
+  const isInstructorFlow = pathname.startsWith("/Instructor");
+  const effectiveRole = isInstructorFlow ? "instructor" : role;
   const handleProfileClick = () => {
-    const destination = role === "instructor" ? "/Instructor" : "/Student/chat";
+    const destination = effectiveRole === "instructor" ? "/Instructor" : "/Student/chat";
     router.push(destination);
   };
 
@@ -34,7 +43,7 @@ export default function ConditionalHeader() {
           aria-label="Open account home"
         >
           <Image
-            src={role === "instructor" ? "/instru.png" : "/profile.png"}
+            src={effectiveRole === "instructor" ? "/instru.png" : "/profile.png"}
             alt="Account"
             width={150}
             height={150}

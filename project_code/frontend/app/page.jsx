@@ -22,10 +22,6 @@ export default function home() {
   }, [role]);
 
   const onStart = () => {
-    if (role === "instructor") {
-      router.push("/Instructor");
-      return;
-    }
     router.push("/LoginPage");
   };
 
@@ -71,4 +67,3 @@ export default function home() {
     </div>
   );
 }
-
