@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -65,6 +66,14 @@ class Settings(BaseModel):
         default="text-embedding-3-large",
         description="Embedding model used for document ingestion",
     )
+    google_api_key: str | None = Field(
+        default=None,
+        description="API key for Google Generative AI embeddings",
+    )
+    google_embeddings_model_name: str = Field(
+        default="models/gemini-embedding-001",
+        description="Gemini embedding model used for RAG workflows",
+    )
     pinecone_api_key: str | None = Field(
         default=None,
         description="Pinecone API key for vector indexing",
@@ -80,6 +89,10 @@ class Settings(BaseModel):
     pinecone_namespace: str = Field(
         default="slides",
         description="Pinecone namespace used for uploaded slide decks",
+    )
+    pinecone_index_dimension: Optional[int] = Field(
+        default=None,
+        description="Expected dimensionality of vectors stored in the Pinecone index",
     )
 
 
@@ -106,8 +119,13 @@ def get_settings() -> Settings:
         turn_classifier_temperature=float(os.environ.get("TURN_CLASSIFIER_TEMPERATURE", "0.0")),
         turn_classifier_timeout_seconds=int(os.environ.get("TURN_CLASSIFIER_TIMEOUT_SECONDS", "20")),
         embedding_model_name=os.environ.get("EMBEDDING_MODEL_NAME", "text-embedding-3-large"),
+        google_api_key=os.environ.get("GOOGLE_API_KEY"),
+        google_embeddings_model_name=os.environ.get("GOOGLE_EMBEDDING_MODEL_NAME", "models/gemini-embedding-001"),
         pinecone_api_key=os.environ.get("PINECONE_API_KEY"),
         pinecone_index_name=os.environ.get("PINECONE_INDEX_NAME"),
         pinecone_environment=os.environ.get("PINECONE_ENVIRONMENT"),
         pinecone_namespace=os.environ.get("PINECONE_NAMESPACE", "slides"),
+        pinecone_index_dimension=(
+            int(os.environ["PINECONE_INDEX_DIMENSION"]) if os.environ.get("PINECONE_INDEX_DIMENSION") else None
+        ),
     )

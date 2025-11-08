@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Sequence, List
+from typing import Any, Dict, Sequence, List, Optional
 
 from pinecone import Pinecone
 
@@ -21,6 +21,7 @@ class PineconeRepository:
 
         self.namespace = settings.pinecone_namespace
         self._index_name = settings.pinecone_index_name
+        self._declared_dimension = settings.pinecone_index_dimension
         self._client = Pinecone(
             api_key=settings.pinecone_api_key,
             environment=settings.pinecone_environment,
@@ -28,7 +29,8 @@ class PineconeRepository:
 
         try:
             self._index = self._client.Index(self._index_name)
-            self.dimension = self._fetch_index_dimension()
+            fetched = self._fetch_index_dimension()
+            self.dimension = self._resolve_dimension(fetched)
         except Exception as exc:  # pragma: no cover - depends on remote state
             logger.exception("Unable to access Pinecone index '%s'", self._index_name)
             raise RuntimeError(
@@ -47,6 +49,15 @@ class PineconeRepository:
             return description.get("dimension")
         return getattr(description, "dimension", None)
 
+    def _resolve_dimension(self, fetched: Optional[int]) -> Optional[int]:
+        declared = self._declared_dimension
+        if declared and fetched and declared != fetched:
+            raise RuntimeError(
+                f"PINECONE_INDEX_DIMENSION={declared} does not match the actual Pinecone index dimension {fetched}. "
+                "Update the environment variable or recreate the index so the dimensions match."
+            )
+        return declared or fetched
+
     def _normalize_vectors(self, items: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not items or not self.dimension:
             return list(items)
@@ -56,19 +67,24 @@ class PineconeRepository:
             values = list(item.get("values") or [])
             if not values:
                 continue
-            if len(values) == self.dimension:
-                normalized.append(item)
+            adjusted = self._match_dimension(values)
+            if adjusted is None:
                 continue
-
-            if len(values) > self.dimension:
-                adjusted = values[: self.dimension]
-            else:
-                padding = [0.0] * (self.dimension - len(values))
-                adjusted = values + padding
-
             normalized.append({**item, "values": adjusted})
 
         return normalized
+
+    def _match_dimension(self, values: Sequence[float]) -> Optional[List[float]]:
+        if not self.dimension:
+            return list(values)
+        if not values:
+            return None
+        if len(values) == self.dimension:
+            return list(values)
+        if len(values) > self.dimension:
+            return list(values[: self.dimension])
+        padding = [0.0] * (self.dimension - len(values))
+        return list(values) + padding
 
     def upsert(self, items: Sequence[Dict[str, Any]]) -> None:
         if not items:
@@ -89,3 +105,30 @@ class PineconeRepository:
         except Exception as exc:  # pragma: no cover - depends on remote state
             logger.exception("Unable to delete document %s from Pinecone", document_id)
             raise RuntimeError("Failed to delete document from vector index") from exc
+
+    def query(
+        self,
+        *,
+        vector: Sequence[float],
+        top_k: int = 5,
+        document_id: Optional[str] = None,
+        include_metadata: bool = True,
+    ) -> Dict[str, Any]:
+        if not vector:
+            return {}
+        try:
+            query_filter = {"document_id": document_id} if document_id else None
+            prepared = self._match_dimension(vector)
+            if prepared is None:
+                raise RuntimeError("Query vector is empty; cannot perform similarity search.")
+            return self._index.query(
+                namespace=self.namespace,
+                vector=prepared,
+                top_k=top_k,
+                include_metadata=include_metadata,
+                include_values=False,
+                filter=query_filter,
+            )
+        except Exception as exc:  # pragma: no cover - depends on remote state
+            logger.exception("Vector query failed for document %s", document_id)
+            raise RuntimeError("Failed to query vector index") from exc

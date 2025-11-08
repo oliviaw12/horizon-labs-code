@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 
@@ -15,6 +15,7 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8
 );
 const DELETE_INGEST_ENDPOINT = `${API_BASE_URL}/ingest/document`;
 const QUIZ_DEFINITION_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
+const QUIZ_SESSION_ENDPOINT = `${API_BASE_URL}/quiz/session`;
 
 export default function PracticePage() {
   const router = useRouter();
@@ -31,28 +32,74 @@ export default function PracticePage() {
   const [saveStatus, setSaveStatus] = useState("");
   const saveStatusTimeoutRef = useRef(null);
 
-  useEffect(() => {
+  const hasHydratedRef = useRef(false);
+  const hydratedDefinitionIdRef = useRef(null);
+  const isHydratingRef = useRef(true);
+
+  const hydrateFromDefinition = useCallback(async (quizId) => {
+    if (!quizId) return;
     try {
-      if (typeof window === "undefined") return;
+      const response = await fetch(`${QUIZ_DEFINITION_ENDPOINT}/${encodeURIComponent(quizId)}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || "Unable to load quiz definition.");
+      }
+      const metadata = data.metadata || {};
+      const practiceTopics =
+        (Array.isArray(metadata.practiceTopics) && metadata.practiceTopics.length
+          ? metadata.practiceTopics
+          : data.topics) || [];
+      setTitle(data.name ?? "");
+      setDescription(metadata.description ?? "");
+      setTopics(practiceTopics);
+      setExistingQuizId(data.quiz_id);
+      setSourceFilename(data.source_filename ?? "");
+      setDocumentId(data.embedding_document_id ?? null);
+      setIsPublished(Boolean(data.is_published));
+      hydratedDefinitionIdRef.current = data.quiz_id;
+    } catch (error) {
+      console.error("Unable to hydrate quiz definition", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const finishHydration = () => {
+      isHydratingRef.current = false;
+    };
+    try {
+      if (typeof window === "undefined") {
+        finishHydration();
+        return;
+      }
       const raw = localStorage.getItem("quizConfigDraft");
-      if (!raw) return;
+      if (!raw) {
+        finishHydration();
+        return;
+      }
       const draft = JSON.parse(raw);
-      if (draft?.mode !== "practice") return;
+      if (draft?.mode !== "practice") {
+        finishHydration();
+        return;
+      }
       setTitle(draft.title ?? "");
       setDescription(draft.description ?? "");
       setTopics(Array.isArray(draft.topics) ? draft.topics : []);
-      setExistingQuizId(draft.id ?? null);
+      const draftId = draft.id ?? draft.quizId ?? null;
+      setExistingQuizId(draftId);
       setSourceFilename(draft.sourceFilename ?? draft.filename ?? "");
       setDocumentId(draft.documentId ?? null);
       setIsPublished(Boolean(draft.isPublished));
+      if (draftId) {
+        hydrateFromDefinition(draftId).finally(finishHydration);
+      } else {
+        finishHydration();
+      }
     } catch (error) {
       console.error("Unable to load practice draft", error);
-    } finally {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("quizConfigDraft");
-      }
+      finishHydration();
     }
-  }, []);
+    hasHydratedRef.current = true;
+  }, [hydrateFromDefinition]);
 
   useEffect(() => {
     return () => {
@@ -82,44 +129,71 @@ export default function PracticePage() {
     }
   }, []);
 
-  const SAMPLE_QUESTIONS = [
-    {
-      id: "q1",
-      prompt: "Which JavaScript method converts a JSON string into an object?",
-      options: [
-        { id: "A", text: "JSON.stringify" },
-        { id: "B", text: "JSON.parse" },
-        { id: "C", text: "Object.assign" },
-        { id: "D", text: "JSON.object" },
-      ],
-      correctOption: "B",
-      explanation: "JSON.parse converts a JSON-formatted string into a JavaScript object.",
-    },
-    {
-      id: "q2",
-      prompt: "What CSS property controls the spacing between lines of text?",
-      options: [
-        { id: "A", text: "letter-spacing" },
-        { id: "B", text: "line-height" },
-        { id: "C", text: "text-indent" },
-        { id: "D", text: "word-spacing" },
-      ],
-      correctOption: "B",
-      explanation: "The line-height property specifies the amount of space between lines.",
-    },
-    {
-      id: "q3",
-      prompt: "Which HTTP status code indicates that a resource was not found?",
-      options: [
-        { id: "A", text: "200" },
-        { id: "B", text: "301" },
-        { id: "C", text: "404" },
-        { id: "D", text: "500" },
-      ],
-      correctOption: "C",
-      explanation: "404 Not Found indicates that the server can't locate the requested resource.",
-    },
-  ];
+  useEffect(() => {
+    if (!hasHydratedRef.current) return;
+    try {
+      if (typeof window === "undefined") return;
+      const payload = {
+        mode: "practice",
+        title,
+        description,
+        topics,
+        id: existingQuizId,
+        quizId: existingQuizId,
+        sourceFilename,
+        documentId,
+        isPublished,
+      };
+      localStorage.setItem("quizConfigDraft", JSON.stringify(payload));
+    } catch (error) {
+      console.error("Unable to persist practice draft", error);
+    }
+  }, [title, description, topics, existingQuizId, sourceFilename, documentId, isPublished]);
+
+  useEffect(() => {
+    if (!existingQuizId) return;
+    if (hydratedDefinitionIdRef.current === existingQuizId) return;
+    hydrateFromDefinition(existingQuizId);
+  }, [existingQuizId, hydrateFromDefinition]);
+
+  const persistPreviewState = (metaPayload, sessionPayload) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.setItem(
+        "quizPreviewData",
+        JSON.stringify({ ...metaPayload, singleQuestionPreview: true })
+      );
+      localStorage.setItem("quizPreviewSession", JSON.stringify(sessionPayload));
+      localStorage.removeItem("quizPreviewQuestions");
+      localStorage.removeItem("quizPreviewResponses");
+    } catch (error) {
+      console.error("Unable to persist preview payload", error);
+    }
+  };
+
+  const startPreviewSession = async ({ quizId, mode = "practice", initialDifficulty = "medium" }) => {
+    const sessionId = `preview-${quizId}-${Date.now()}`;
+    const payload = {
+      session_id: sessionId,
+      quiz_id: quizId,
+      user_id: "instructor-preview",
+      mode,
+      initial_difficulty: initialDifficulty,
+      is_preview: true,
+    };
+    const response = await fetch(`${QUIZ_SESSION_ENDPOINT}/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.detail || "Unable to start preview session.");
+    }
+    return { sessionId, session: data };
+  };
 
   const handleTopicInputChange = (e) => {
     setTopicInput(e.target.value);
@@ -171,35 +245,50 @@ export default function PracticePage() {
     }, 4000);
   };
 
-  const persistPreviewAndNavigate = (payload) => {
-    try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("quizPreviewData", JSON.stringify(payload));
-        localStorage.setItem("quizPreviewQuestions", JSON.stringify(SAMPLE_QUESTIONS.slice(0, 1)));
-        localStorage.removeItem("quizPreviewResponses");
-        localStorage.setItem("currentQuizId", "preview-practice");
-      }
-    } catch (error) {
-      console.error("Unable to persist preview payload", error);
-    }
-    router.push("/Quiz/1");
-  };
-
-  const handlePreviewQuiz = () => {
-    if (!title.trim()) {
+  const handlePreviewQuiz = async () => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
       alert("Please enter a quiz title.");
       return;
     }
-    persistPreviewAndNavigate({
-      mode: "practice",
-      title: title.trim(),
-      description: description.trim(),
-      topicsToTest: topics,
-      id: existingQuizId,
-      sourceFilename,
-      documentId,
-      isPublished,
-    });
+    const trimmedDescription = description.trim();
+    const topicsPayload = topics.length ? topics : ["General"];
+    const savedDefinition = await saveQuizRecord();
+    const quizId = savedDefinition?.quiz_id || existingQuizId;
+    if (!quizId) {
+      alert("Please save this quiz configuration before previewing.");
+      return;
+    }
+    try {
+      const { sessionId } = await startPreviewSession({
+        quizId,
+        mode: "practice",
+        initialDifficulty: "medium",
+      });
+      persistPreviewState(
+        {
+          mode: "practice",
+          title: trimmedTitle,
+          description: trimmedDescription,
+          topicsToTest: topicsPayload,
+          id: quizId,
+          quizId,
+          sourceFilename,
+          documentId,
+          isPublished,
+        },
+        {
+          sessionId,
+          quizId,
+          mode: "practice",
+          initialDifficulty: "medium",
+          topics: topicsPayload,
+        }
+      );
+      router.push("/Quiz/1");
+    } catch (error) {
+      alert(error.message || "Unable to start preview session.");
+    }
   };
 
   const handlePublishQuiz = async () => {
@@ -268,11 +357,11 @@ export default function PracticePage() {
             : "Quiz unpublished."
           : "Saved to your list.";
       showSaveSuccess(message);
-      return true;
+      return data;
     } catch (error) {
       console.error("Unable to save quiz definition", error);
       alert(error.message || "Unable to save quiz.");
-      return false;
+      return null;
     }
   };
 
@@ -314,7 +403,7 @@ export default function PracticePage() {
 
   const handleLeaveWithoutSaving = async () => {
     setIsExitModalOpen(false);
-    if (!existingQuizId) {
+    if (!existingQuizId && !isHydratingRef.current) {
       await deleteDocumentFromIndex();
       router.push("/Instructor/Quizzes");
       return;

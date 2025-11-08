@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 
@@ -15,6 +15,7 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8
 );
 const DELETE_INGEST_ENDPOINT = `${API_BASE_URL}/ingest/document`;
 const QUIZ_DEFINITION_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
+const QUIZ_SESSION_ENDPOINT = `${API_BASE_URL}/quiz/session`;
 
 export default function QuizGenerator2Page() {
   const router = useRouter();
@@ -36,15 +37,77 @@ export default function QuizGenerator2Page() {
   const [saveStatus, setSaveStatus] = useState("");
   const saveStatusTimeoutRef = useRef(null);
   const [isPublished, setIsPublished] = useState(false);
+  const hasHydratedRef = useRef(false);
+  const hydratedDefinitionIdRef = useRef(null);
+  const isHydratingRef = useRef(true);
+
+  const hydrateFromDefinition = useCallback(async (quizId) => {
+    if (!quizId) return;
+    try {
+      const response = await fetch(`${QUIZ_DEFINITION_ENDPOINT}/${encodeURIComponent(quizId)}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || "Unable to load quiz definition.");
+      }
+      const metadata = data.metadata || {};
+      const topicsToTest =
+        (Array.isArray(metadata.topicsToTest) && metadata.topicsToTest.length
+          ? metadata.topicsToTest
+          : data.topics) || [];
+      setFormData((prev) => ({
+        ...prev,
+        title: data.name ?? "",
+        description: metadata.description ?? "",
+        numberOfAttempts:
+          metadata.numberOfAttempts ??
+          (data.assessment_max_attempts != null ? String(data.assessment_max_attempts) : ""),
+        numberOfQuestions:
+          metadata.numberOfQuestions ??
+          (data.assessment_num_questions != null ? String(data.assessment_num_questions) : ""),
+        timeLimit:
+          metadata.timeLimitLabel ??
+          metadata.timeLimit ??
+          (data.assessment_time_limit_minutes != null ? String(data.assessment_time_limit_minutes) : ""),
+        difficulty:
+          (
+            metadata.difficultyLabel ??
+            metadata.difficulty ??
+            data.initial_difficulty ??
+            ""
+          ).toString().toLowerCase(),
+        topicsToTest,
+      }));
+      setExistingQuizId(data.quiz_id);
+      setSourceFilename(data.source_filename ?? "");
+      setDocumentId(data.embedding_document_id ?? null);
+      setIsPublished(Boolean(data.is_published));
+      hydratedDefinitionIdRef.current = data.quiz_id;
+    } catch (error) {
+      console.error("Unable to hydrate assessment definition", error);
+    }
+  }, []);
 
   useEffect(() => {
+    const finishHydration = () => {
+      isHydratingRef.current = false;
+    };
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === "undefined") {
+        finishHydration();
+        return;
+      }
       const raw = localStorage.getItem("quizConfigDraft");
-      if (!raw) return;
+      if (!raw) {
+        finishHydration();
+        return;
+      }
       const draft = JSON.parse(raw);
-      if (draft?.mode !== "assessment") return;
+      if (draft?.mode !== "assessment") {
+        finishHydration();
+        return;
+      }
       const config = draft.configuration || {};
+      const draftId = draft.id ?? draft.quizId ?? null;
       setFormData((prev) => ({
         ...prev,
         title: draft.title ?? "",
@@ -54,20 +117,23 @@ export default function QuizGenerator2Page() {
           config.numberOfQuestions ?? (draft.totalQuestions?.toString() ?? ""),
         timeLimit: config.timeLimit ?? "",
         difficulty: config.difficulty ?? "",
-        topicsToTest: Array.isArray(config.topics) ? config.topics : [],
+        topicsToTest: Array.isArray(config.topicsToTest) ? config.topicsToTest : [],
       }));
-      setExistingQuizId(draft.id ?? null);
+      setExistingQuizId(draftId);
       setSourceFilename(draft.sourceFilename ?? draft.filename ?? "");
       setDocumentId(draft.documentId ?? null);
       setIsPublished(Boolean(draft.isPublished));
+      if (draftId) {
+        hydrateFromDefinition(draftId).finally(finishHydration);
+      } else {
+        finishHydration();
+      }
     } catch (error) {
       console.error("Unable to load assessment draft", error);
-    } finally {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("quizConfigDraft");
-      }
+      finishHydration();
     }
-  }, []);
+    hasHydratedRef.current = true;
+  }, [hydrateFromDefinition]);
 
   useEffect(() => {
     return () => {
@@ -96,6 +162,37 @@ export default function QuizGenerator2Page() {
       console.error("Unable to load quiz generator seed", error);
     }
   }, []);
+
+  useEffect(() => {
+    if (!hasHydratedRef.current) return;
+    try {
+      if (typeof window === "undefined") return;
+      const configuration = {
+        ...formData,
+        topics: formData.topicsToTest,
+      };
+      const payload = {
+        mode: "assessment",
+        title: formData.title,
+        description: formData.description,
+        configuration,
+        id: existingQuizId,
+        quizId: existingQuizId,
+        sourceFilename,
+        documentId,
+        isPublished,
+      };
+      localStorage.setItem("quizConfigDraft", JSON.stringify(payload));
+    } catch (error) {
+      console.error("Unable to persist assessment draft", error);
+    }
+  }, [formData, existingQuizId, sourceFilename, documentId, isPublished]);
+
+  useEffect(() => {
+    if (!existingQuizId) return;
+    if (hydratedDefinitionIdRef.current === existingQuizId) return;
+    hydrateFromDefinition(existingQuizId);
+  }, [existingQuizId, hydrateFromDefinition]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -159,60 +256,46 @@ export default function QuizGenerator2Page() {
     saveStatusTimeoutRef.current = setTimeout(() => setSaveStatus(""), 4000);
   };
 
-  const SAMPLE_QUESTIONS = [
-    {
-      id: "q1",
-      prompt: "What is the time complexity of binary search on a sorted array?",
-      options: [
-        { id: "A", text: "O(n)" },
-        { id: "B", text: "O(log n)" },
-        { id: "C", text: "O(n log n)" },
-        { id: "D", text: "O(1)" },
-      ],
-      correctOption: "B",
-      explanation: "Binary search halves the search space each step, yielding logarithmic time.",
-    },
-    {
-      id: "q2",
-      prompt: "Which data structure is best suited for implementing a FIFO queue?",
-      options: [
-        { id: "A", text: "Stack" },
-        { id: "B", text: "Linked list" },
-        { id: "C", text: "Hash map" },
-        { id: "D", text: "Binary tree" },
-      ],
-      correctOption: "B",
-      explanation: "A linked list supports O(1) enqueue/dequeue at opposite ends, ideal for FIFO.",
-    },
-    {
-      id: "q3",
-      prompt: "In dynamic programming, what is the purpose of memoization?",
-      options: [
-        { id: "A", text: "To divide the problem into independent subproblems" },
-        { id: "B", text: "To store intermediate results and avoid recomputation" },
-        { id: "C", text: "To sort data before solving" },
-        { id: "D", text: "To execute tasks concurrently" },
-      ],
-      correctOption: "B",
-      explanation: "Memoization caches subproblem results so repeated calls return instantly.",
-    },
-  ];
-
-  const persistPreviewAndNavigate = (payload) => {
+  const persistPreviewState = (metaPayload, sessionPayload) => {
     try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("quizPreviewData", JSON.stringify(payload));
-        localStorage.setItem("quizPreviewQuestions", JSON.stringify(SAMPLE_QUESTIONS.slice(0, 1)));
-        localStorage.removeItem("quizPreviewResponses");
-        localStorage.setItem("currentQuizId", "preview-assessment");
-      }
+      if (typeof window === "undefined") return;
+      localStorage.setItem(
+        "quizPreviewData",
+        JSON.stringify({ ...metaPayload, singleQuestionPreview: true })
+      );
+      localStorage.setItem("quizPreviewSession", JSON.stringify(sessionPayload));
+      localStorage.removeItem("quizPreviewQuestions");
+      localStorage.removeItem("quizPreviewResponses");
     } catch (error) {
       console.error("Unable to persist preview payload", error);
     }
-    router.push("/Quiz/1");
   };
 
-  const handlePreviewQuiz = () => {
+  const startPreviewSession = async ({ quizId, mode = "assessment", initialDifficulty = "medium" }) => {
+    const sessionId = `preview-${quizId}-${Date.now()}`;
+    const payload = {
+      session_id: sessionId,
+      quiz_id: quizId,
+      user_id: "instructor-preview",
+      mode,
+      initial_difficulty: initialDifficulty,
+      is_preview: true,
+    };
+    const response = await fetch(`${QUIZ_SESSION_ENDPOINT}/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.detail || "Unable to start preview session.");
+    }
+    return { sessionId, session: data };
+  };
+
+  const handlePreviewQuiz = async () => {
     const trimmedTitle = formData.title.trim();
     const trimmedDescription = formData.description.trim();
     // Validate required fields
@@ -226,17 +309,43 @@ export default function QuizGenerator2Page() {
       alert("Please fill in all required fields");
       return;
     }
-    persistPreviewAndNavigate({
-      mode: "assessment",
-      quizId: existingQuizId,
-      sourceFilename,
-      documentId,
-      configuration: {
-        ...formData,
-        title: trimmedTitle,
-        description: trimmedDescription,
-      },
-    });
+    const savedDefinition = await saveQuizRecord();
+    const quizId = savedDefinition?.quiz_id || existingQuizId;
+    if (!quizId) {
+      alert("Please save this quiz configuration before previewing.");
+      return;
+    }
+    const initialDifficulty = (formData.difficulty || "medium").toLowerCase();
+    try {
+      const { sessionId } = await startPreviewSession({
+        quizId,
+        mode: "assessment",
+        initialDifficulty,
+      });
+      persistPreviewState(
+        {
+          mode: "assessment",
+          quizId,
+          sourceFilename,
+          documentId,
+          configuration: {
+            ...formData,
+            title: trimmedTitle,
+            description: trimmedDescription,
+          },
+        },
+        {
+          sessionId,
+          quizId,
+          mode: "assessment",
+          initialDifficulty,
+          topics: formData.topicsToTest,
+        }
+      );
+      router.push("/Quiz/1");
+    } catch (error) {
+      alert(error.message || "Unable to start preview session.");
+    }
   };
 
   const saveQuizRecord = async ({ publishState } = {}) => {
@@ -328,11 +437,11 @@ export default function QuizGenerator2Page() {
             : "Quiz unpublished."
           : "Saved to your list.";
       showSaveSuccess(message);
-      return true;
+      return data;
     } catch (error) {
       console.error("Unable to save quiz definition", error);
       alert(error.message || "Unable to save quiz.");
-      return false;
+      return null;
     }
   };
 
@@ -384,7 +493,7 @@ export default function QuizGenerator2Page() {
 
   const handleLeaveWithoutSaving = async () => {
     setIsExitModalOpen(false);
-    if (!existingQuizId) {
+    if (!existingQuizId && !isHydratingRef.current) {
       await deleteDocumentFromIndex();
     }
     router.push("/Instructor/Quizzes");

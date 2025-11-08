@@ -100,6 +100,9 @@ class QuizQuestionRecord:
     difficulty: DifficultyLevel
     order: int
     generated_at: datetime = field(default_factory=_now)
+    source_session_id: Optional[str] = None
+    source_document_id: Optional[str] = None
+    source_metadata: Dict[str, object] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, object]:
         return {
@@ -114,6 +117,9 @@ class QuizQuestionRecord:
             "difficulty": self.difficulty,
             "order": self.order,
             "generated_at": self.generated_at.isoformat(),
+            "source_session_id": self.source_session_id,
+            "source_document_id": self.source_document_id,
+            "source_metadata": self.source_metadata,
         }
 
     @staticmethod
@@ -130,6 +136,9 @@ class QuizQuestionRecord:
             difficulty=str(payload.get("difficulty", "medium")),  # type: ignore[arg-type]
             order=int(payload.get("order", 0)),
             generated_at=_parse_datetime(payload.get("generated_at")),  # type: ignore[arg-type]
+            source_session_id=payload.get("source_session_id"),
+            source_document_id=payload.get("source_document_id"),
+            source_metadata=dict(payload.get("source_metadata", {}) or {}),
         )
 
 
@@ -194,6 +203,8 @@ class QuizSessionRecord:
     completed_at: Optional[datetime]
     deadline: Optional[datetime]
     attempts: List[QuizAttemptRecord] = field(default_factory=list)
+    is_preview: bool = False
+    preview_question_ids: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, object]:
         payload: Dict[str, object] = {
@@ -211,6 +222,8 @@ class QuizSessionRecord:
             "active_question_id": self.active_question_id,
             "started_at": self.started_at.isoformat(),
             "attempts": [attempt.to_dict() for attempt in self.attempts],
+            "is_preview": self.is_preview,
+            "preview_question_ids": self.preview_question_ids,
         }
         if self.active_question_served_at is not None:
             payload["active_question_served_at"] = self.active_question_served_at.isoformat()
@@ -241,6 +254,8 @@ class QuizSessionRecord:
             completed_at=_parse_datetime(payload.get("completed_at")) if payload.get("completed_at") else None,  # type: ignore[arg-type]
             deadline=_parse_datetime(payload.get("deadline")) if payload.get("deadline") else None,  # type: ignore[arg-type]
             attempts=[QuizAttemptRecord.from_dict(item) for item in attempts_payload if isinstance(item, dict)],
+            is_preview=bool(payload.get("is_preview", False)),
+            preview_question_ids=list(payload.get("preview_question_ids", []) or []),
         )
 
 
@@ -273,11 +288,17 @@ class QuizRepository(Protocol):
     def get_quiz_question(self, question_id: str) -> Optional[QuizQuestionRecord]:
         ...
 
+    def delete_quiz_question(self, question_id: str) -> None:
+        ...
+
     # Learner sessions
     def load_session(self, session_id: str) -> Optional[QuizSessionRecord]:
         ...
 
     def save_session(self, record: QuizSessionRecord) -> None:
+        ...
+
+    def delete_session(self, session_id: str) -> None:
         ...
 
 
@@ -343,6 +364,12 @@ class FirestoreQuizRepository:
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions.document(record.session_id).set(record.to_dict(), merge=True)
 
+    def delete_quiz_question(self, question_id: str) -> None:
+        self._questions.document(question_id).delete()
+
+    def delete_session(self, session_id: str) -> None:
+        self._sessions.document(session_id).delete()
+
 
 class InMemoryQuizRepository:
     """In-process repository useful for local development and tests."""
@@ -394,6 +421,12 @@ class InMemoryQuizRepository:
 
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions[record.session_id] = record.to_dict()
+
+    def delete_quiz_question(self, question_id: str) -> None:
+        self._questions.pop(question_id, None)
+
+    def delete_session(self, session_id: str) -> None:
+        self._sessions.pop(session_id, None)
 
 
 def _firestore_available() -> bool:

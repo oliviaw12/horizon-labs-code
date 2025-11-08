@@ -4,7 +4,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
@@ -21,6 +21,7 @@ class GeneratedQuestion:
     correct_answer: str
     rationale: str
     incorrect_rationales: Dict[str, str]
+    source_metadata: Optional[Dict[str, object]] = None
 
 
 class QuizQuestionGenerationError(RuntimeError):
@@ -51,6 +52,7 @@ class QuizQuestionGenerator:
         topic: str,
         difficulty: str,
         order: int,
+        contexts: Optional[Sequence[Dict[str, object]]] = None,
     ) -> GeneratedQuestion:
         instructions = (
             "You are an instructional design assistant. "
@@ -61,12 +63,20 @@ class QuizQuestionGenerator:
             "Keep the distractors plausible but definitively incorrect. "
             "Do not include any text before or after the JSON object and do not wrap it in Markdown fences."
         )
+        context_block = self._render_context_block(contexts)
+        if context_block:
+            instructions += (
+                "\nGround every fact in the provided source material. "
+                "If multiple snippets are provided, prefer the most relevant passage."
+            )
         learner_prompt = (
             f"Topic: {topic}\n"
             f"Difficulty: {difficulty}\n"
             f"Question Number: {order}\n"
             "Follow the format instructions strictly."
         )
+        if context_block:
+            learner_prompt += f"\n\nSource Material:\n{context_block}"
 
         response = self._model.invoke(
             [
@@ -113,7 +123,29 @@ class QuizQuestionGenerator:
             correct_answer=correct_answer,
             rationale=correct_rationale or f"The correct choice best represents the topic {topic}.",
             incorrect_rationales=incorrect_rationales,
+            source_metadata=(contexts[0].get("metadata") if contexts else None),
         )
+
+    @staticmethod
+    def _render_context_block(contexts: Optional[Sequence[Dict[str, object]]]) -> str:
+        if not contexts:
+            return ""
+        rendered: List[str] = []
+        for idx, ctx in enumerate(contexts, start=1):
+            text = str(ctx.get("text") or "").strip()
+            if not text:
+                continue
+            metadata = ctx.get("metadata") or {}
+            location_parts: List[str] = []
+            slide_number = metadata.get("slide_number")
+            if slide_number:
+                location_parts.append(f"Slide {slide_number}")
+            slide_title = metadata.get("slide_title")
+            if slide_title:
+                location_parts.append(str(slide_title))
+            location = " - ".join(location_parts) if location_parts else "Slide excerpt"
+            rendered.append(f"Source {idx} ({location}):\n{text}")
+        return "\n\n".join(rendered)
 
 
 def _parse_model_response(content: str) -> Dict[str, object]:

@@ -149,6 +149,10 @@ class QuizStartRequest(BaseModel):
         default=None,
         description="Optional override of the default starting difficulty",
     )
+    is_preview: bool = Field(
+        default=False,
+        description="Flag preview sessions that should be purged when finished",
+    )
 
 
 class QuizSessionResponse(BaseModel):
@@ -173,6 +177,7 @@ class QuizQuestionResponse(BaseModel):
     topic: str
     difficulty: QuizDifficultyLiteral
     order: int
+    source_metadata: Optional[Dict[str, Any]] = None
 
 
 class QuizAnswerRequest(BaseModel):
@@ -206,6 +211,8 @@ class QuizAnswerResponse(BaseModel):
     selected_answer: str
     correct_answer: str
     rationale: str
+    correct_rationale: str
+    incorrect_rationales: Dict[str, str]
     topic: str
     difficulty: QuizDifficultyLiteral
     current_difficulty: QuizDifficultyLiteral

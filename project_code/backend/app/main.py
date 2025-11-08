@@ -32,6 +32,7 @@ from .schemas import (
     QuizDefinitionRequest,
     QuizDefinitionResponse,
     QuizQuestionResponse,
+    QuizDifficultyLiteral,
     QuizSessionResponse,
     QuizStartRequest,
     TopicPerformance,
@@ -295,6 +296,7 @@ def quiz_start_session(
             user_id=request.user_id,
             mode=request.mode,
             initial_difficulty=request.initial_difficulty,
+            is_preview=request.is_preview,
         )
     except QuizDefinitionNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
@@ -309,14 +311,25 @@ def quiz_start_session(
 @app.get("/quiz/session/{session_id}/next", response_model=QuizQuestionResponse)
 def quiz_next_question(
     session_id: str,
+    topic: str | None = Query(default=None, description="Optional topic override for the next question"),
+    difficulty: QuizDifficultyLiteral | None = Query(
+        default=None,
+        description="Optional difficulty override for the next question",
+    ),
     quiz_service: QuizService = Depends(get_quiz_service),
 ) -> QuizQuestionResponse:
     try:
-        question = quiz_service.get_next_question(session_id)
+        question = quiz_service.get_next_question(
+            session_id,
+            topic_override=topic,
+            difficulty_override=difficulty,
+        )
     except QuizSessionNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except QuizSessionClosedError as exc:
         raise HTTPException(status_code=410, detail=str(exc))
+    except QuizGenerationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
 
     return QuizQuestionResponse(
         session_id=session_id,
@@ -326,6 +339,7 @@ def quiz_next_question(
         topic=question.topic,
         difficulty=question.difficulty,
         order=question.order,
+        source_metadata=question.source_metadata or None,
     )
 
 
@@ -356,6 +370,8 @@ def quiz_submit_answer(
         selected_answer=str(outcome["selected_answer"]),
         correct_answer=str(outcome["correct_answer"]),
         rationale=str(outcome["rationale"]),
+        correct_rationale=str(outcome["correct_rationale"]),
+        incorrect_rationales=dict(outcome["incorrect_rationales"]),
         topic=str(outcome["topic"]),
         difficulty=str(outcome["difficulty"]),
         current_difficulty=str(outcome["current_difficulty"]),
@@ -376,6 +392,20 @@ def quiz_end_session(
         raise HTTPException(status_code=404, detail=str(exc))
 
     return _serialize_quiz_summary(summary)
+
+
+@app.delete("/quiz/session/{session_id}")
+def quiz_delete_session(
+    session_id: str,
+    quiz_service: QuizService = Depends(get_quiz_service),
+) -> dict[str, str]:
+    try:
+        quiz_service.delete_preview_session(session_id)
+    except QuizSessionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except QuizSessionConflictError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"status": "deleted", "session_id": session_id}
 
 
 def _serialize_quiz_definition(record) -> QuizDefinitionResponse:

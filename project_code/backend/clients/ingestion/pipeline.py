@@ -3,12 +3,13 @@ from __future__ import annotations
 import io
 import logging
 from dataclasses import dataclass
+import asyncio
 from typing import Any, Dict, List, Optional, Sequence
 try:  # LangChain splitters moved to a standalone package in recent versions
     from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - executed in newer LangChain installs
     from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from pptx import Presentation
 from pypdf import PdfReader
 
@@ -144,16 +145,22 @@ class EmbeddingService:
     """Generates embeddings using the configured provider."""
 
     def __init__(self, settings: Settings) -> None:
+        if not settings.google_api_key:
+            raise RuntimeError(
+                "GOOGLE_API_KEY is required to generate embeddings. Update your .env with a valid key."
+            )
         self._settings = settings
-        self._client = OpenAIEmbeddings(
-            model=settings.embedding_model_name,
-            openai_api_key=settings.openrouter_api_key,
-            openai_api_base=settings.openrouter_base_url,
+        self._client = GoogleGenerativeAIEmbeddings(
+            model=settings.google_embeddings_model_name,
+            google_api_key=settings.google_api_key,
         )
 
     async def embed(self, texts: Sequence[str]) -> List[List[float]]:
-        # LangChain OpenAIEmbeddings exposes async embedding via "aembed_documents".
-        return await self._client.aembed_documents(list(texts))
+        payload = list(texts)
+        if not payload:
+            return []
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._client.embed_documents, payload)
 
 
 class SlideIngestionPipeline:
@@ -198,6 +205,18 @@ class SlideIngestionPipeline:
 
         texts = [chunk.text for chunk in chunked]
         vectors = await self._embedding_service.embed(texts)
+
+        repo_dimension = getattr(self._repository, "dimension", None)
+        if repo_dimension and vectors:
+            embedding_dimension = len(vectors[0])
+            if embedding_dimension != repo_dimension:
+                index_name = getattr(self._repository, "_index_name", "Pinecone index")
+                raise RuntimeError(
+                    f"Embedding model produced dimension {embedding_dimension}, but Pinecone index "
+                    f"{index_name} expects {repo_dimension}. "
+                    "Ensure PINECONE_INDEX_DIMENSION matches the embedding model output and recreate/reconfigure "
+                    "the Pinecone index if necessary."
+                )
 
         items: List[Dict[str, Any]] = []
         for chunk, embedding in zip(chunked, vectors):

@@ -16,8 +16,10 @@ from clients.database.quiz_repository import (
     QuizRepository,
     QuizSessionRecord,
 )
+from clients.rag.retriever import SlideContextRetriever
 from .generator import GeneratedQuestion, QuizQuestionGenerationError, QuizQuestionGenerator
 from .settings import QuizSettings, get_quiz_settings
+from clients.llm.settings import get_settings as get_llm_settings
 
 logger = logging.getLogger(__name__)
 
@@ -59,12 +61,14 @@ class QuizService:
         repository: Optional[QuizRepository] = None,
         settings: Optional[QuizSettings] = None,
         generator: Optional[QuizQuestionGenerator] = None,
+        context_retriever: Optional[SlideContextRetriever] = None,
     ) -> None:
         self._repository: QuizRepository = repository or self._select_repository()
         self._settings: QuizSettings = settings or get_quiz_settings()
         self._increase_threshold = max(self._settings.practice_increase_streak, 1)
         self._decrease_threshold = max(self._settings.practice_decrease_streak, 1)
         self._generator = generator or self._select_generator()
+        self._context_retriever = context_retriever or self._select_retriever()
 
     # ------------------------------------------------------------------
     # Quiz definition management
@@ -136,6 +140,7 @@ class QuizService:
         user_id: str,
         mode: Optional[QuizMode] = None,
         initial_difficulty: Optional[DifficultyLevel] = None,
+        is_preview: bool = False,
     ) -> QuizSessionRecord:
         existing = self._repository.load_session(session_id)
         if existing and existing.status == "in_progress":
@@ -176,11 +181,18 @@ class QuizService:
             completed_at=None,
             deadline=deadline,
             attempts=[],
+            is_preview=is_preview,
         )
         self._repository.save_session(record)
         return record
 
-    def get_next_question(self, session_id: str) -> QuizQuestionRecord:
+    def get_next_question(
+        self,
+        session_id: str,
+        *,
+        topic_override: Optional[str] = None,
+        difficulty_override: Optional[DifficultyLevel] = None,
+    ) -> QuizQuestionRecord:
         record = self._load_session(session_id)
         record = self._enforce_time_constraints(record)
 
@@ -200,22 +212,41 @@ class QuizService:
         definition = self.get_quiz_definition(record.quiz_id)
         question_bank = self._repository.list_quiz_questions(record.quiz_id)
         seen = set(record.asked_question_ids)
+        selected: Optional[QuizQuestionRecord] = None
 
-        selected = None
-        for question in question_bank:
-            if question.question_id not in seen:
-                selected = question
-                break
+        if not record.is_preview:
+            for question in question_bank:
+                if question.question_id not in seen:
+                    selected = question
+                    break
 
+        effective_difficulty = difficulty_override or record.current_difficulty
         if selected is None:
-            selected = self._create_question(record, definition, question_bank)
+            selected = self._create_question(
+                record,
+                definition,
+                question_bank,
+                topic_override=topic_override,
+                difficulty_override=effective_difficulty,
+            )
 
         now = datetime.now(timezone.utc)
+        next_difficulty_state = record.current_difficulty
+        if record.is_preview and selected:
+            next_difficulty_state = selected.difficulty
+
+        preview_question_ids = record.preview_question_ids
+        if record.is_preview and selected and selected.source_session_id == record.session_id:
+            if selected.question_id not in preview_question_ids:
+                preview_question_ids = [*preview_question_ids, selected.question_id]
+
         updated_record = replace(
             record,
             asked_question_ids=[*record.asked_question_ids, selected.question_id],
             active_question_id=selected.question_id,
             active_question_served_at=now,
+            current_difficulty=next_difficulty_state,
+            preview_question_ids=preview_question_ids,
         )
         self._repository.save_session(updated_record)
         return selected
@@ -317,6 +348,8 @@ class QuizService:
             "selected_answer": selected_answer,
             "correct_answer": question.correct_answer,
             "rationale": rationale or question.rationale,
+            "correct_rationale": question.rationale,
+            "incorrect_rationales": question.incorrect_rationales,
             "topic": question.topic,
             "difficulty": question.difficulty,
             "session_completed": updated_record.status != "in_progress",
@@ -332,7 +365,10 @@ class QuizService:
         if record.status == "in_progress":
             record = self._mark_completed(record, status="completed")
             self._repository.save_session(record)
-        return self._build_summary(record)
+        summary = self._build_summary(record)
+        if record.is_preview:
+            self._cleanup_preview(record)
+        return summary
 
     # ------------------------------------------------------------------
     # Helpers
@@ -342,16 +378,52 @@ class QuizService:
         session: QuizSessionRecord,
         definition: QuizDefinitionRecord,
         existing_questions: List[QuizQuestionRecord],
+        *,
+        topic_override: Optional[str] = None,
+        difficulty_override: Optional[DifficultyLevel] = None,
     ) -> QuizQuestionRecord:
         order = len(existing_questions) + 1
-        topic = definition.topics[(order - 1) % len(definition.topics)]
-        difficulty = session.current_difficulty
+        if session.is_preview:
+            order = len(session.asked_question_ids) + 1
+        topics = definition.topics or ["General"]
+        topic_index = (order - 1) % len(topics)
+        topic = topic_override or topics[topic_index]
+        difficulty = difficulty_override or session.current_difficulty
 
         generated: Optional[GeneratedQuestion] = None
+        contexts_payload: List[Dict[str, object]] = []
+        if self._context_retriever and definition.embedding_document_id:
+            try:
+                contexts = self._context_retriever.fetch(
+                    document_id=definition.embedding_document_id,
+                    topic=topic,
+                    difficulty=difficulty,
+                )
+                contexts_payload = [
+                    {
+                        "text": ctx.text,
+                        "metadata": ctx.metadata,
+                    }
+                    for ctx in contexts
+                ]
+            except Exception:
+                logger.warning(
+                    "Unable to retrieve slide context for quiz %s (document=%s)",
+                    session.quiz_id,
+                    definition.embedding_document_id,
+                )
+
+        generation_error: Optional[str] = None
         if self._generator is not None:
             try:
-                generated = self._generator.generate(topic=topic, difficulty=difficulty, order=order)
+                generated = self._generator.generate(
+                    topic=topic,
+                    difficulty=difficulty,
+                    order=order,
+                    contexts=contexts_payload if contexts_payload else None,
+                )
             except QuizQuestionGenerationError as exc:
+                generation_error = str(exc)
                 logger.warning(
                     "Quiz question generation failed for quiz %s (topic=%s, difficulty=%s): %s",
                     session.quiz_id,
@@ -359,35 +431,30 @@ class QuizService:
                     difficulty,
                     exc,
                 )
-            except Exception:  # pragma: no cover - defensive fallback
+            except Exception as exc:  # pragma: no cover - defensive fallback
+                generation_error = "Question generator is temporarily unavailable. Please try again."
                 logger.exception(
                     "Unexpected error while generating quiz question for quiz %s (topic=%s)",
                     session.quiz_id,
                     topic,
                 )
 
+        if generated is None:
+            message = generation_error or "Question generator is temporarily unavailable. Please try again."
+            raise QuizGenerationError(message)
+
         question_id = str(uuid.uuid4())
-        if generated:
-            prompt = generated.prompt
-            choices = generated.choices
-            correct_answer = generated.correct_answer
-            rationale = generated.rationale
-            incorrect_rationales = generated.incorrect_rationales
-        else:
-            prompt = f"Which option best represents a key idea from the topic '{topic}'?"
-            correct_answer = f"The option summarizing {topic} fundamentals."
-            distractors = [
-                f"An idea mostly unrelated to {topic}.",
-                f"A misconception commonly seen about {topic}.",
-                f"A detail that only loosely connects to {topic}.",
-            ]
-            choices = [correct_answer, *distractors]
-            rationale = f"The correct answer highlights the fundamental concept within {topic}."
-            incorrect_rationales = {
-                distractors[0]: f"This option does not focus on {topic} and goes off-topic.",
-                distractors[1]: f"This reflects a common misunderstanding of {topic}.",
-                distractors[2]: f"This detail is tangential and does not capture the core of {topic}.",
-            }
+        source_metadata_payload: Dict[str, object] = (
+            contexts_payload[0].get("metadata") if contexts_payload else {}
+        )
+        if generated.source_metadata:
+            source_metadata_payload = generated.source_metadata
+
+        prompt = generated.prompt
+        choices = generated.choices
+        correct_answer = generated.correct_answer
+        rationale = generated.rationale
+        incorrect_rationales = generated.incorrect_rationales
 
         record = QuizQuestionRecord(
             quiz_id=session.quiz_id,
@@ -401,6 +468,9 @@ class QuizService:
             difficulty=difficulty,
             order=order,
             generated_at=datetime.now(timezone.utc),
+            source_session_id=session.session_id if session.is_preview else None,
+            source_document_id=definition.embedding_document_id,
+            source_metadata=source_metadata_payload,
         )
         self._repository.save_quiz_question(record)
         return record
@@ -467,6 +537,17 @@ class QuizService:
             "completed_at": record.completed_at,
         }
 
+    def _cleanup_preview(self, record: QuizSessionRecord) -> None:
+        for question_id in record.preview_question_ids:
+            self._repository.delete_quiz_question(question_id)
+        self._repository.delete_session(record.session_id)
+
+    def delete_preview_session(self, session_id: str) -> None:
+        record = self._load_session(session_id)
+        if not record.is_preview:
+            raise QuizSessionConflictError("Only preview sessions can be deleted via this endpoint.")
+        self._cleanup_preview(record)
+
     def _load_session(self, session_id: str) -> QuizSessionRecord:
         record = self._repository.load_session(session_id)
         if record is None:
@@ -488,6 +569,20 @@ class QuizService:
         except Exception as exc:  # pragma: no cover - configuration fallback
             logger.warning(
                 "Unable to initialise LLM quiz question generator; using static template fallback. Reason: %s",
+                exc,
+            )
+            return None
+
+    def _select_retriever(self) -> Optional[SlideContextRetriever]:
+        try:
+            settings = get_llm_settings()
+            if not settings.google_api_key:
+                logger.warning("GOOGLE_API_KEY not configured; slide retrieval disabled.")
+                return None
+            return SlideContextRetriever(settings)
+        except Exception as exc:  # pragma: no cover - configuration fallback
+            logger.warning(
+                "Unable to initialise slide context retriever; continuing without RAG context. Reason: %s",
                 exc,
             )
             return None
