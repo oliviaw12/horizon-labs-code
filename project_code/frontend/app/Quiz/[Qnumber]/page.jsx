@@ -51,6 +51,7 @@ export default function QuizPage() {
   const [selectedTopic, setSelectedTopic] = useState("General");
   const cleanupRequestedRef = useRef(false);
   const initialQuestionRequestedRef = useRef(false);
+  const [rateLimitNotice, setRateLimitNotice] = useState(null);
   const readStoredPreviewSession = useCallback(() => {
     if (typeof window === "undefined") return null;
     return safeParse(localStorage.getItem("quizPreviewSession"));
@@ -87,6 +88,12 @@ export default function QuizPage() {
     }
     return [];
   }, [meta]);
+
+  const showRateLimitNotice = useCallback(() => {
+    setRateLimitNotice(
+      "We're hitting a temporary content generation limit. Please wait a moment and try again."
+    );
+  }, []);
 
   const topicOptions = useMemo(() => {
     if (!topicsSequence.length) {
@@ -213,6 +220,10 @@ export default function QuizPage() {
             "Preview session expired. Please return to the configuration page and launch the preview again."
           );
         }
+        if (response.status === 429) {
+          showRateLimitNotice();
+          throw new Error(payload.detail || "Too many requests. Please try again shortly.");
+        }
         if (!response.ok) {
           throw new Error(payload.detail || "Unable to load question.");
         }
@@ -235,7 +246,7 @@ export default function QuizPage() {
         setIsFetchingQuestion(false);
       }
     },
-    [sessionInfo, createPreviewSession]
+    [sessionInfo, createPreviewSession, showRateLimitNotice]
   );
 
   useEffect(() => {
@@ -292,6 +303,10 @@ export default function QuizPage() {
         }
       );
       const data = await response.json().catch(() => ({}));
+      if (response.status === 429) {
+        showRateLimitNotice();
+        throw new Error(data.detail || "Too many requests. Please try again shortly.");
+      }
       if (!response.ok) {
         throw new Error(data.detail || "Unable to submit answer.");
       }
@@ -457,6 +472,23 @@ export default function QuizPage() {
 
   return (
     <div className="min-h-screen bg-pink-50 p-8">
+      {rateLimitNotice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className={`mb-3 text-lg font-semibold text-purple-900 ${poppins.className}`}>
+              Please try again soon
+            </h3>
+            <p className={`mb-4 text-sm text-gray-700 ${poppins.className}`}>{rateLimitNotice}</p>
+            <button
+              type="button"
+              onClick={() => setRateLimitNotice(null)}
+              className={`w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2 text-white font-semibold ${poppins.className}`}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
       <div className="max-w-6xl mx-auto">
         <div className="mb-3 flex items-center justify-between">
           <button

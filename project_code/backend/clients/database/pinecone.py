@@ -113,11 +113,18 @@ class PineconeRepository:
         top_k: int = 5,
         document_id: Optional[str] = None,
         include_metadata: bool = True,
+        metadata_filter: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         if not vector:
             return {}
         try:
-            query_filter = {"document_id": document_id} if document_id else None
+            query_filter: Optional[Dict[str, Any]] = {}
+            if metadata_filter:
+                query_filter.update(metadata_filter)
+            if document_id:
+                query_filter["document_id"] = document_id
+            if not query_filter:
+                query_filter = None
             prepared = self._match_dimension(vector)
             if prepared is None:
                 raise RuntimeError("Query vector is empty; cannot perform similarity search.")

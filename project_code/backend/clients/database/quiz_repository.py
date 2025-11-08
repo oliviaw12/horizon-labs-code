@@ -205,6 +205,11 @@ class QuizSessionRecord:
     attempts: List[QuizAttemptRecord] = field(default_factory=list)
     is_preview: bool = False
     preview_question_ids: List[str] = field(default_factory=list)
+    used_slide_ids: List[str] = field(default_factory=list)
+    missed_question_ids: List[str] = field(default_factory=list)
+    questions_since_review: int = 0
+    total_slide_count: Optional[int] = None
+    coverage_cycle: int = 0
 
     def to_dict(self) -> Dict[str, object]:
         payload: Dict[str, object] = {
@@ -224,6 +229,11 @@ class QuizSessionRecord:
             "attempts": [attempt.to_dict() for attempt in self.attempts],
             "is_preview": self.is_preview,
             "preview_question_ids": self.preview_question_ids,
+            "used_slide_ids": self.used_slide_ids,
+            "missed_question_ids": self.missed_question_ids,
+            "questions_since_review": self.questions_since_review,
+            "total_slide_count": self.total_slide_count,
+            "coverage_cycle": self.coverage_cycle,
         }
         if self.active_question_served_at is not None:
             payload["active_question_served_at"] = self.active_question_served_at.isoformat()
@@ -256,6 +266,15 @@ class QuizSessionRecord:
             attempts=[QuizAttemptRecord.from_dict(item) for item in attempts_payload if isinstance(item, dict)],
             is_preview=bool(payload.get("is_preview", False)),
             preview_question_ids=list(payload.get("preview_question_ids", []) or []),
+            used_slide_ids=list(payload.get("used_slide_ids", []) or []),
+            missed_question_ids=list(payload.get("missed_question_ids", []) or []),
+            questions_since_review=int(payload.get("questions_since_review", 0)),
+            total_slide_count=(
+                int(payload["total_slide_count"])
+                if payload.get("total_slide_count") not in (None, "")
+                else None
+            ),
+            coverage_cycle=int(payload.get("coverage_cycle", 0)),
         )
 
 

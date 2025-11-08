@@ -69,6 +69,12 @@ class QuizService:
         self._decrease_threshold = max(self._settings.practice_decrease_streak, 1)
         self._generator = generator or self._select_generator()
         self._context_retriever = context_retriever or self._select_retriever()
+        self._coverage_threshold = getattr(self._settings, "slide_coverage_threshold", 0.7)
+        self._retriever_sample_size = getattr(self._settings, "retriever_context_sample_size", 4)
+        self._retriever_top_k = getattr(self._settings, "retriever_top_k", 20)
+        if self._retriever_top_k < self._retriever_sample_size:
+            self._retriever_top_k = self._retriever_sample_size
+        self._missed_review_gap = getattr(self._settings, "missed_question_review_gap", 2)
 
     # ------------------------------------------------------------------
     # Quiz definition management
@@ -182,6 +188,12 @@ class QuizService:
             deadline=deadline,
             attempts=[],
             is_preview=is_preview,
+            preview_question_ids=[],
+            used_slide_ids=[],
+            missed_question_ids=[],
+            questions_since_review=0,
+            total_slide_count=self._extract_total_slide_count(definition.metadata),
+            coverage_cycle=0,
         )
         self._repository.save_session(record)
         return record
@@ -212,6 +224,10 @@ class QuizService:
             )
             record = replace(record, active_question_id=None, active_question_served_at=None)
 
+        review_question, record = self._serve_missed_question_if_ready(record)
+        if review_question is not None:
+            return review_question
+
         definition = self.get_quiz_definition(record.quiz_id)
         question_bank = self._repository.list_quiz_questions(record.quiz_id)
         seen = set(record.asked_question_ids)
@@ -225,13 +241,15 @@ class QuizService:
 
         effective_difficulty = difficulty_override or record.current_difficulty
         if selected is None:
-            selected = self._create_question(
+            selected, record = self._create_question(
                 record,
                 definition,
                 question_bank,
                 topic_override=topic_override,
                 difficulty_override=effective_difficulty,
             )
+        else:
+            record = self._register_slide_usage(record, selected)
 
         now = datetime.now(timezone.utc)
         next_difficulty_state = record.current_difficulty
@@ -250,6 +268,7 @@ class QuizService:
             active_question_served_at=now,
             current_difficulty=next_difficulty_state,
             preview_question_ids=preview_question_ids,
+            questions_since_review=record.questions_since_review + 1,
         )
         self._repository.save_session(updated_record)
         return selected
@@ -304,6 +323,11 @@ class QuizService:
         incorrect_streak = record.incorrect_streak + 1 if not is_correct else 0
         attempts_used = record.attempts_used + 1
         current_difficulty = record.current_difficulty
+        missed_question_ids = record.missed_question_ids
+        if is_correct and question.question_id in missed_question_ids:
+            missed_question_ids = [qid for qid in missed_question_ids if qid != question.question_id]
+        if not is_correct and question.question_id not in missed_question_ids:
+            missed_question_ids = [*missed_question_ids, question.question_id]
 
         if record.mode == "practice":
             adapted_difficulty = self._adapt_difficulty(current_difficulty, correct_streak, incorrect_streak)
@@ -327,6 +351,7 @@ class QuizService:
             current_difficulty=current_difficulty,
             active_question_id=None,
             active_question_served_at=None,
+            missed_question_ids=missed_question_ids,
         )
 
         # Assessment termination checks
@@ -387,7 +412,7 @@ class QuizService:
         *,
         topic_override: Optional[str] = None,
         difficulty_override: Optional[DifficultyLevel] = None,
-    ) -> QuizQuestionRecord:
+    ) -> tuple[QuizQuestionRecord, QuizSessionRecord]:
         order = len(existing_questions) + 1
         if session.is_preview:
             order = len(session.asked_question_ids) + 1
@@ -398,12 +423,19 @@ class QuizService:
 
         generated: Optional[GeneratedQuestion] = None
         contexts_payload: List[Dict[str, object]] = []
+        coverage_reset = False
+        session_state = session
         if self._context_retriever and definition.embedding_document_id:
             try:
-                contexts = self._context_retriever.fetch(
+                contexts, coverage_reset = self._context_retriever.fetch(
                     document_id=definition.embedding_document_id,
                     topic=topic,
                     difficulty=difficulty,
+                    limit=self._retriever_top_k,
+                    exclude_slide_ids=session.used_slide_ids,
+                    total_slide_count=session.total_slide_count,
+                    coverage_threshold=self._coverage_threshold,
+                    sample_size=self._retriever_sample_size,
                 )
                 contexts_payload = [
                     {
@@ -445,6 +477,13 @@ class QuizService:
                     topic,
                 )
 
+        if coverage_reset and session_state.used_slide_ids:
+            session_state = replace(
+                session_state,
+                used_slide_ids=[],
+                coverage_cycle=session_state.coverage_cycle + 1,
+            )
+
         if generated is None:
             message = generation_error or "Question generator is temporarily unavailable. Please try again."
             raise QuizGenerationError(message)
@@ -479,7 +518,88 @@ class QuizService:
             source_metadata=source_metadata_payload,
         )
         self._repository.save_quiz_question(record)
-        return record
+
+        slide_id = self._extract_slide_id(record.source_metadata)
+        if slide_id:
+            used = session_state.used_slide_ids
+            if slide_id not in used:
+                used = [*used, slide_id]
+            session_state = replace(session_state, used_slide_ids=used)
+
+        return record, session_state
+
+    def _extract_total_slide_count(self, metadata: Optional[Dict[str, object]]) -> Optional[int]:
+        if not metadata:
+            return None
+        for key in ("slide_count", "slides_count", "total_slides", "totalSlides", "slides", "numSlides"):
+            value = metadata.get(key)
+            if value in (None, ""):
+                continue
+            try:
+                parsed = int(value)
+                if parsed > 0:
+                    return parsed
+            except (TypeError, ValueError):
+                continue
+        return None
+
+    def _extract_slide_id(self, metadata: Optional[Dict[str, object]]) -> Optional[str]:
+        if not isinstance(metadata, dict):
+            return None
+        slide_id = metadata.get("slide_id")
+        if slide_id:
+            return str(slide_id)
+        slide_number = metadata.get("slide_number")
+        slide_title = metadata.get("slide_title") or metadata.get("title")
+        if slide_number is None and slide_title is None:
+            return None
+        number_part = f"{slide_number}" if slide_number not in (None, "") else ""
+        title_part = str(slide_title).strip() if slide_title else ""
+        if number_part and title_part:
+            return f"{number_part}:{title_part}"
+        if number_part:
+            return number_part
+        if title_part:
+            return title_part
+        return None
+
+    def _register_slide_usage(self, record: QuizSessionRecord, question: QuizQuestionRecord) -> QuizSessionRecord:
+        slide_id = self._extract_slide_id(question.source_metadata)
+        if not slide_id:
+            return record
+        if slide_id in record.used_slide_ids:
+            return record
+        return replace(record, used_slide_ids=[*record.used_slide_ids, slide_id])
+
+    def _serve_missed_question_if_ready(
+        self,
+        record: QuizSessionRecord,
+    ) -> tuple[Optional[QuizQuestionRecord], QuizSessionRecord]:
+        if not record.missed_question_ids:
+            return None, record
+        if record.questions_since_review < self._missed_review_gap:
+            return None, record
+
+        queue = list(record.missed_question_ids)
+        while queue:
+            question_id = queue.pop(0)
+            question = self._repository.get_quiz_question(question_id, quiz_id=record.quiz_id)
+            if question is None:
+                record = replace(record, missed_question_ids=queue)
+                continue
+            now = datetime.now(timezone.utc)
+            updated_record = replace(
+                record,
+                missed_question_ids=queue,
+                questions_since_review=0,
+                asked_question_ids=[*record.asked_question_ids, question.question_id],
+                active_question_id=question.question_id,
+                active_question_served_at=now,
+            )
+            self._repository.save_session(updated_record)
+            return question, updated_record
+
+        return None, record
 
     def _adapt_difficulty(
         self,
