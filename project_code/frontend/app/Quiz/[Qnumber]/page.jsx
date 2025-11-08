@@ -12,6 +12,7 @@ const poppins = Poppins({
 const QUESTION_TEMPLATES = [
   {
     id: "q1",
+    topic: "Algorithms",
     prompt: "Which sorting algorithm has the best average-case time complexity?",
     options: [
       { id: "A", text: "Bubble sort", reason: "Bubble sort is O(n²) on average, so it's slower." },
@@ -24,6 +25,7 @@ const QUESTION_TEMPLATES = [
   },
   {
     id: "q2",
+    topic: "Web Development",
     prompt: "What does HTTP status code 201 indicate?",
     options: [
       { id: "A", text: "Request was successful", reason: "200 OK represents a generic success." },
@@ -37,7 +39,7 @@ const QUESTION_TEMPLATES = [
 ];
 
 const INITIAL_QUESTIONS = QUESTION_TEMPLATES.slice(0, 1);
-const QUIZ_PREVIEW_VERSION = "v2-single-start";
+const QUIZ_PREVIEW_VERSION = "v3-topic-select";
 
 const DEFAULT_META = {
   mode: "assessment",
@@ -72,6 +74,7 @@ export default function QuizPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+  const [selectedTopic, setSelectedTopic] = useState("General");
   const [showResult, setShowResult] = useState(false);
   const [resultSummary, setResultSummary] = useState(null);
 
@@ -79,6 +82,35 @@ export default function QuizPage() {
     0,
     Math.min(questionNumber - 1, Math.max(questions.length - 1, 0))
   );
+
+  const topicsSequence = useMemo(() => {
+    const sanitize = (items) =>
+      (items || [])
+        .map((topic) => (typeof topic === "string" ? topic.trim() : ""))
+        .filter(Boolean);
+    if (Array.isArray(meta?.topicsToTest) && meta.topicsToTest.length) {
+      return sanitize(meta.topicsToTest);
+    }
+    if (
+      Array.isArray(meta?.configuration?.topicsToTest) &&
+      meta.configuration.topicsToTest.length
+    ) {
+      return sanitize(meta.configuration.topicsToTest);
+    }
+    return [];
+  }, [meta]);
+
+  const topicOptions = useMemo(() => {
+    if (!topicsSequence.length) {
+      return ["General"];
+    }
+    return Array.from(new Set(topicsSequence));
+  }, [topicsSequence]);
+
+  useEffect(() => {
+    if (!topicOptions.length) return;
+    setSelectedTopic((prev) => (topicOptions.includes(prev) ? prev : topicOptions[0]));
+  }, [topicOptions]);
 
   const persistQuestions = (payload) => {
     setQuestions(payload);
@@ -92,13 +124,14 @@ export default function QuizPage() {
     }
   };
 
-  const appendQuestion = (difficultyOverride) => {
+  const appendQuestion = (difficultyOverride, topicOverride) => {
     const templateIndex = questions.length % QUESTION_TEMPLATES.length;
     const template = QUESTION_TEMPLATES[templateIndex];
     const nextQuestion = {
       ...template,
       id: `${template.id}-${Date.now()}`,
-      difficulty: difficultyOverride || template.difficulty,
+      difficulty: difficultyOverride || template.difficulty || "medium",
+      topic: topicOverride || template.topic || topicOptions[0] || "General",
     };
     const nextList = [...questions, nextQuestion];
     persistQuestions(nextList);
@@ -175,10 +208,11 @@ export default function QuizPage() {
       </div>
     );
   }
-  const currentTopic =
-    Array.isArray(meta?.topicsToTest) && meta.topicsToTest.length > 0
-      ? meta.topicsToTest[Math.min(questionIndex, meta.topicsToTest.length - 1)]
+  const fallbackTopic =
+    topicsSequence.length > 0
+      ? topicsSequence[Math.min(questionIndex, topicsSequence.length - 1)]
       : "General";
+  const currentTopic = currentQuestion?.topic || fallbackTopic;
   const currentDifficulty = currentQuestion?.difficulty || meta?.current_difficulty || "medium";
   const currentCitation = currentQuestion?.source || meta?.sourceFilename || "Uploaded slides";
   const correctOptionDetails =
@@ -189,6 +223,14 @@ export default function QuizPage() {
   const handleAnswerSelect = (optionId) => {
     if (showResult) return;
     setSelectedAnswer(optionId);
+  };
+
+  const handleDifficultyChange = (event) => {
+    setSelectedDifficulty(event.target.value);
+  };
+
+  const handleTopicChange = (event) => {
+    setSelectedTopic(event.target.value);
   };
 
   const goToQuestion = (index) => {
@@ -229,7 +271,7 @@ export default function QuizPage() {
     persistResponses(updatedResponses);
 
     if (questionIndex === questions.length - 1) {
-      appendQuestion(selectedDifficulty);
+      appendQuestion(selectedDifficulty, selectedTopic);
     }
     setIsSubmitting(false);
     setShowResult(true);
@@ -421,19 +463,37 @@ export default function QuizPage() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className={`text-sm text-gray-600 ${poppins.className}`}>
-              Next question difficulty:
-            </label>
-            <select
-              value={selectedDifficulty}
-              onChange={handleDifficultyChange}
-              className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className={`text-sm text-gray-600 ${poppins.className}`}>
+                Next question difficulty:
+              </label>
+              <select
+                value={selectedDifficulty}
+                onChange={handleDifficultyChange}
+                className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className={`text-sm text-gray-600 ${poppins.className}`}>
+                Next question topic:
+              </label>
+              <select
+                value={selectedTopic}
+                onChange={handleTopicChange}
+                className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
+              >
+                {topicOptions.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button
@@ -469,6 +529,3 @@ export default function QuizPage() {
     </div>
   );
 }
-  const handleDifficultyChange = (event) => {
-    setSelectedDifficulty(event.target.value);
-  };

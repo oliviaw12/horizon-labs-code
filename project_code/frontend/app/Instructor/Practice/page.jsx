@@ -175,7 +175,7 @@ export default function PracticePage() {
     try {
       if (typeof window !== "undefined") {
         localStorage.setItem("quizPreviewData", JSON.stringify(payload));
-        localStorage.setItem("quizPreviewQuestions", JSON.stringify(SAMPLE_QUESTIONS));
+        localStorage.setItem("quizPreviewQuestions", JSON.stringify(SAMPLE_QUESTIONS.slice(0, 1)));
         localStorage.removeItem("quizPreviewResponses");
         localStorage.setItem("currentQuizId", "preview-practice");
       }
