@@ -211,6 +211,12 @@ class LLMService:
             metadata=base_metadata,
         )
 
+    async def delete_document(self, document_id: str) -> None:
+        if not document_id:
+            return
+        pipeline = self._get_ingestion_pipeline()
+        pipeline.delete_document(document_id)
+
     @staticmethod
     def _build_prompt(
         question: str,

@@ -40,6 +40,10 @@ class QuizDefinitionRecord:
     assessment_num_questions: Optional[int]
     assessment_time_limit_minutes: Optional[int]
     assessment_max_attempts: Optional[int]
+    embedding_document_id: Optional[str] = None
+    source_filename: Optional[str] = None
+    is_published: bool = False
+    metadata: Dict[str, object] = field(default_factory=dict)
     created_at: datetime = field(default_factory=_now)
     updated_at: datetime = field(default_factory=_now)
 
@@ -53,6 +57,10 @@ class QuizDefinitionRecord:
             "assessment_num_questions": self.assessment_num_questions,
             "assessment_time_limit_minutes": self.assessment_time_limit_minutes,
             "assessment_max_attempts": self.assessment_max_attempts,
+            "embedding_document_id": self.embedding_document_id,
+            "source_filename": self.source_filename,
+            "is_published": self.is_published,
+            "metadata": self.metadata,
             "created_at": self.created_at.isoformat(),
             "updated_at": _now().isoformat(),
         }
@@ -68,6 +76,10 @@ class QuizDefinitionRecord:
             assessment_num_questions=int(payload["assessment_num_questions"]) if payload.get("assessment_num_questions") is not None else None,
             assessment_time_limit_minutes=int(payload["assessment_time_limit_minutes"]) if payload.get("assessment_time_limit_minutes") is not None else None,
             assessment_max_attempts=int(payload["assessment_max_attempts"]) if payload.get("assessment_max_attempts") is not None else None,
+            embedding_document_id=payload.get("embedding_document_id"),
+            source_filename=payload.get("source_filename"),
+            is_published=bool(payload.get("is_published", False)),
+            metadata=dict(payload.get("metadata", {}) or {}),
             created_at=_parse_datetime(payload.get("created_at")),  # type: ignore[arg-type]
             updated_at=_parse_datetime(payload.get("updated_at")),  # type: ignore[arg-type]
         )
@@ -242,6 +254,15 @@ class QuizRepository(Protocol):
     def save_quiz_definition(self, record: QuizDefinitionRecord) -> None:
         ...
 
+    def delete_quiz_definition(self, quiz_id: str) -> None:
+        ...
+
+    def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
+        ...
+
+    def delete_quiz_definition(self, quiz_id: str) -> None:
+        ...
+
     # Question bank
     def list_quiz_questions(self, quiz_id: str) -> List[QuizQuestionRecord]:
         ...
@@ -283,6 +304,17 @@ class FirestoreQuizRepository:
 
     def save_quiz_definition(self, record: QuizDefinitionRecord) -> None:
         self._definitions.document(record.quiz_id).set(record.to_dict(), merge=True)
+
+    def delete_quiz_definition(self, quiz_id: str) -> None:
+        self._definitions.document(quiz_id).delete()
+
+    def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
+        records: List[QuizDefinitionRecord] = []
+        for doc in self._definitions.stream():
+            data = doc.to_dict() or {}
+            records.append(QuizDefinitionRecord.from_dict(data))
+        records.sort(key=lambda item: item.updated_at, reverse=True)
+        return records
 
     def list_quiz_questions(self, quiz_id: str) -> List[QuizQuestionRecord]:
         questions: List[QuizQuestionRecord] = []
@@ -328,6 +360,14 @@ class InMemoryQuizRepository:
 
     def save_quiz_definition(self, record: QuizDefinitionRecord) -> None:
         self._definitions[record.quiz_id] = record.to_dict()
+
+    def delete_quiz_definition(self, quiz_id: str) -> None:
+        self._definitions.pop(quiz_id, None)
+
+    def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
+        records = [QuizDefinitionRecord.from_dict(payload) for payload in self._definitions.values()]
+        records.sort(key=lambda item: item.updated_at, reverse=True)
+        return records
 
     def list_quiz_questions(self, quiz_id: str) -> List[QuizQuestionRecord]:
         questions: List[QuizQuestionRecord] = []

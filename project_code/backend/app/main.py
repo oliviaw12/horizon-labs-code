@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import AsyncGenerator, Dict
+from typing import AsyncGenerator, Dict, List
 
 import logging
 
@@ -215,6 +215,19 @@ async def ingest_upload(
     }
 
 
+@app.delete("/ingest/document/{document_id}")
+async def ingest_delete_document(
+    document_id: str,
+    llm_service: LLMService = Depends(get_llm_service),
+) -> dict[str, str]:
+    try:
+        await llm_service.delete_document(document_id)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    return {"status": "deleted", "document_id": document_id}
+
+
 @app.post("/quiz/definitions", response_model=QuizDefinitionResponse)
 def quiz_upsert_definition(
     request: QuizDefinitionRequest,
@@ -230,6 +243,10 @@ def quiz_upsert_definition(
             assessment_num_questions=request.assessment_num_questions,
             assessment_time_limit_minutes=request.assessment_time_limit_minutes,
             assessment_max_attempts=request.assessment_max_attempts,
+            embedding_document_id=request.embedding_document_id,
+            source_filename=request.source_filename,
+            is_published=request.is_published,
+            metadata=request.metadata,
         )
     except QuizGenerationError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -247,6 +264,23 @@ def quiz_get_definition(
     except QuizDefinitionNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     return _serialize_quiz_definition(record)
+
+
+@app.get("/quiz/definitions", response_model=List[QuizDefinitionResponse])
+def quiz_list_definitions(
+    quiz_service: QuizService = Depends(get_quiz_service),
+) -> List[QuizDefinitionResponse]:
+    records = quiz_service.list_quiz_definitions()
+    return [_serialize_quiz_definition(record) for record in records]
+
+
+@app.delete("/quiz/definitions/{quiz_id}")
+def quiz_delete_definition(
+    quiz_id: str,
+    quiz_service: QuizService = Depends(get_quiz_service),
+) -> dict[str, str]:
+    quiz_service.delete_quiz_definition(quiz_id)
+    return {"status": "deleted", "quiz_id": quiz_id}
 
 
 @app.post("/quiz/session/start", response_model=QuizSessionResponse)
@@ -354,6 +388,10 @@ def _serialize_quiz_definition(record) -> QuizDefinitionResponse:
         assessment_num_questions=record.assessment_num_questions,
         assessment_time_limit_minutes=record.assessment_time_limit_minutes,
         assessment_max_attempts=record.assessment_max_attempts,
+        embedding_document_id=record.embedding_document_id,
+        source_filename=record.source_filename,
+        is_published=record.is_published,
+        metadata=record.metadata or None,
         created_at=record.created_at,
         updated_at=record.updated_at,
     )

@@ -80,10 +80,14 @@ class QuizService:
         assessment_num_questions: Optional[int],
         assessment_time_limit_minutes: Optional[int],
         assessment_max_attempts: Optional[int],
+        embedding_document_id: Optional[str],
+        source_filename: Optional[str],
+        is_published: bool,
+        metadata: Optional[Dict[str, object]],
     ) -> QuizDefinitionRecord:
         cleaned_topics = [topic.strip() for topic in topics if topic and topic.strip()]
         if not cleaned_topics:
-            raise QuizGenerationError("Quiz definitions must include at least one topic.")
+            cleaned_topics = ["General"]
 
         if default_mode not in ("assessment", "practice"):
             raise QuizGenerationError("Unsupported default mode.")
@@ -99,6 +103,10 @@ class QuizService:
             assessment_num_questions=assessment_num_questions,
             assessment_time_limit_minutes=assessment_time_limit_minutes,
             assessment_max_attempts=assessment_max_attempts,
+            embedding_document_id=embedding_document_id,
+            source_filename=source_filename,
+            is_published=is_published,
+            metadata=metadata or {},
             created_at=created_at,
             updated_at=datetime.now(timezone.utc),
         )
@@ -110,6 +118,12 @@ class QuizService:
         if definition is None:
             raise QuizDefinitionNotFoundError(f"Quiz {quiz_id} not found.")
         return definition
+
+    def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
+        return self._repository.list_quiz_definitions()
+
+    def delete_quiz_definition(self, quiz_id: str) -> None:
+        self._repository.delete_quiz_definition(quiz_id)
 
     # ------------------------------------------------------------------
     # Session lifecycle

@@ -233,3 +233,8 @@ class SlideIngestionPipeline:
             return self._pdf_extractor
 
         raise RuntimeError("Unsupported file type for ingestion; expected .pptx or .pdf")
+
+    def delete_document(self, document_id: str) -> None:
+        if not document_id:
+            return
+        self._repository.delete_document(document_id)

@@ -102,6 +102,22 @@ class QuizDefinitionRequest(BaseModel):
         le=500,
         description="Maximum attempts permitted during assessment sessions",
     )
+    embedding_document_id: Optional[str] = Field(
+        default=None,
+        description="Identifier of the ingested document backing this quiz",
+    )
+    source_filename: Optional[str] = Field(
+        default=None,
+        description="Original filename for the uploaded material",
+    )
+    is_published: bool = Field(
+        default=False,
+        description="Whether this quiz is published and visible to learners",
+    )
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Additional configuration metadata specific to the quiz builder",
+    )
 
 
 class QuizDefinitionResponse(BaseModel):
@@ -113,6 +129,10 @@ class QuizDefinitionResponse(BaseModel):
     assessment_num_questions: Optional[int]
     assessment_time_limit_minutes: Optional[int]
     assessment_max_attempts: Optional[int]
+    embedding_document_id: Optional[str]
+    source_filename: Optional[str]
+    is_published: bool
+    metadata: Optional[Dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 

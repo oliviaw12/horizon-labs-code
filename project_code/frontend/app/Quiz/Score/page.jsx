@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ConditionalHeader from "../../components/ConditionalHeader";
 import { Poppins } from "next/font/google";
@@ -26,10 +26,29 @@ const DEFAULT_RESULTS = {
   percentage: 0,
 };
 
+const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(
+  /\/$/,
+  ""
+);
+const QUIZ_DEFINITION_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
+
 export default function QuizScorePage() {
   const router = useRouter();
   const [results, setResults] = useState(DEFAULT_RESULTS);
   const [isLoading, setIsLoading] = useState(true);
+  const [quizMeta, setQuizMeta] = useState(null);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isPublishLoading, setIsPublishLoading] = useState(false);
+  const [publishNotice, setPublishNotice] = useState(null);
+  const publishNoticeTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (publishNoticeTimeoutRef.current) {
+        clearTimeout(publishNoticeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,15 +64,131 @@ export default function QuizScorePage() {
       totalQuestions: total,
       percentage,
     });
+    const previewMeta = safeParse(localStorage.getItem("quizPreviewData"));
+    if (previewMeta) {
+      setQuizMeta(previewMeta);
+      setIsPublished(Boolean(previewMeta.isPublished));
+    }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    const quizId = quizMeta?.quizId ?? quizMeta?.id ?? null;
+    if (!quizId) return;
+    if (typeof quizMeta?.isPublished === "boolean") return;
+
+    let isMounted = true;
+    const fetchPublishState = async () => {
+      try {
+        const response = await fetch(
+          `${QUIZ_DEFINITION_ENDPOINT}/${encodeURIComponent(quizId)}`
+        );
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          return;
+        }
+        if (!isMounted) return;
+        const published = Boolean(body.is_published);
+        setIsPublished(published);
+        setQuizMeta((prev) => ({ ...(prev || {}), isPublished: published }));
+      } catch (error) {
+        console.warn("Unable to refresh publish state", error);
+      }
+    };
+
+    fetchPublishState();
+    return () => {
+      isMounted = false;
+    };
+  }, [quizMeta]);
+
+  const showPublishNotice = (type, message) => {
+    setPublishNotice({ type, message });
+    if (publishNoticeTimeoutRef.current) {
+      clearTimeout(publishNoticeTimeoutRef.current);
+    }
+    publishNoticeTimeoutRef.current = setTimeout(() => {
+      setPublishNotice(null);
+    }, 4000);
+  };
 
   const handleEditQuiz = () => {
     router.push("/Instructor/QuizGenerator");
   };
 
-  const handlePublishQuiz = () => {
-    router.push("/Instructor/MyQuiz");
+  const handlePublishQuiz = async () => {
+    if (isPublishLoading) return;
+    const quizId = quizMeta?.quizId ?? quizMeta?.id ?? null;
+    if (!quizId) {
+      showPublishNotice("error", "Save this quiz before publishing.");
+      return;
+    }
+
+    setIsPublishLoading(true);
+    try {
+      const definitionResponse = await fetch(
+        `${QUIZ_DEFINITION_ENDPOINT}/${encodeURIComponent(quizId)}`
+      );
+      const definitionBody = await definitionResponse.json().catch(() => ({}));
+      if (!definitionResponse.ok) {
+        const detail = definitionBody?.detail;
+        if (definitionResponse.status === 404) {
+          throw new Error("Save this quiz before publishing.");
+        }
+        throw new Error(detail || "Unable to load quiz definition.");
+      }
+
+      const nextPublishState = !isPublished;
+      const payload = {
+        quiz_id: definitionBody.quiz_id,
+        name: definitionBody.name,
+        topics: Array.isArray(definitionBody.topics) && definitionBody.topics.length
+          ? definitionBody.topics
+          : ["General"],
+        default_mode: definitionBody.default_mode || "practice",
+        initial_difficulty: definitionBody.initial_difficulty || "medium",
+        assessment_num_questions: definitionBody.assessment_num_questions,
+        assessment_time_limit_minutes: definitionBody.assessment_time_limit_minutes,
+        assessment_max_attempts: definitionBody.assessment_max_attempts,
+        embedding_document_id: definitionBody.embedding_document_id,
+        source_filename: definitionBody.source_filename,
+        is_published: nextPublishState,
+        metadata: definitionBody.metadata ?? null,
+      };
+
+      const response = await fetch(QUIZ_DEFINITION_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const responseBody = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = responseBody?.detail;
+        throw new Error(detail || "Unable to update publish status.");
+      }
+
+      const updatedPublishState = Boolean(responseBody.is_published);
+      setIsPublished(updatedPublishState);
+      setQuizMeta((prev) => ({ ...(prev || {}), isPublished: updatedPublishState }));
+      showPublishNotice(
+        "success",
+        updatedPublishState ? "Quiz published. Learners can now access it." : "Quiz moved back to draft."
+      );
+      if (typeof window !== "undefined") {
+        const storedMeta = safeParse(localStorage.getItem("quizPreviewData")) || {};
+        localStorage.setItem(
+          "quizPreviewData",
+          JSON.stringify({ ...storedMeta, isPublished: updatedPublishState })
+        );
+      }
+    } catch (error) {
+      console.error("Unable to toggle publish state", error);
+      showPublishNotice("error", error.message || "Unable to update publish status.");
+    } finally {
+      setIsPublishLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -70,6 +205,7 @@ export default function QuizScorePage() {
   }
 
   const { percentage, correctAnswers, totalQuestions } = results;
+  const hasQuizId = Boolean(quizMeta?.quizId || quizMeta?.id);
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col">
@@ -110,13 +246,28 @@ export default function QuizScorePage() {
 
           <button
             onClick={handlePublishQuiz}
-            className={`px-8 py-4 rounded-xl text-white font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
+            disabled={isPublishLoading || !hasQuizId}
+            className={`px-8 py-4 rounded-xl text-white font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${poppins.className}`}
             style={{
               background: "linear-gradient(to right, #EC4899, #F97316)",
             }}
           >
-            Publish Quiz
+            {isPublished ? "Unpublish Quiz" : "Publish Quiz"}
           </button>
+          {!hasQuizId && (
+            <p className={`text-sm text-gray-500 ${poppins.className}`}>
+              Save this quiz first to enable publishing.
+            </p>
+          )}
+          {publishNotice && (
+            <p
+              className={`text-sm ${
+                publishNotice.type === "error" ? "text-red-600" : "text-green-600"
+              } ${poppins.className}`}
+            >
+              {publishNotice.message}
+            </p>
+          )}
         </div>
       </div>
     </div>

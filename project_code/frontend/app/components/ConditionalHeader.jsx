@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ROLE_STORAGE_KEY = "role";
+const ROLE_EVENT = "role-updated";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
@@ -18,6 +19,18 @@ export default function ConditionalHeader() {
     if (stored === "instructor" || stored === "student") {
       setRole(stored);
     }
+
+    const handleRoleUpdated = (event) => {
+      const nextRole = event?.detail;
+      if (nextRole === "instructor" || nextRole === "student") {
+        setRole(nextRole);
+      }
+    };
+
+    window.addEventListener(ROLE_EVENT, handleRoleUpdated);
+    return () => {
+      window.removeEventListener(ROLE_EVENT, handleRoleUpdated);
+    };
   }, []);
 
   const isInstructorFlow = pathname.startsWith("/Instructor");
