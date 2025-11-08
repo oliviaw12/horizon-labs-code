@@ -285,10 +285,10 @@ class QuizRepository(Protocol):
     def save_quiz_question(self, record: QuizQuestionRecord) -> None:
         ...
 
-    def get_quiz_question(self, question_id: str) -> Optional[QuizQuestionRecord]:
+    def get_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> Optional[QuizQuestionRecord]:
         ...
 
-    def delete_quiz_question(self, question_id: str) -> None:
+    def delete_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> None:
         ...
 
     # Learner sessions
@@ -312,9 +312,10 @@ class FirestoreQuizRepository:
                 "and configure credentials, or use InMemoryQuizRepository instead."
             )
         client = get_firestore()
+        self._client = client
         self._definitions = client.collection(f"{collection_name}_definitions")
-        self._questions = client.collection(f"{collection_name}_questions")
         self._sessions = client.collection(f"{collection_name}_sessions")
+        self._question_subcollection = f"{collection_name}_questions"
 
     def load_quiz_definition(self, quiz_id: str) -> Optional[QuizDefinitionRecord]:
         document = self._definitions.document(quiz_id).get()
@@ -327,6 +328,7 @@ class FirestoreQuizRepository:
         self._definitions.document(record.quiz_id).set(record.to_dict(), merge=True)
 
     def delete_quiz_definition(self, quiz_id: str) -> None:
+        self._delete_definition_questions(quiz_id)
         self._definitions.document(quiz_id).delete()
 
     def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
@@ -339,18 +341,28 @@ class FirestoreQuizRepository:
 
     def list_quiz_questions(self, quiz_id: str) -> List[QuizQuestionRecord]:
         questions: List[QuizQuestionRecord] = []
-        for doc in self._questions.where("quiz_id", "==", quiz_id).stream():
+        question_collection = self._definition_questions(quiz_id)
+        for doc in question_collection.stream():
             data = doc.to_dict() or {}
             questions.append(QuizQuestionRecord.from_dict(data))
         questions.sort(key=lambda item: (item.order, item.generated_at))
         return questions
 
     def save_quiz_question(self, record: QuizQuestionRecord) -> None:
-        self._questions.document(record.question_id).set(record.to_dict(), merge=True)
+        self._definition_questions(record.quiz_id).document(record.question_id).set(
+            record.to_dict(),
+            merge=True,
+        )
 
-    def get_quiz_question(self, question_id: str) -> Optional[QuizQuestionRecord]:
-        document = self._questions.document(question_id).get()
-        if not document.exists:
+    def get_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> Optional[QuizQuestionRecord]:
+        document = None
+        if quiz_id:
+            document = self._definition_questions(quiz_id).document(question_id).get()
+            if not document.exists:
+                document = None
+        if document is None:
+            document = self._find_question_document(question_id)
+        if document is None or not document.exists:
             return None
         return QuizQuestionRecord.from_dict(document.to_dict() or {})
 
@@ -364,11 +376,34 @@ class FirestoreQuizRepository:
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions.document(record.session_id).set(record.to_dict(), merge=True)
 
-    def delete_quiz_question(self, question_id: str) -> None:
-        self._questions.document(question_id).delete()
+    def delete_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> None:
+        if quiz_id:
+            self._definition_questions(quiz_id).document(question_id).delete()
+            return
+        document = self._find_question_document(question_id)
+        if document is not None and document.exists:
+            document.reference.delete()
 
     def delete_session(self, session_id: str) -> None:
         self._sessions.document(session_id).delete()
+
+    def _definition_questions(self, quiz_id: str):
+        return self._definitions.document(quiz_id).collection(self._question_subcollection)
+
+    def _find_question_document(self, question_id: str):
+        query = (
+            self._client.collection_group(self._question_subcollection)
+            .where("question_id", "==", question_id)
+            .limit(1)
+        )
+        for doc in query.stream():
+            return doc
+        return None
+
+    def _delete_definition_questions(self, quiz_id: str) -> None:
+        question_collection = self._definition_questions(quiz_id)
+        for doc in question_collection.stream():
+            doc.reference.delete()
 
 
 class InMemoryQuizRepository:
@@ -407,7 +442,7 @@ class InMemoryQuizRepository:
     def save_quiz_question(self, record: QuizQuestionRecord) -> None:
         self._questions[record.question_id] = record.to_dict()
 
-    def get_quiz_question(self, question_id: str) -> Optional[QuizQuestionRecord]:
+    def get_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> Optional[QuizQuestionRecord]:
         payload = self._questions.get(question_id)
         if not payload:
             return None
@@ -422,7 +457,7 @@ class InMemoryQuizRepository:
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions[record.session_id] = record.to_dict()
 
-    def delete_quiz_question(self, question_id: str) -> None:
+    def delete_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> None:
         self._questions.pop(question_id, None)
 
     def delete_session(self, session_id: str) -> None:

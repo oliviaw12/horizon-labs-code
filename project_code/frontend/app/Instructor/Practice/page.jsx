@@ -15,7 +15,6 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8
 );
 const DELETE_INGEST_ENDPOINT = `${API_BASE_URL}/ingest/document`;
 const QUIZ_DEFINITION_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
-const QUIZ_SESSION_ENDPOINT = `${API_BASE_URL}/quiz/session`;
 
 export default function PracticePage() {
   const router = useRouter();
@@ -156,43 +155,16 @@ export default function PracticePage() {
     hydrateFromDefinition(existingQuizId);
   }, [existingQuizId, hydrateFromDefinition]);
 
-  const persistPreviewState = (metaPayload, sessionPayload) => {
+  const persistPreviewState = (metaPayload) => {
     try {
       if (typeof window === "undefined") return;
-      localStorage.setItem(
-        "quizPreviewData",
-        JSON.stringify({ ...metaPayload, singleQuestionPreview: true })
-      );
-      localStorage.setItem("quizPreviewSession", JSON.stringify(sessionPayload));
+      localStorage.setItem("quizPreviewData", JSON.stringify(metaPayload));
+      localStorage.removeItem("quizPreviewSession");
       localStorage.removeItem("quizPreviewQuestions");
       localStorage.removeItem("quizPreviewResponses");
     } catch (error) {
       console.error("Unable to persist preview payload", error);
     }
-  };
-
-  const startPreviewSession = async ({ quizId, mode = "practice", initialDifficulty = "medium" }) => {
-    const sessionId = `preview-${quizId}-${Date.now()}`;
-    const payload = {
-      session_id: sessionId,
-      quiz_id: quizId,
-      user_id: "instructor-preview",
-      mode,
-      initial_difficulty: initialDifficulty,
-      is_preview: true,
-    };
-    const response = await fetch(`${QUIZ_SESSION_ENDPOINT}/start`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.detail || "Unable to start preview session.");
-    }
-    return { sessionId, session: data };
   };
 
   const handleTopicInputChange = (e) => {
@@ -260,34 +232,20 @@ export default function PracticePage() {
       return;
     }
     try {
-      const { sessionId } = await startPreviewSession({
-        quizId,
+      persistPreviewState({
         mode: "practice",
-        initialDifficulty: "medium",
+        title: trimmedTitle,
+        description: trimmedDescription,
+        topicsToTest: topicsPayload,
+        id: quizId,
+        quizId,
+        sourceFilename,
+        documentId,
+        isPublished,
       });
-      persistPreviewState(
-        {
-          mode: "practice",
-          title: trimmedTitle,
-          description: trimmedDescription,
-          topicsToTest: topicsPayload,
-          id: quizId,
-          quizId,
-          sourceFilename,
-          documentId,
-          isPublished,
-        },
-        {
-          sessionId,
-          quizId,
-          mode: "practice",
-          initialDifficulty: "medium",
-          topics: topicsPayload,
-        }
-      );
       router.push("/Quiz/1");
     } catch (error) {
-      alert(error.message || "Unable to start preview session.");
+      alert(error.message || "Unable to launch preview.");
     }
   };
 

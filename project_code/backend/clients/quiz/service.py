@@ -200,7 +200,10 @@ class QuizService:
             raise QuizSessionClosedError("Quiz session is no longer active.", status=record.status)
 
         if record.active_question_id:
-            existing = self._repository.get_quiz_question(record.active_question_id)
+            existing = self._repository.get_quiz_question(
+                record.active_question_id,
+                quiz_id=record.quiz_id,
+            )
             if existing is not None:
                 return existing
             logger.warning(
@@ -264,7 +267,10 @@ class QuizService:
         if record.status != "in_progress":
             raise QuizSessionClosedError("Quiz session is no longer active.", status=record.status)
 
-        question = self._repository.get_quiz_question(question_id)
+        question = self._repository.get_quiz_question(
+            question_id,
+            quiz_id=record.quiz_id,
+        )
         if question is None:
             raise QuizQuestionNotFoundError("Question not found in the shared bank.")
 
@@ -515,7 +521,10 @@ class QuizService:
 
         per_topic: Dict[str, Dict[str, int]] = {}
         for attempt in record.attempts:
-            question = self._repository.get_quiz_question(attempt.question_id)
+            question = self._repository.get_quiz_question(
+                attempt.question_id,
+                quiz_id=record.quiz_id,
+            )
             topic = question.topic if question else "general"
             stats = per_topic.setdefault(topic, {"attempted": 0, "correct": 0})
             stats["attempted"] += 1
@@ -539,7 +548,7 @@ class QuizService:
 
     def _cleanup_preview(self, record: QuizSessionRecord) -> None:
         for question_id in record.preview_question_ids:
-            self._repository.delete_quiz_question(question_id)
+            self._repository.delete_quiz_question(question_id, quiz_id=record.quiz_id)
         self._repository.delete_session(record.session_id)
 
     def delete_preview_session(self, session_id: str) -> None:

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -37,12 +37,6 @@ const normalizeQuestion = (payload) => {
 
 export default function QuizPage() {
   const router = useRouter();
-  const params = useParams();
-  const questionNumber = useMemo(() => {
-    const raw = params?.Qnumber ?? params?.qnumber ?? "1";
-    const parsed = parseInt(Array.isArray(raw) ? raw[0] : raw, 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-  }, [params]);
 
   const [meta, setMeta] = useState(DEFAULT_META);
   const [sessionInfo, setSessionInfo] = useState(null);
@@ -55,7 +49,6 @@ export default function QuizPage() {
   const [error, setError] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
   const [selectedTopic, setSelectedTopic] = useState("General");
-  const singleQuestionPreview = Boolean(meta?.singleQuestionPreview);
   const cleanupRequestedRef = useRef(false);
   const initialQuestionRequestedRef = useRef(false);
   const readStoredPreviewSession = useCallback(() => {
@@ -67,6 +60,7 @@ export default function QuizPage() {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem("quizPreviewSession", JSON.stringify(payload));
+      cleanupRequestedRef.current = false;
     } catch (error) {
       console.error("Unable to persist preview session", error);
     }
@@ -188,21 +182,17 @@ export default function QuizPage() {
     const storedMeta = readStoredPreviewMeta();
     setMeta(storedMeta);
     const storedSession = readStoredPreviewSession();
-    if (!storedSession?.sessionId) {
-      setError("Preview session not found. Please start a new preview from the quiz builder.");
-      setIsLoading(false);
-      return;
+    if (storedSession?.sessionId) {
+      setSessionInfo(storedSession);
+      setSelectedDifficulty(deriveInitialDifficulty(storedSession, storedMeta));
+      cleanupRequestedRef.current = false;
+    } else {
+      setSelectedDifficulty(deriveInitialDifficulty(null, storedMeta));
     }
-    setSessionInfo(storedSession);
-    setSelectedDifficulty(deriveInitialDifficulty(storedSession, storedMeta));
     setIsLoading(false);
   }, [deriveInitialDifficulty, readStoredPreviewMeta, readStoredPreviewSession]);
   const requestQuestion = useCallback(
     async ({ topicOverride, difficultyOverride, isInitial = false } = {}) => {
-      if (meta?.singleQuestionPreview && history.length >= 1) {
-        setIsLoading(false);
-        return;
-      }
       setIsFetchingQuestion(true);
       setError(null);
       try {
@@ -227,15 +217,13 @@ export default function QuizPage() {
           throw new Error(payload.detail || "Unable to load question.");
         }
         const normalized = normalizeQuestion(payload);
-        let nextIndex = 0;
         setHistory((prev) => {
           const next = [...prev, { question: normalized, response: null }];
-          nextIndex = next.length - 1;
+          const nextIndex = next.length - 1;
+          setCurrentIndex(nextIndex);
           return next;
         });
         setSelectedAnswerId(null);
-        setCurrentIndex(nextIndex);
-        router.push(`/Quiz/${nextIndex + 1}`);
         if (isInitial) {
           setIsLoading(false);
         }
@@ -247,7 +235,7 @@ export default function QuizPage() {
         setIsFetchingQuestion(false);
       }
     },
-    [router, sessionInfo, history.length, meta?.singleQuestionPreview, createPreviewSession]
+    [sessionInfo, createPreviewSession]
   );
 
   useEffect(() => {
@@ -260,19 +248,6 @@ export default function QuizPage() {
       isInitial: true,
     });
   }, [selectedTopic, selectedDifficulty, requestQuestion]);
-
-  useEffect(() => {
-    if (!history.length) return;
-    const maxQuestionNumber = history.length;
-    if (questionNumber > maxQuestionNumber) {
-      router.replace(`/Quiz/${maxQuestionNumber}`);
-      return;
-    }
-    const targetIndex = Math.max(0, questionNumber - 1);
-    if (targetIndex !== currentIndex) {
-      setCurrentIndex(targetIndex);
-    }
-  }, [questionNumber, history.length, currentIndex, router]);
 
   useEffect(() => {
     const entry = history[currentIndex];
@@ -339,7 +314,6 @@ export default function QuizPage() {
   const goToQuestion = (index) => {
     const clamped = Math.max(0, Math.min(index, history.length - 1));
     setCurrentIndex(clamped);
-    router.push(`/Quiz/${clamped + 1}`);
   };
 
   const handlePreviousQuestion = () => {
@@ -348,10 +322,6 @@ export default function QuizPage() {
   };
 
   const handleNextQuestion = async () => {
-    if (singleQuestionPreview) {
-      setError("Start a new preview from the configuration page to generate more questions.");
-      return;
-    }
     if (currentIndex < history.length - 1) {
       goToQuestion(currentIndex + 1);
       return;
@@ -363,12 +333,13 @@ export default function QuizPage() {
     });
   };
 
-  const cleanupPreviewSession = useCallback(async () => {
+  const cleanupPreviewSession = useCallback(async ({ useKeepAlive = false } = {}) => {
     if (!sessionInfo?.sessionId || cleanupRequestedRef.current) return;
     cleanupRequestedRef.current = true;
     try {
       await fetch(`${QUIZ_SESSION_ENDPOINT}/${sessionInfo.sessionId}`, {
         method: "DELETE",
+        keepalive: useKeepAlive,
       });
     } catch (cleanupError) {
       console.warn("Unable to clean up preview session", cleanupError);
@@ -418,6 +389,17 @@ export default function QuizPage() {
       router.push(target);
     }
   };
+  
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handlePageHide = () => {
+      cleanupPreviewSession({ useKeepAlive: true });
+    };
+    window.addEventListener("pagehide", handlePageHide);
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [cleanupPreviewSession]);
 
   const modeLabel = meta.mode === "practice" ? "Practice" : "Assessment";
   const questionCount = history.length || 1;
@@ -600,40 +582,38 @@ export default function QuizPage() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-          {!singleQuestionPreview && (
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className={`text-sm text-gray-600 ${poppins.className}`}>
-                  Next question difficulty:
-                </label>
-                <select
-                  value={selectedDifficulty}
-                  onChange={(event) => setSelectedDifficulty(event.target.value)}
-                  className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <label className={`text-sm text-gray-600 ${poppins.className}`}>
-                  Next question topic:
-                </label>
-                <select
-                  value={selectedTopic}
-                  onChange={(event) => setSelectedTopic(event.target.value)}
-                  className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
-                >
-                  {topicOptions.map((topic) => (
-                    <option key={topic} value={topic}>
-                      {topic}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className={`text-sm text-gray-600 ${poppins.className}`}>
+                Next question difficulty:
+              </label>
+              <select
+                value={selectedDifficulty}
+                onChange={(event) => setSelectedDifficulty(event.target.value)}
+                className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <label className={`text-sm text-gray-600 ${poppins.className}`}>
+                Next question topic:
+              </label>
+              <select
+                value={selectedTopic}
+                onChange={(event) => setSelectedTopic(event.target.value)}
+                className={`px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 ${poppins.className}`}
+              >
+                {topicOptions.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handlePreviousQuestion}
@@ -643,30 +623,7 @@ export default function QuizPage() {
               Previous Question
             </button>
             {isLatestQuestion ? (
-              singleQuestionPreview ? (
-                showFeedback ? (
-                  <button
-                    onClick={handleReturnToConfig}
-                    className={`px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
-                    style={{
-                      background: "linear-gradient(to right, #7B2CBF, #3B82F6)",
-                    }}
-                  >
-                    Back to Configuration
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!selectedAnswerId || isSubmitting}
-                    className={`px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${poppins.className}`}
-                    style={{
-                      background: "linear-gradient(to right, #EC4899, #F97316)",
-                    }}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit Answer"}
-                  </button>
-                )
-              ) : showFeedback ? (
+              showFeedback ? (
                 <button
                   onClick={handleNextQuestion}
                   disabled={isFetchingQuestion}
