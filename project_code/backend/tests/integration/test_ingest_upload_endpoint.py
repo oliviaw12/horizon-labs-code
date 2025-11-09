@@ -43,8 +43,43 @@ async def test_ingest_upload_endpoint_returns_ingestion_summary(
     assert payload["status"] == "indexed"
     assert payload["document_id"] == "deck-123"
     assert payload["chunk_count"] == 10
+    assert payload["slide_count"] == 4
+    assert payload["namespace"] == "slides"
     assert stub.calls, "pipeline was not invoked"
     call = stub.calls[0]
     assert call["filename"] == "Lesson.pptx"
     assert call["metadata"]["session_id"] == "session-1"
     assert call["metadata"]["document_id"] == "deck-123"
+
+
+@pytest.mark.asyncio
+async def test_ingest_upload_endpoint_rejects_bad_metadata(async_client) -> None:
+    response = await async_client.post(
+        "/ingest/upload",
+        data={"session_id": "session-2", "metadata": "not-json"},
+        files={"file": ("Lesson.pptx", b"binary-data", "application/vnd.ms-powerpoint")},
+    )
+
+    assert response.status_code == 400
+    assert "Invalid metadata JSON" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_ingest_upload_endpoint_handles_pipeline_error(
+    async_client,
+    test_llm_service: LLMService,
+) -> None:
+    class FailingPipeline:
+        async def ingest(self, **_: Any) -> IngestionResult:  # pragma: no cover - stub error path
+            raise RuntimeError("pipeline exploded")
+
+    test_llm_service._ingestion_pipeline = FailingPipeline()  # type: ignore[attr-defined]
+
+    response = await async_client.post(
+        "/ingest/upload",
+        data={"session_id": "session-3"},
+        files={"file": ("Lesson.pptx", b"binary-data", "application/vnd.ms-powerpoint")},
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "pipeline exploded"

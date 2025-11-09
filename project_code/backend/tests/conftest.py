@@ -37,7 +37,14 @@ class StubQuizQuestionGenerator:
     def __init__(self) -> None:
         self._counter = 0
 
-    def generate(self, *, topic: str, difficulty: str, order: int) -> GeneratedQuestion:
+    def generate(
+        self,
+        *,
+        topic: str,
+        difficulty: str,
+        order: int,
+        contexts: list[dict[str, object]] | None = None,
+    ) -> GeneratedQuestion:
         self._counter += 1
         correct = f"{topic} concept #{self._counter}"
         distractors = [
@@ -52,6 +59,7 @@ class StubQuizQuestionGenerator:
             correct_answer=correct,
             rationale=f"{correct} captures the core idea of {topic}.",
             incorrect_rationales=incorrect_rationales,
+            source_metadata=(contexts[0].get("metadata") if contexts else None),
         )
 
 
