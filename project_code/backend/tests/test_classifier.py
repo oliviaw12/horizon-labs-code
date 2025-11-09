@@ -49,6 +49,14 @@ def test_heuristic_flag_short_response() -> None:
     assert result.used_model is False
 
 
+def test_heuristic_labels_min_word_count() -> None:
+    text = "This answer has plenty of detail without keywords"
+    result = TurnClassifier._heuristic_label(text, min_words=5)
+    assert result.label == "good"
+    assert "minimum word count" in (result.rationale or "")
+    assert result.used_model is False
+
+
 def test_parse_response_handles_fenced_json() -> None:
     raw = """```json\n{\"label\": \"good\", \"rationale\": \"Detailed reasoning\"}\n```"""
     parsed = TurnClassifier._parse_response(raw)

@@ -4,6 +4,7 @@ import pytest
 
 from clients.database.chat_repository import InMemoryChatRepository
 from clients.ingestion import IngestionResult
+from clients.llm.classifier import ClassificationResult
 from clients.llm.service import LLMService
 from clients.llm.settings import Settings
 
@@ -104,3 +105,56 @@ def test_derive_document_id_slugifies() -> None:
     slug = LLMService._derive_document_id(filename="Week 1 Intro!.pptx", session_id="Session ABC")
     assert slug.startswith("week-1-intro-session-abc")
     assert "!" not in slug
+
+
+def test_build_prompt_includes_optional_sections() -> None:
+    prompt = LLMService._build_prompt(
+        "What is the derivative?",
+        "Review the prior lesson",
+        {"chapter": 3, "section": "limits"},
+    )
+    assert "Context:\nReview the prior lesson" in prompt
+    assert "Metadata:\n- chapter: 3" in prompt
+    assert prompt.endswith("Question:\nWhat is the derivative?")
+
+
+def test_count_words_handles_excess_whitespace() -> None:
+    assert LLMService._count_words("  many   spaces here  ") == 3
+
+
+def test_reset_session_clears_cached_state(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = _settings_with_pinecone()
+
+    class TrackingRepo(InMemoryChatRepository):
+        def __init__(self) -> None:
+            super().__init__()
+            self.deleted: list[str] = []
+
+        def delete_session(self, session_id: str) -> None:  # type: ignore[override]
+            super().delete_session(session_id)
+            self.deleted.append(session_id)
+
+    repository = TrackingRepo()
+    service = LLMService(settings, repository=repository)
+
+    session_id = "session-reset"
+    service._conversations[session_id] = []
+    service._session_modes[session_id] = "friction"
+    service._last_prompts[session_id] = "guidance"
+    service._friction_progress[session_id] = 2
+    service._guidance_ready[session_id] = True
+    service._last_classifications[session_id] = ClassificationResult(
+        label="good",
+        rationale="solid",
+        used_model=False,
+    )
+
+    service.reset_session(session_id)
+
+    assert repository.deleted == [session_id]
+    assert session_id not in service._conversations
+    assert session_id not in service._session_modes
+    assert session_id not in service._last_prompts
+    assert session_id not in service._friction_progress
+    assert session_id not in service._guidance_ready
+    assert session_id not in service._last_classifications

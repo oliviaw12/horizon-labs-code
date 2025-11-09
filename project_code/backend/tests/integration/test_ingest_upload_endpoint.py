@@ -83,3 +83,28 @@ async def test_ingest_upload_endpoint_handles_pipeline_error(
 
     assert response.status_code == 500
     assert response.json()["detail"] == "pipeline exploded"
+
+
+@pytest.mark.asyncio
+async def test_ingest_delete_document_invokes_pipeline(
+    async_client,
+    test_llm_service: LLMService,
+) -> None:
+    class DeletingPipeline:
+        def __init__(self) -> None:
+            self.deleted: list[str] = []
+
+        async def ingest(self, **_: Any) -> IngestionResult:  # pragma: no cover - unused in delete test
+            raise AssertionError("ingest should not be called")
+
+        def delete_document(self, document_id: str) -> None:
+            self.deleted.append(document_id)
+
+    pipeline = DeletingPipeline()
+    test_llm_service._ingestion_pipeline = pipeline  # type: ignore[attr-defined]
+
+    response = await async_client.delete("/ingest/document/doc-42")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "deleted", "document_id": "doc-42"}
+    assert pipeline.deleted == ["doc-42"]
