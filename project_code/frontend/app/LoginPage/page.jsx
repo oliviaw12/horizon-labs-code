@@ -38,7 +38,7 @@ export default function LoginPage() {
     if (role === "instructor") {
       router.push("/Instructor");
     } else {
-      router.push("/Student/chat");
+      router.push("/Student/HomePage");
     }
   };
 

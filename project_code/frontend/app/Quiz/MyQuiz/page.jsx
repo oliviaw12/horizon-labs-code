@@ -60,9 +60,6 @@ export default function MyQuizPage() {
     loadQuizzes();
   }, []);
 
-  const handleCreateQuiz = () => {
-    router.push("/Instructor/QuizGenerator");
-  };
 
   return (
     <div className="min-h-screen bg-white px-8 py-8">
@@ -94,7 +91,7 @@ export default function MyQuizPage() {
               <p
                 className={`text-lg text-gray-600 mb-6 ${poppins.className}`}
               >
-                Quizzes you create will appear here
+                Quizzes the instructor handed out will appear here
               </p>
 
               {/* Illustration - Box with items jumping out */}
@@ -156,17 +153,6 @@ export default function MyQuizPage() {
                   />
                 </svg>
               </div>
-
-              {/* Create Quiz Button */}
-              <button
-                onClick={handleCreateQuiz}
-                className={`px-8 py-4 rounded-xl text-white font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
-                style={{
-                  background: "linear-gradient(to right, #7B2CBF, #3B82F6)",
-                }}
-              >
-                + Create a Quiz
-              </button>
             </div>
           ) : (
             /* Quizzes List */

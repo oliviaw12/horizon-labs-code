@@ -51,9 +51,7 @@ export default function InstructorPage() {
                   onClick={handleQuizGenerator}
                   className="relative inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
-                  <div className="flex items-center justify-center bg-white/20 rounded-lg p-1">
-                    <img src="/QuizQ.png" alt="Quiz Bubble" className="w-6 h-6" />
-                  </div>
+                    <img src="/Qbubble.png" alt="Quiz Bubble" className="w-6 h-6" />
                   <span className={poppins.className}>Quiz Generator</span>
                 </button>
               </div>
