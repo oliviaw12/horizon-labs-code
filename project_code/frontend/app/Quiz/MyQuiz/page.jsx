@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
-
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -14,53 +13,49 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8
   /\/$/,
   ""
 );
-const GET_MY_QUIZZES_ENDPOINT = `${API_BASE_URL}/quiz/my-quizzes`;
 
-// Placeholder API function to get user's quizzes
-const fetchMyQuizzes = async () => {
-  try {
-    const response = await fetch(GET_MY_QUIZZES_ENDPOINT, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+const QUIZ_DEFINITIONS_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch quizzes: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching quizzes:", error);
-    // Return empty array for development
-    return { quizzes: [] };
-  }
-};
 
 export default function MyQuizPage() {
   const router = useRouter();
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [error, setError] = useState(null);
   useEffect(() => {
-    const loadQuizzes = async () => {
+    let isMounted = true;
+    const fetchQuizzes = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        const data = await fetchMyQuizzes();
-        setQuizzes(data.quizzes || []);
-      } catch (error) {
-        console.error("Failed to load quizzes:", error);
+        const response = await fetch(QUIZ_DEFINITIONS_ENDPOINT);
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.detail || "Unable to load quizzes.");
+        }
+        const data = await response.json();
+        if (!isMounted) return;
+        setQuizzes(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err.message || "Unable to load quizzes.");
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
+    
 
-    loadQuizzes();
+    fetchQuizzes();
   }, []);
 
-
+  const handleCreateQuiz = () => {
+    router.push("/Instructor/QuizGenerator");
+  };
+  const handleOpenQuiz = (quiz) => {
+    router.push("/Quiz/1");
+  };
   return (
     <div className="min-h-screen bg-white px-8 py-8">
       <div className="max-w-6xl mx-auto">
@@ -72,7 +67,7 @@ export default function MyQuizPage() {
             My Quizzes
           </h1>
           <p className={`text-base text-gray-600 ${poppins.className}`}>
-            Quizzes will simulate real tests/exams with time limits.
+            Quizzes are created by the given material.
           </p>
         </div>
 
@@ -91,7 +86,7 @@ export default function MyQuizPage() {
               <p
                 className={`text-lg text-gray-600 mb-6 ${poppins.className}`}
               >
-                Quizzes the instructor handed out will appear here
+                Quizzes you create and hand out by the instructor will appear here
               </p>
 
               {/* Illustration - Box with items jumping out */}
@@ -153,14 +148,27 @@ export default function MyQuizPage() {
                   />
                 </svg>
               </div>
+
+              {/* Create Quiz Button */}
+              <button
+                onClick={handleCreateQuiz}
+                className={`px-8 py-4 rounded-xl text-white font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
+                style={{
+                  background: "linear-gradient(to right, #7B2CBF, #3B82F6)",
+                }}
+              >
+                + Create a Quiz
+              </button>
             </div>
           ) : (
             /* Quizzes List */
             <div className="space-y-4">
               {quizzes.map((quiz) => (
-                <div
-                  key={quiz.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                <button
+                  key={quiz.quiz_id}
+                  type="button"
+                  onClick={() => handleOpenQuiz(quiz)}
+                  className="w-full border border-gray-200 rounded-lg p-4 text-left hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-purple-400"
                 >
                   <h3
                     className={`text-xl font-semibold text-purple-900 mb-2 ${poppins.className}`}
@@ -175,7 +183,7 @@ export default function MyQuizPage() {
                     <span>Mode: {quiz.mode || "N/A"}</span>
                     <span>Created: {quiz.createdAt ? new Date(quiz.createdAt).toLocaleDateString() : "N/A"}</span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
