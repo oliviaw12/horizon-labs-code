@@ -36,7 +36,7 @@ export default function ConditionalHeader() {
   const isInstructorFlow = pathname.startsWith("/Instructor");
   const effectiveRole = isInstructorFlow ? "instructor" : role;
   const handleProfileClick = () => {
-    const destination = effectiveRole === "instructor" ? "/Instructor" : "/Student/chat";
+    const destination = effectiveRole === "instructor" ? "/Instructor" : "/Student";
     router.push(destination);
   };
 

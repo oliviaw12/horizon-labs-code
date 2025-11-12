@@ -46,13 +46,42 @@ export default function InstructorPage() {
                 </p>
               </div>
 
-              <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <button
                   onClick={handleQuizGenerator}
-                  className="relative inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
-                    <img src="/Qbubble.png" alt="Quiz Bubble" className="w-6 h-6" />
-                  <span className={poppins.className}>Quiz Generator</span>
+                  <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-purple-500 to-purple-700 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <img src="/Qbubble.png" alt="Quiz Generator" className="w-8 h-8" />
+                  </div>
+                  <div className="flex-1">
+                    <h2
+                      className={`text-2xl font-bold text-purple-900 mb-2 ${poppins.className}`}
+                    >
+                      Quiz Generator
+                    </h2>
+                    <p
+                      className={`text-base text-gray-600 ${poppins.className}`}
+                    >
+                      Build adaptive assessments and publish practice sets for your cohort.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-purple-600 font-semibold">
+                    <span className={poppins.className}>Start Creating</span>
+                    <svg
+                      className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
                 </button>
               </div>
             </div>
