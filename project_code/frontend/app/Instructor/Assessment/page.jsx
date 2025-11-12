@@ -403,42 +403,14 @@ export default function QuizGenerator2Page() {
     }
   };
 
-  const handleSaveQuiz = async () => {
-    await saveQuizRecord();
-  };
+  const handleSaveQuiz = async () => {};
 
-  const handlePublishQuiz = async () => {
-    await saveQuizRecord({ publishState: !isPublished });
-  };
+  const handlePublishQuiz = async () => {};
 
-  const handleDeleteQuiz = () => {
-    if (!existingQuizId) {
-      alert("Save this quiz first before trying to delete it.");
-      return;
-    }
-    setIsDeleteModalOpen(true);
-  };
+  const handleDeleteQuiz = () => {};
 
   const confirmDeleteQuiz = async () => {
-    if (!existingQuizId) return;
-    await deleteDocumentFromIndex();
-    await deleteQuizDefinition(existingQuizId);
-    setExistingQuizId(null);
-    setFormData({
-      title: "",
-      description: "",
-      numberOfAttempts: "",
-      numberOfQuestions: "",
-      timeLimit: "",
-      difficulty: "",
-      topicsToTest: [],
-    });
-    setTopicInput("");
-    setSourceFilename("");
-    setDocumentId(null);
-    setIsPublished(false);
     setIsDeleteModalOpen(false);
-    router.push("/Instructor/Quizzes");
   };
 
   const cancelDeleteQuiz = () => {
@@ -451,18 +423,10 @@ export default function QuizGenerator2Page() {
 
   const handleLeaveWithoutSaving = async () => {
     setIsExitModalOpen(false);
-    if (!existingQuizId && !isHydratingRef.current) {
-      await deleteDocumentFromIndex();
-    }
-    router.push("/Instructor/Quizzes");
   };
 
   const handleSaveAndExit = async () => {
-    const saved = await saveQuizRecord();
-    if (saved) {
-      setIsExitModalOpen(false);
-      router.push("/Instructor/Quizzes");
-    }
+    setIsExitModalOpen(false);
   };
 
   const handleStayOnPage = () => {
@@ -472,10 +436,10 @@ export default function QuizGenerator2Page() {
   return (
     <div className="relative min-h-screen bg-white px-8 py-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-4">
+      <div className="mb-4">
             <button
               type="button"
-              onClick={handleBackToQuizList}
+              onClick={() => router.push("/Instructor/Quizzes")}
               className={`text-base text-purple-700 hover:text-purple-900 font-semibold ${poppins.className}`}
             >
               ← Back to Quiz List
@@ -615,16 +579,19 @@ export default function QuizGenerator2Page() {
               >
                 Difficulty <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 id="difficulty"
                 name="difficulty"
                 value={formData.difficulty}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-2 border border-purple-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${poppins.className}`}
-                placeholder="e.g., Easy, Medium, Hard"
-              />
-            </div>
+              >
+                <option value="">Select difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+           </div>
           </div>
         </div>
 
@@ -686,7 +653,7 @@ export default function QuizGenerator2Page() {
                         <span className={`text-sm text-gray-800 ${poppins.className}`}>{topic}</span>
                         <button
                           type="button"
-                          onClick={() => handleRemoveTopic(topic)}
+                          onClick={() => {}}
                           className="text-xs text-red-500 hover:text-red-600 font-semibold"
                         >
                           Remove
@@ -703,36 +670,30 @@ export default function QuizGenerator2Page() {
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-3">
-            {/* Save Quiz Button */}
             <button
               type="button"
-              onClick={handleSaveQuiz}
-              disabled={!formData.title.trim()}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg text-purple-900 bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed ${poppins.className}`}
+              onClick={() => {}}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg text-purple-900 bg-purple-100 ${poppins.className}`}
             >
               Save Quiz
             </button>
-            {/* Delete Quiz Button */}
             <button
               type="button"
-              onClick={handleDeleteQuiz}
-              disabled={!existingQuizId}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg text-white bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed ${poppins.className}`}
+              onClick={() => {}}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg text-white bg-red-500 ${poppins.className}`}
             >
               Delete Quiz
             </button>
           </div>
 
           <div className="flex flex-wrap gap-3 justify-end">
-            {/* Preview Quiz Button */}
             <button
-              onClick={handlePreviewQuiz}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
+              onClick={() => {}}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg ${poppins.className}`}
               style={{
                 background: "linear-gradient(to right, #7B2CBF, #3B82F6)",
               }}
             >
-              {/* Play Icon */}
               <svg
                 width="20"
                 height="20"
@@ -748,10 +709,9 @@ export default function QuizGenerator2Page() {
               Preview Quiz
             </button>
 
-            {/* Publish Quiz Button */}
             <button
-              onClick={handlePublishQuiz}
-              className={`px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg ${poppins.className}`}
+              onClick={() => {}}
+              className={`px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg ${poppins.className}`}
               style={{
                 background: "linear-gradient(to right, #EC4899, #F97316)",
               }}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Poppins } from "next/font/google";
+import { useRouter } from "next/navigation";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -114,6 +115,7 @@ const describeLLMUsage = (sourceRaw, label) => {
 };
 
 export default function ChatPage() {
+  const router = useRouter();
   const [sessions, setSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [messages, setMessages] = useState([createWelcomeMessage()]);
@@ -898,7 +900,17 @@ export default function ChatPage() {
   const classificationLLM = describeLLMUsage(classificationSource, classificationLabel);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 md:flex-row md:px-8">
+    <div className="mx-auto w-full max-w-7xl px-4 py-10 md:px-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => router.push("/Student/HomePage")}
+          className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-purple-400"
+        >
+          ← Back to Home
+        </button>
+      </div>
+      <div className="flex w-full flex-col gap-8 md:flex-row">
       <aside className="w-full md:w-72">
         <div className="rounded-3xl bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
@@ -1400,6 +1412,7 @@ export default function ChatPage() {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }

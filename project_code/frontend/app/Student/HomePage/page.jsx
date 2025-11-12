@@ -10,12 +10,20 @@ const poppins = Poppins({
 
 export default function StudentHomePage() {
   const router = useRouter();
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   const handleChat = () => {
     router.push("/Student/chat");
   };
 
-  const handleQuiz = () => {};
+  const handleQuiz = () => {
+    router.push("/Student/Quizzes");
+  };
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -27,17 +35,13 @@ export default function StudentHomePage() {
         <div className="flex-1 bg-white relative z-10">
           <div className="min-h-[calc(100vh-4rem)] flex flex-col px-6 py-10 sm:px-10 lg:px-16">
             <div className="flex flex-col max-w-4xl pt-10 sm:pt-12 lg:pt-16">
-              <div className="mb-8 sm:mb-10">
+              <div className="mb-8 sm:mb-10 space-y-2">
                 <h1
-                  className={`text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 ${poppins.className}`}
+                  className={`text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 ${poppins.className}`}
                 >
                   Welcome Student
                 </h1>
-                <p
-                  className={`text-base sm:text-lg text-gray-500 ${poppins.className}`}
-                >
-                  Choose an option to get started
-                </p>
+                <p className={`text-base sm:text-lg text-gray-500 ${poppins.className}`}>{formattedDate}</p>
               </div>
 
               {/* Options Grid */}

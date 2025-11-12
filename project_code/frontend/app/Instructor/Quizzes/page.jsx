@@ -142,8 +142,15 @@ export default function InstructorQuizzesPage() {
 
   return (
     <div className="min-h-screen bg-white px-8 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="max-w-6xl mx-auto space-y-4">
+        <button
+          type="button"
+          onClick={() => router.push("/Instructor")}
+          className={`inline-flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-purple-400 ${poppins.className}`}
+        >
+          ← Back to Home
+        </button>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className={`text-4xl font-bold text-purple-900 mb-2 ${poppins.className}`}>
               My Quizzes

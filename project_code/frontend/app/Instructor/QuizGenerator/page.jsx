@@ -40,6 +40,7 @@ export default function QuizGeneratorPage() {
 
   const handleModeSelect = (mode) => {
     setSelectedMode(mode);
+    setIngestError(null);
   };
 
   const handleFileUpload = (e) => {
@@ -77,13 +78,15 @@ export default function QuizGeneratorPage() {
   };
 
   const handleNext = () => {
-    if (!uploadedFile) {
-      setIngestError("Please upload a file before continuing.");
-      return;
-    }
-    if (!ingestedDocumentId || ingestedFilename !== uploadedFile.name) {
-      setIngestError("Please ingest your latest upload before continuing.");
-      return;
+    if (selectedMode !== "assessment") {
+      if (!uploadedFile) {
+        setIngestError("Please upload a file before continuing.");
+        return;
+      }
+      if (!ingestedDocumentId || ingestedFilename !== uploadedFile.name) {
+        setIngestError("Please ingest your latest upload before continuing.");
+        return;
+      }
     }
     saveSeedAndNavigate();
   };
@@ -167,9 +170,10 @@ export default function QuizGeneratorPage() {
   const handleStay = () => setIsExitModalOpen(false);
 
   const canProceed =
-    Boolean(ingestedDocumentId) &&
-    Boolean(uploadedFile) &&
-    ingestedFilename === uploadedFile?.name;
+    selectedMode === "assessment" ||
+    (Boolean(ingestedDocumentId) &&
+      Boolean(uploadedFile) &&
+      ingestedFilename === uploadedFile?.name);
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 relative">
@@ -194,13 +198,14 @@ export default function QuizGeneratorPage() {
 
       <div className="flex gap-6 mb-12">
         <button
-          className={`px-8 py-4 rounded-xl font-semibold shadow-lg cursor-not-allowed opacity-60 ${poppins.className}`}
+          onClick={() => handleModeSelect("assessment")}
+          className={`px-8 py-4 rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105 ${
+            selectedMode === "assessment" ? "ring-4 ring-offset-2 ring-purple-300" : ""
+          } ${poppins.className}`}
           style={{
-            background: "linear-gradient(to right, #9CA3AF, #6B7280)",
-            color: "#E5E7EB",
+            background: "linear-gradient(to right, #7B2CBF, #9333EA)",
+            color: "#F8FAFC",
           }}
-          disabled
-          aria-disabled="true"
         >
           Assessment
         </button>
