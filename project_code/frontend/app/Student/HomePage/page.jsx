@@ -15,6 +15,8 @@ export default function StudentHomePage() {
     router.push("/Student/chat");
   };
 
+  const handleQuiz = () => {};
+
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       <div className="flex h-full min-h-screen flex-col xl:flex-row">
@@ -45,7 +47,7 @@ export default function StudentHomePage() {
                   onClick={handleChat}
                   className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
-                  <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-purple-500 to-white-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-purple-500 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <img src="/chat.png" alt="Chat" className="w-8 h-8" />
                   </div>
                   <div className="flex-1">
@@ -81,27 +83,39 @@ export default function StudentHomePage() {
                 {/* Quiz Option */}
                 <button
                   type="button"
-                  disabled
-                  aria-disabled="true"
-                  className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-dashed border-gray-300 cursor-not-allowed opacity-70"
+                  onClick={handleQuiz}
+                  className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
-                  <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <img src="/Qbubble.png" alt="Quiz" className="w-8 h-8" />
                   </div>
                   <div className="flex-1">
                     <h2
-                      className={`text-2xl font-bold text-gray-700 mb-2 ${poppins.className}`}
+                      className={`text-2xl font-bold text-blue-900 mb-2 ${poppins.className}`}
                     >
-                      Practice Quizzes (Coming Soon)
+                      Assessment & Practice Quizzes
                     </h2>
                     <p
-                      className={`text-base text-gray-500 ${poppins.className}`}
+                      className={`text-base text-gray-600 ${poppins.className}`}
                     >
-                      This flow is under construction. Check back soon to try adaptive practice sets.
+                      Run timed assessments or adaptive practice sessions built from your course content.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-500 font-semibold uppercase tracking-wide text-sm">
-                    <span className={poppins.className}>Unavailable</span>
+                  <div className="flex items-center gap-2 text-blue-600 font-semibold">
+                    <span className={poppins.className}>View Quizzes</span>
+                    <svg
+                      className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
                   </div>
                 </button>
               </div>
