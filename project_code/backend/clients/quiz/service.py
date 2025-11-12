@@ -587,7 +587,11 @@ class QuizService:
             if question is None:
                 record = replace(record, missed_question_ids=queue)
                 continue
+            question = self._duplicate_question_for_review(question)
             now = datetime.now(timezone.utc)
+            preview_question_ids = record.preview_question_ids
+            if record.is_preview and question.question_id not in preview_question_ids:
+                preview_question_ids = [*preview_question_ids, question.question_id]
             updated_record = replace(
                 record,
                 missed_question_ids=queue,
@@ -595,6 +599,7 @@ class QuizService:
                 asked_question_ids=[*record.asked_question_ids, question.question_id],
                 active_question_id=question.question_id,
                 active_question_served_at=now,
+                preview_question_ids=preview_question_ids,
             )
             self._repository.save_session(updated_record)
             return question, updated_record
@@ -670,6 +675,26 @@ class QuizService:
         for question_id in record.preview_question_ids:
             self._repository.delete_quiz_question(question_id, quiz_id=record.quiz_id)
         self._repository.delete_session(record.session_id)
+
+    def _duplicate_question_for_review(self, question: QuizQuestionRecord) -> QuizQuestionRecord:
+        clone = QuizQuestionRecord(
+            quiz_id=question.quiz_id,
+            question_id=str(uuid.uuid4()),
+            prompt=question.prompt,
+            choices=list(question.choices),
+            correct_answer=question.correct_answer,
+            rationale=question.rationale,
+            incorrect_rationales=dict(question.incorrect_rationales),
+            topic=question.topic,
+            difficulty=question.difficulty,
+            order=question.order,
+            generated_at=datetime.now(timezone.utc),
+            source_session_id=question.source_session_id,
+            source_document_id=question.source_document_id,
+            source_metadata=dict(question.source_metadata or {}),
+        )
+        self._repository.save_quiz_question(clone)
+        return clone
 
     def delete_preview_session(self, session_id: str) -> None:
         record = self._load_session(session_id)
