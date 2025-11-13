@@ -8,7 +8,7 @@ langchain-community
 langchain[google-genai]
 langchain[openai]
 langchain-huggingface
-sentence-transformers
+# sentence-transformers (heavy) removed for production; keep in dev requirements if needed
 langchain-google-genai
 langchain-core
 beautifulsoup4
@@ -18,5 +18,6 @@ pytest-asyncio
 httpx
 pinecone
 python-pptx
+pypdf
 trio
 pypdf
