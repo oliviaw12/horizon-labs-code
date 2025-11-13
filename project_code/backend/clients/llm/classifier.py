@@ -7,7 +7,14 @@ from typing import Iterable, Optional
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
+try:  # pragma: no cover - dependency optional in some deployments
+    from langchain_openai import ChatOpenAI as _ChatOpenAI  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - executed when package missing
+    _ChatOpenAI = None  # type: ignore[assignment]
+
 from .settings import Settings
+
+ChatOpenAI = _ChatOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +51,10 @@ class TurnClassifier:
 
         raw_response_text: Optional[str] = None
         try:
-            from langchain_openai import ChatOpenAI  # type: ignore
+            if ChatOpenAI is None:
+                raise RuntimeError(
+                    "langchain-openai is required to run the turn classifier. Install the dependency to continue."
+                )
 
             llm = ChatOpenAI(
                 model=self._model_name,

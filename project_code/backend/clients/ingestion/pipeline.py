@@ -6,10 +6,17 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Optional, Sequence
 
+try:  # pragma: no cover - dependency optional during local testing
+    from pypdf import PdfReader as _PdfReader  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - executed when package missing
+    _PdfReader = None  # type: ignore[assignment]
+
 from clients.database.pinecone import PineconeRepository
 from clients.llm.settings import Settings
 
 logger = logging.getLogger(__name__)
+
+PdfReader = _PdfReader
 
 
 @dataclass
@@ -90,10 +97,10 @@ class PDFExtractor:
     """Extracts page-level text from a PDF document."""
 
     def extract(self, file_bytes: bytes) -> List[SlideChunk]:
-        try:
-            from pypdf import PdfReader  # type: ignore
-        except ModuleNotFoundError as exc:  # pragma: no cover - import guard
-            raise RuntimeError("pypdf is required to ingest PDF files. Install the dependency to continue.") from exc
+        if PdfReader is None:
+            raise RuntimeError(
+                "pypdf is required to ingest PDF files. Install the dependency to continue."
+            )
 
         reader = PdfReader(io.BytesIO(file_bytes))
         chunks: List[SlideChunk] = []
