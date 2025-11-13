@@ -55,7 +55,27 @@ export default function InstructorQuizzesPage() {
 
   const hasQuizzes = quizzes.length > 0;
 
+  const clearDraftState = () => {
+    if (typeof window === "undefined") return;
+    const keys = [
+      "quizConfigDraft",
+      "quizPreviewData",
+      "quizPreviewSession",
+      "quizPreviewQuestions",
+      "quizPreviewResponses",
+    ];
+    for (const key of keys) {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.warn("Unable to clear stored quiz state", error);
+        break;
+      }
+    }
+  };
+
   const handleCreateQuiz = () => {
+    clearDraftState();
     router.push("/Instructor/QuizGenerator");
   };
 

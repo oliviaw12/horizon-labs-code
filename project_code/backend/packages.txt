@@ -2,7 +2,6 @@ fastapi[standard]
 uvicorn[standard]
 python-dotenv
 openai
-langchain-huggingface
 langchain==1.0.0a14
 langchain-text-splitters
 langchain-community==1.0.0a1
@@ -11,12 +10,10 @@ langchain-openai==1.0.0a4
 # sentence-transformers (heavy) removed for production; install in dev environment if needed
 langchain-google-genai
 langchain-core==1.0.0a8
-beautifulsoup4
 google-cloud-firestore
 pytest
 pytest-asyncio
 httpx
 pinecone
 python-pptx
-trio
 pypdf

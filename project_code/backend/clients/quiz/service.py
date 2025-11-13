@@ -68,7 +68,8 @@ class QuizService:
         self._increase_threshold = max(self._settings.practice_increase_streak, 1)
         self._decrease_threshold = max(self._settings.practice_decrease_streak, 1)
         self._generator = generator or self._select_generator()
-        self._context_retriever = context_retriever or self._select_retriever()
+        self._context_retriever = context_retriever
+        self._retriever_failed = False
         self._coverage_threshold = getattr(self._settings, "slide_coverage_threshold", 0.7)
         self._retriever_sample_size = getattr(self._settings, "retriever_context_sample_size", 4)
         self._retriever_top_k = getattr(self._settings, "retriever_top_k", 20)
@@ -82,7 +83,7 @@ class QuizService:
     def upsert_quiz_definition(
         self,
         *,
-        quiz_id: str,
+        quiz_id: Optional[str],
         name: Optional[str],
         topics: List[str],
         default_mode: QuizMode,
@@ -102,10 +103,12 @@ class QuizService:
         if default_mode not in ("assessment", "practice"):
             raise QuizGenerationError("Unsupported default mode.")
 
-        existing = self._repository.load_quiz_definition(quiz_id)
+        quiz_id_value = (quiz_id or "").strip() or uuid.uuid4().hex
+
+        existing = self._repository.load_quiz_definition(quiz_id_value)
         created_at = existing.created_at if existing else datetime.now(timezone.utc)
         record = QuizDefinitionRecord(
-            quiz_id=quiz_id,
+            quiz_id=quiz_id_value,
             name=name,
             topics=cleaned_topics,
             default_mode=default_mode,
@@ -425,9 +428,10 @@ class QuizService:
         contexts_payload: List[Dict[str, object]] = []
         coverage_reset = False
         session_state = session
-        if self._context_retriever and definition.embedding_document_id:
+        retriever = self._get_context_retriever()
+        if retriever and definition.embedding_document_id:
             try:
-                contexts, coverage_reset = self._context_retriever.fetch(
+                contexts, coverage_reset = retriever.fetch(
                     document_id=definition.embedding_document_id,
                     topic=topic,
                     difficulty=difficulty,
@@ -472,9 +476,10 @@ class QuizService:
             except Exception as exc:  # pragma: no cover - defensive fallback
                 generation_error = "Question generator is temporarily unavailable. Please try again."
                 logger.exception(
-                    "Unexpected error while generating quiz question for quiz %s (topic=%s)",
+                    "Unexpected error while generating quiz question for quiz %s (topic=%s): %s",
                     session.quiz_id,
                     topic,
+                    exc,
                 )
 
         if coverage_reset and session_state.used_slide_ids:
@@ -726,6 +731,18 @@ class QuizService:
                 exc,
             )
             return None
+
+    def _get_context_retriever(self) -> Optional[SlideContextRetriever]:
+        if self._context_retriever is not None:
+            return self._context_retriever
+        if self._retriever_failed:
+            return None
+        retriever = self._select_retriever()
+        if retriever is None:
+            self._retriever_failed = True
+            return None
+        self._context_retriever = retriever
+        return retriever
 
     def _select_retriever(self) -> Optional[SlideContextRetriever]:
         try:
