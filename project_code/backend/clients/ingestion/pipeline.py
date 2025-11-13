@@ -2,16 +2,9 @@ from __future__ import annotations
 
 import io
 import logging
-from dataclasses import dataclass
 import asyncio
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence
-try:  # LangChain splitters moved to a standalone package in recent versions
-    from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover - executed in newer LangChain installs
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from pptx import Presentation
-from pypdf import PdfReader
 
 from clients.database.pinecone import PineconeRepository
 from clients.llm.settings import Settings
@@ -55,6 +48,13 @@ class SlideExtractor:
     """Pulls raw text (and titles) from a slide deck."""
 
     def extract(self, file_bytes: bytes) -> List[SlideChunk]:
+        try:
+            from pptx import Presentation  # type: ignore
+        except ModuleNotFoundError as exc:  # pragma: no cover - import guard
+            raise RuntimeError(
+                "python-pptx is required to ingest PowerPoint files. Install the dependency to continue."
+            ) from exc
+
         presentation = Presentation(io.BytesIO(file_bytes))
         chunks: List[SlideChunk] = []
         for slide_number, slide in enumerate(presentation.slides, start=1):
@@ -90,6 +90,11 @@ class PDFExtractor:
     """Extracts page-level text from a PDF document."""
 
     def extract(self, file_bytes: bytes) -> List[SlideChunk]:
+        try:
+            from pypdf import PdfReader  # type: ignore
+        except ModuleNotFoundError as exc:  # pragma: no cover - import guard
+            raise RuntimeError("pypdf is required to ingest PDF files. Install the dependency to continue.") from exc
+
         reader = PdfReader(io.BytesIO(file_bytes))
         chunks: List[SlideChunk] = []
         for page_number, page in enumerate(reader.pages, start=1):
@@ -116,6 +121,11 @@ class SlideChunker:
     """Turns slide-level text into smaller semantic units."""
 
     def __init__(self, *, chunk_size: int = 500, chunk_overlap: int = 75) -> None:
+        try:  # LangChain splitters moved to a standalone package in recent versions
+            from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
+        except ModuleNotFoundError:  # pragma: no cover - executed in newer LangChain installs
+            from langchain_text_splitters import RecursiveCharacterTextSplitter  # type: ignore
+
         self._splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
@@ -149,6 +159,13 @@ class EmbeddingService:
             raise RuntimeError(
                 "GOOGLE_API_KEY is required to generate embeddings. Update your .env with a valid key."
             )
+        try:
+            from langchain_google_genai import GoogleGenerativeAIEmbeddings  # type: ignore
+        except ModuleNotFoundError as exc:  # pragma: no cover - import guard
+            raise RuntimeError(
+                "langchain-google-genai is required for embeddings. Install the dependency to continue."
+            ) from exc
+
         self._settings = settings
         self._client = GoogleGenerativeAIEmbeddings(
             model=settings.google_embeddings_model_name,

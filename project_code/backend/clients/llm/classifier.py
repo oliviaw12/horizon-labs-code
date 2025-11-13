@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
 
 from .settings import Settings
 
@@ -45,6 +44,8 @@ class TurnClassifier:
 
         raw_response_text: Optional[str] = None
         try:
+            from langchain_openai import ChatOpenAI  # type: ignore
+
             llm = ChatOpenAI(
                 model=self._model_name,
                 temperature=self._temperature,
