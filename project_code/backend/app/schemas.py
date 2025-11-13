@@ -76,7 +76,10 @@ QuizStatusLiteral = Literal["in_progress", "completed", "timed_out"]
 
 
 class QuizDefinitionRequest(BaseModel):
-    quiz_id: str = Field(..., description="Stable identifier chosen by the instructor")
+    quiz_id: Optional[str] = Field(
+        default=None,
+        description="Stable identifier for the quiz. Leave blank to auto-generate a new quiz.",
+    )
     name: Optional[str] = Field(default=None, description="Human-friendly quiz name")
     topics: List[str] = Field(..., description="Topics or tags drawn from the source material")
     default_mode: QuizModeLiteral = Field(..., description="Default mode learners will use when starting sessions")

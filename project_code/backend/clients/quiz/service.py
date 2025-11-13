@@ -83,7 +83,7 @@ class QuizService:
     def upsert_quiz_definition(
         self,
         *,
-        quiz_id: str,
+        quiz_id: Optional[str],
         name: Optional[str],
         topics: List[str],
         default_mode: QuizMode,
@@ -103,10 +103,12 @@ class QuizService:
         if default_mode not in ("assessment", "practice"):
             raise QuizGenerationError("Unsupported default mode.")
 
-        existing = self._repository.load_quiz_definition(quiz_id)
+        quiz_id_value = (quiz_id or "").strip() or uuid.uuid4().hex
+
+        existing = self._repository.load_quiz_definition(quiz_id_value)
         created_at = existing.created_at if existing else datetime.now(timezone.utc)
         record = QuizDefinitionRecord(
-            quiz_id=quiz_id,
+            quiz_id=quiz_id_value,
             name=name,
             topics=cleaned_topics,
             default_mode=default_mode,

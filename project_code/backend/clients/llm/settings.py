@@ -99,6 +99,11 @@ class Settings(BaseModel):
         ge=0,
         description="Maximum number of chat sessions to keep in memory (0 disables eviction)",
     )
+    ingest_batch_size: int = Field(
+        default=64,
+        ge=1,
+        description="Number of chunks to embed/index per batch during ingestion",
+    )
 
 
 @lru_cache
@@ -114,6 +119,9 @@ def get_settings() -> Settings:
     cache_limit = int(cache_limit_raw) if cache_limit_raw is not None else 200
     if cache_limit < 0:
         cache_limit = 0
+    ingest_batch_size = int(os.environ.get("INGEST_BATCH_SIZE", "64"))
+    if ingest_batch_size < 1:
+        ingest_batch_size = 64
 
     return Settings(
         openrouter_api_key=api_key,
@@ -139,4 +147,5 @@ def get_settings() -> Settings:
             int(os.environ["PINECONE_INDEX_DIMENSION"]) if os.environ.get("PINECONE_INDEX_DIMENSION") else None
         ),
         max_cached_sessions=cache_limit,
+        ingest_batch_size=ingest_batch_size,
     )
