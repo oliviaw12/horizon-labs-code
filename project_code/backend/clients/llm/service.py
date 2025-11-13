@@ -17,7 +17,6 @@ from ..database.chat_repository import (
     ChatSessionRecord,
     FirestoreChatRepository,
     InMemoryChatRepository,
-    ChatSessionSummary,
 )
 from ..ingestion import IngestionResult, SlideIngestionPipeline
 from .classifier import ClassificationResult, TurnClassifier
@@ -545,9 +544,6 @@ class LLMService:
                 "the learner's (HumanMessage) prior reasoning while confirming key concepts. If the learner is stuck, " \
                 "offer a direct answer with context and examples (ONLY ON PREVIOUSLY DISCUSSED TOPICS). " \
                 "At the end, suggest 2 to 3 follow-ups to deepen understanding."
-            ),
-            "quiz": SystemMessage(
-                "You are Horizon Labs' learning coach. Create quizzes that assess understanding."
             ),
         }
 

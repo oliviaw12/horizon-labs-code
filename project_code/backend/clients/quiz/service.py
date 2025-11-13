@@ -474,9 +474,10 @@ class QuizService:
             except Exception as exc:  # pragma: no cover - defensive fallback
                 generation_error = "Question generator is temporarily unavailable. Please try again."
                 logger.exception(
-                    "Unexpected error while generating quiz question for quiz %s (topic=%s)",
+                    "Unexpected error while generating quiz question for quiz %s (topic=%s): %s",
                     session.quiz_id,
                     topic,
+                    exc,
                 )
 
         if coverage_reset and session_state.used_slide_ids:

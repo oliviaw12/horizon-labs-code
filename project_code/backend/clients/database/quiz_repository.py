@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, Iterable, List, Literal, Optional, Protocol
+from typing import Dict, List, Literal, Optional, Protocol
 
 try:  # pragma: no cover - optional dependency
     from google.cloud import firestore  # type: ignore[import]
@@ -286,9 +286,6 @@ class QuizRepository(Protocol):
         ...
 
     def save_quiz_definition(self, record: QuizDefinitionRecord) -> None:
-        ...
-
-    def delete_quiz_definition(self, quiz_id: str) -> None:
         ...
 
     def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
