@@ -39,21 +39,22 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pytest
+          pip install -r requirements.txt
 
       - name: Run backend tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/project_code/backend
         run: |
-          echo "Running pytest for backend"
-          if [ -d "tests" ]; then
-            echo "Found tests/ in working directory; running pytest tests"
-            pytest tests -q
-          elif [ -d "../tests" ]; then
-            echo "Found ../tests/; running pytest ../tests"
-            pytest ../tests -q
-          else
-            echo "No tests directory found at tests/ or ../tests/; running pytest -q (may error)"
-            pytest -q
-          fi
+          echo "Running pytest for backend with coverage"
+          pytest
+
+      - name: Upload backend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: project_code/backend/coverage.xml
+          if-no-files-found: error
 
   frontend:
     name: Frontend App
