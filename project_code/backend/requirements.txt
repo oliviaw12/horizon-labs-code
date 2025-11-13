@@ -15,6 +15,7 @@ beautifulsoup4
 google-cloud-firestore
 pytest
 pytest-asyncio
+pytest-cov
 httpx
 pinecone
 python-pptx
