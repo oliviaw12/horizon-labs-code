@@ -311,6 +311,8 @@ class QuizRepository(Protocol):
 
     def delete_quiz_definition(self, quiz_id: str) -> None:
         ...
+    def delete_sessions_for_quiz(self, quiz_id: str) -> None:
+        ...
 
     # Question bank
     def list_quiz_questions(self, quiz_id: str) -> List[QuizQuestionRecord]:
@@ -373,6 +375,7 @@ class FirestoreQuizRepository:
     def delete_quiz_definition(self, quiz_id: str) -> None:
         self._delete_definition_questions(quiz_id)
         self._definitions.document(quiz_id).delete()
+        self.delete_sessions_for_quiz(quiz_id)
 
     def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
         records: List[QuizDefinitionRecord] = []
@@ -454,6 +457,10 @@ class FirestoreQuizRepository:
 
     def delete_session(self, session_id: str) -> None:
         self._sessions.document(session_id).delete()
+    def delete_sessions_for_quiz(self, quiz_id: str) -> None:
+        query = self._sessions.where("quiz_id", "==", quiz_id)
+        for doc in query.stream():
+            doc.reference.delete()
 
     def _definition_questions(self, quiz_id: str):
         return self._definitions.document(quiz_id).collection(self._question_subcollection)
@@ -493,6 +500,7 @@ class InMemoryQuizRepository:
 
     def delete_quiz_definition(self, quiz_id: str) -> None:
         self._definitions.pop(quiz_id, None)
+        self._sessions = {sid: payload for sid, payload in self._sessions.items() if payload.get("quiz_id") != quiz_id}
 
     def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
         records = [QuizDefinitionRecord.from_dict(payload) for payload in self._definitions.values()]
@@ -549,6 +557,12 @@ class InMemoryQuizRepository:
 
     def delete_session(self, session_id: str) -> None:
         self._sessions.pop(session_id, None)
+    def delete_sessions_for_quiz(self, quiz_id: str) -> None:
+        self._sessions = {
+            sid: payload
+            for sid, payload in self._sessions.items()
+            if payload.get("quiz_id") != quiz_id
+        }
 
 
 def _firestore_available() -> bool:

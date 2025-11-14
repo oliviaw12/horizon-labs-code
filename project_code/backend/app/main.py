@@ -292,11 +292,30 @@ def quiz_list_sessions(
 
 
 @app.delete("/quiz/definitions/{quiz_id}")
-def quiz_delete_definition(
+async def quiz_delete_definition(
     quiz_id: str,
     quiz_service: QuizService = Depends(get_quiz_service),
+    llm_service: LLMService = Depends(get_llm_service),
 ) -> dict[str, str]:
+    try:
+        definition = quiz_service.get_quiz_definition(quiz_id)
+    except QuizDefinitionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+    embedding_document_id = definition.embedding_document_id
     quiz_service.delete_quiz_definition(quiz_id)
+
+    if embedding_document_id:
+        try:
+            await llm_service.delete_document(embedding_document_id)
+        except Exception as exc:  # pragma: no cover - defensive logging
+            logging.getLogger("uvicorn.error").warning(
+                "Unable to delete embedding document %s for quiz %s: %s",
+                embedding_document_id,
+                quiz_id,
+                exc,
+            )
+
     return {"status": "deleted", "quiz_id": quiz_id}
 
 
