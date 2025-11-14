@@ -56,7 +56,7 @@ def get_quiz_settings() -> QuizSettings:
     coverage_threshold = float(os.environ.get("QUIZ_SLIDE_COVERAGE_THRESHOLD", "0.7"))
     context_sample_size = int(os.environ.get("QUIZ_RETRIEVER_CONTEXT_SAMPLE_SIZE", "4"))
     retriever_top_k = int(os.environ.get("QUIZ_RETRIEVER_TOP_K", "20"))
-    missed_gap = int(os.environ.get("QUIZ_MISSED_QUESTION_REVIEW_GAP", "2"))
+    missed_gap = int(os.environ.get("QUIZ_MISSED_QUESTION_REVIEW_GAP", "5"))
 
     return QuizSettings(
         practice_increase_streak=max(increase, 1),
