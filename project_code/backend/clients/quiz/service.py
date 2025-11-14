@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 import uuid
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -172,6 +173,10 @@ class QuizService:
             if definition.assessment_time_limit_minutes:
                 deadline = now + timedelta(minutes=definition.assessment_time_limit_minutes)
 
+        session_topics = list(definition.topics or ["General"])
+        if len(session_topics) > 1:
+            random.shuffle(session_topics)
+
         record = QuizSessionRecord(
             session_id=session_id,
             quiz_id=quiz_id,
@@ -182,7 +187,7 @@ class QuizService:
             correct_streak=0,
             incorrect_streak=0,
             attempts_used=0,
-            topics=definition.topics,
+            topics=session_topics,
             asked_question_ids=[],
             active_question_id=None,
             active_question_served_at=None,
@@ -247,6 +252,8 @@ class QuizService:
             for q in question_bank
             if q.question_id not in seen and q.question_id != record.queued_question_id
         ]
+        if len(available_existing) > 1:
+            random.shuffle(available_existing)
 
         target_topic, next_cursor, override_supplied = self._resolve_topic(record, definition, topic_override)
         effective_difficulty = difficulty_override or record.current_difficulty
@@ -408,8 +415,8 @@ class QuizService:
             else:
                 correct_streak = 0
 
-        max_correct_streak = max(record.max_correct_streak, correct_streak)
-        max_incorrect_streak = max(record.max_incorrect_streak, incorrect_streak)
+        max_correct_streak = self._calculate_max_streak(attempts, target_correct=True)
+        max_incorrect_streak = self._calculate_max_streak(attempts, target_correct=False)
 
         updated_record = replace(
             record,
@@ -474,9 +481,13 @@ class QuizService:
             updated_record = self._mark_completed(updated_record, status="completed")
         summary = self._build_summary(updated_record)
         updated_record = replace(updated_record, summary=summary)
-        self._repository.save_session(updated_record)
+        should_delete = not updated_record.attempts
         if updated_record.is_preview:
             self._cleanup_preview(updated_record)
+        elif should_delete:
+            self._repository.delete_session(updated_record.session_id)
+        else:
+            self._repository.save_session(updated_record)
         return summary
 
     def list_session_history(
@@ -698,7 +709,7 @@ class QuizService:
     ) -> Tuple[str, int, bool]:
         if topic_override:
             return topic_override, record.topic_cursor, True
-        topics = definition.topics or ["General"]
+        topics = record.topics or definition.topics or ["General"]
         cursor = record.topic_cursor % len(topics)
         topic = topics[cursor]
         next_cursor = (cursor + 1) % len(topics)
@@ -732,6 +743,19 @@ class QuizService:
         if remaining_existing:
             return "existing"
         return "generated"
+
+    def _calculate_max_streak(self, attempts: List[QuizAttemptRecord], *, target_correct: bool) -> int:
+        best = 0
+        current = 0
+        for attempt in attempts:
+            is_match = attempt.is_correct if target_correct else not attempt.is_correct
+            if is_match:
+                current += 1
+                if current > best:
+                    best = current
+            else:
+                current = 0
+        return best
 
     def _extract_total_slide_count(self, metadata: Optional[Dict[str, object]]) -> Optional[int]:
         if not metadata:

@@ -88,8 +88,10 @@ class SlideContextRetriever:
         if ratio is not None and ratio >= coverage_threshold:
             coverage_reset_needed = True
 
+        if matches:
+            random.shuffle(matches)
         if len(matches) > sample_size > 0:
-            matches = random.sample(matches, sample_size)
+            matches = matches[:sample_size]
 
         contexts: List[RetrievedContext] = []
         for match in matches:

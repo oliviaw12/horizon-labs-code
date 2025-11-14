@@ -53,6 +53,17 @@ const ReviewCard = ({ attempt, index }) => {
   const { question, response } = attempt;
   const selected = question.options.find((opt) => opt.text === response.selected_answer);
   const correct = question.options.find((opt) => opt.text === response.correct_answer);
+  const sourceMetadata = question.source_metadata || {};
+  const slideNumber = sourceMetadata.slide_number;
+  const slideTitle = sourceMetadata.slide_title;
+  const filename =
+    sourceMetadata.source_filename ||
+    sourceMetadata.document_title ||
+    sourceMetadata.sourceFilename ||
+    "Uploaded material";
+  const sourceLabel = slideNumber
+    ? `Slide ${slideNumber}${slideTitle ? ` · ${slideTitle}` : ""} · ${filename}`
+    : `${slideTitle || "Uploaded material"} · ${filename}`;
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
@@ -60,24 +71,55 @@ const ReviewCard = ({ attempt, index }) => {
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${response.is_correct ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
         >
-          {response.is_correct ? "Correct" : "Review"}
+          {response.is_correct ? "Correct" : "Incorrect"}
         </span>
       </div>
       <p className="mt-3 text-base font-medium text-gray-900">{question.prompt}</p>
-      <div className="mt-4 space-y-2 text-sm">
-        <p className="text-gray-700">
-          <span className="font-semibold">Your answer:</span> {selected ? selected.text : "—"}
-        </p>
-        <p className="text-gray-700">
-          <span className="font-semibold">Correct answer:</span> {correct ? correct.text : "—"}
-        </p>
-      </div>
-      {response.rationale && (
-        <div className="mt-4 rounded-xl bg-purple-50 px-4 py-3 text-sm text-purple-900">
-          <p className="font-semibold">Explanation</p>
-          <p className="mt-1 text-purple-900">{response.rationale}</p>
+      <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-3">
+        <div>
+          <span className="font-semibold text-gray-700">Topic:</span> {question.topic || "General"}
         </div>
-      )}
+        <div>
+          <span className="font-semibold text-gray-700">Difficulty:</span>{" "}
+          <span className="capitalize">{question.difficulty || "medium"}</span>
+        </div>
+        <div>
+          <span className="font-semibold text-gray-700">Source:</span> {sourceLabel}
+        </div>
+      </div>
+      <div className="mt-4 space-y-3 text-sm">
+        {question.options.map((option) => {
+          const isCorrect = option.text === response.correct_answer;
+          const wasSelected = option.text === response.selected_answer;
+          return (
+            <div
+              key={option.id}
+              className={`rounded-2xl border px-4 py-3 ${
+                isCorrect
+                  ? "border-green-500 bg-green-50 text-green-900"
+                  : wasSelected
+                  ? "border-red-500 bg-red-50 text-red-900"
+                  : "border-gray-200 bg-white text-gray-800"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-purple-700 mr-2">{option.id}.</span>
+                {isCorrect && <span className="text-xs font-semibold uppercase text-green-700">Correct</span>}
+                {!isCorrect && wasSelected && (
+                  <span className="text-xs font-semibold uppercase text-red-700">Selected</span>
+                )}
+              </div>
+              <p className="mt-1">{option.text}</p>
+              {isCorrect && response.correct_rationale && (
+                <p className="mt-2 text-sm text-gray-700">{response.correct_rationale}</p>
+              )}
+              {!isCorrect && wasSelected && response.incorrect_rationales?.[option.text] && (
+                <p className="mt-2 text-sm text-gray-700">{response.incorrect_rationales[option.text]}</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -256,7 +298,7 @@ export default function StudentQuizSessionPage() {
       setIsLoading(false);
       setIsFetchingQuestion(false);
     }
-  }, [currentQuestion, currentResponse, fetchSessionSnapshot, sessionId, showSummaryView]);
+  }, [fetchSessionSnapshot, sessionId, showSummaryView]);
 
   useEffect(() => {
     if (!summary || summary.status !== "in_progress") return;

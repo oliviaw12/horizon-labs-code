@@ -12,7 +12,7 @@ class QuizSettings(BaseModel):
     """Configuration parameters for quiz delivery."""
 
     practice_increase_streak: int = Field(
-        default=2,
+        default=3,
         ge=1,
         description="Consecutive correct answers required to increase practice difficulty",
     )
