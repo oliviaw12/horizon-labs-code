@@ -210,6 +210,12 @@ class QuizSessionRecord:
     questions_since_review: int = 0
     total_slide_count: Optional[int] = None
     coverage_cycle: int = 0
+    topic_cursor: int = 0
+    next_question_source: Literal["existing", "generated"] = "generated"
+    max_correct_streak: int = 0
+    max_incorrect_streak: int = 0
+    summary: Dict[str, object] = field(default_factory=dict)
+    queued_question_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, object]:
         payload: Dict[str, object] = {
@@ -234,6 +240,12 @@ class QuizSessionRecord:
             "questions_since_review": self.questions_since_review,
             "total_slide_count": self.total_slide_count,
             "coverage_cycle": self.coverage_cycle,
+            "topic_cursor": self.topic_cursor,
+            "next_question_source": self.next_question_source,
+            "max_correct_streak": self.max_correct_streak,
+            "max_incorrect_streak": self.max_incorrect_streak,
+            "summary": self.summary,
+            "queued_question_id": self.queued_question_id,
         }
         if self.active_question_served_at is not None:
             payload["active_question_served_at"] = self.active_question_served_at.isoformat()
@@ -275,6 +287,12 @@ class QuizSessionRecord:
                 else None
             ),
             coverage_cycle=int(payload.get("coverage_cycle", 0)),
+            topic_cursor=int(payload.get("topic_cursor", 0)),
+            next_question_source=str(payload.get("next_question_source", "generated")),  # type: ignore[arg-type]
+            max_correct_streak=int(payload.get("max_correct_streak", 0)),
+            max_incorrect_streak=int(payload.get("max_incorrect_streak", 0)),
+            summary=dict(payload.get("summary", {}) or {}),
+            queued_question_id=payload.get("queued_question_id"),
         )
 
 
@@ -312,6 +330,15 @@ class QuizRepository(Protocol):
         ...
 
     def save_session(self, record: QuizSessionRecord) -> None:
+        ...
+
+    def list_sessions(
+        self,
+        *,
+        quiz_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[QuizSessionRecord]:
         ...
 
     def delete_session(self, session_id: str) -> None:
@@ -391,6 +418,31 @@ class FirestoreQuizRepository:
 
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions.document(record.session_id).set(record.to_dict(), merge=True)
+
+    def list_sessions(
+        self,
+        *,
+        quiz_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[QuizSessionRecord]:
+        query = self._sessions
+        if quiz_id:
+            query = query.where("quiz_id", "==", quiz_id)
+        if user_id:
+            query = query.where("user_id", "==", user_id)
+        try:
+            query = query.order_by("started_at", direction=firestore.Query.DESCENDING)
+        except Exception:
+            pass
+        if limit:
+            query = query.limit(limit)
+
+        records: List[QuizSessionRecord] = []
+        for doc in query.stream():
+            data = doc.to_dict() or {}
+            records.append(QuizSessionRecord.from_dict(data))
+        return records
 
     def delete_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> None:
         if quiz_id:
@@ -472,6 +524,25 @@ class InMemoryQuizRepository:
 
     def save_session(self, record: QuizSessionRecord) -> None:
         self._sessions[record.session_id] = record.to_dict()
+
+    def list_sessions(
+        self,
+        *,
+        quiz_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[QuizSessionRecord]:
+        records: List[QuizSessionRecord] = []
+        for payload in self._sessions.values():
+            if quiz_id and payload.get("quiz_id") != quiz_id:
+                continue
+            if user_id and payload.get("user_id") != user_id:
+                continue
+            records.append(QuizSessionRecord.from_dict(payload))
+        records.sort(key=lambda item: item.started_at, reverse=True)
+        if limit is not None:
+            records = records[:limit]
+        return records
 
     def delete_quiz_question(self, question_id: str, *, quiz_id: Optional[str] = None) -> None:
         self._questions.pop(question_id, None)

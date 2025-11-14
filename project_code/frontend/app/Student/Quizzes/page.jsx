@@ -146,7 +146,7 @@ export default function StudentQuizzesPage() {
               title="Assessment Quizzes"
               description="Timed assessments curated by your instructor."
               quizzes={assessments}
-              emptyMessage="No assessment quizzes are published yet."
+              emptyMessage="Assessment mode is coming soon."
               onSelect={handleSelectQuiz}
             />
             <Section

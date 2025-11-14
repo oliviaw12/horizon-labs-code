@@ -51,8 +51,8 @@ def get_quiz_settings() -> QuizSettings:
     env_path = Path(__file__).resolve().parents[2] / ".env"
     load_dotenv(env_path)
 
-    increase = int(os.environ.get("QUIZ_PRACTICE_INCREASE_STREAK", "2"))
-    decrease = int(os.environ.get("QUIZ_PRACTICE_DECREASE_STREAK", "2"))
+    increase = int(os.environ.get("QUIZ_PRACTICE_INCREASE_STREAK", "3"))
+    decrease = int(os.environ.get("QUIZ_PRACTICE_DECREASE_STREAK", "3"))
     coverage_threshold = float(os.environ.get("QUIZ_SLIDE_COVERAGE_THRESHOLD", "0.7"))
     context_sample_size = int(os.environ.get("QUIZ_RETRIEVER_CONTEXT_SAMPLE_SIZE", "4"))
     retriever_top_k = int(os.environ.get("QUIZ_RETRIEVER_TOP_K", "20"))
