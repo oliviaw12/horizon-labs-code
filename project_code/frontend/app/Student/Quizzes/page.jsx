@@ -9,6 +9,9 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+const heroTitleClasses = `text-4xl font-bold text-gray-900 ${poppins.className}`;
+const heroSubtitleClasses = `text-base text-gray-600 mt-2 ${poppins.className}`;
+
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000").replace(/\/$/, "");
 const QUIZ_DEFINITIONS_ENDPOINT = `${API_BASE_URL}/quiz/definitions`;
 
@@ -124,8 +127,8 @@ export default function StudentQuizzesPage() {
           </button>
         </div>
         <div>
-          <h1 className={`text-4xl font-bold text-gray-900 ${poppins.className}`}>Your Quizzes</h1>
-          <p className={`text-base text-gray-600 mt-2 ${poppins.className}`}>
+          <h1 className={heroTitleClasses}>Your Quizzes</h1>
+          <p className={heroSubtitleClasses}>
             Choose from instructor-published assessments or practice sessions tailored to your course.
           </p>
         </div>
