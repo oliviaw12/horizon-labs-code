@@ -7,11 +7,6 @@ langchain-text-splitters
 langchain-community
 langchain[google-genai]
 langchain[openai]
-<<<<<<< HEAD
-langchain-huggingface
-# sentence-transformers (heavy) removed for production; keep in dev requirements if needed
-=======
->>>>>>> origin/demo-3
 langchain-google-genai
 langchain-core
 google-cloud-firestore
@@ -22,8 +17,3 @@ httpx
 pinecone
 python-pptx
 pypdf
-<<<<<<< HEAD
-trio
-pypdf
-=======
->>>>>>> origin/demo-3
