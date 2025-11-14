@@ -286,6 +286,12 @@ export default function StudentQuizDetailsPage() {
 
   const topics = useMemo(() => quiz?.topics || [], [quiz]);
   const metadata = quiz?.metadata || {};
+  const description =
+    typeof metadata.description === "string" ? metadata.description.trim() : "";
+  const fallbackDescription =
+    quiz?.default_mode === "assessment"
+      ? "Quiz generated from your course material."
+      : "Practice quiz generated from your course material.";
 
   if (!quizId) {
     return (
@@ -339,7 +345,7 @@ export default function StudentQuizDetailsPage() {
                 </h1>
               </div>
               <p className={`text-base text-gray-600 ${poppins.className}`}>
-                {metadata.description || "Your instructor will share more details before the quiz is enabled."}
+                {description || fallbackDescription}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <InfoRow label="Source Material" value={quiz.source_filename || "—"} />

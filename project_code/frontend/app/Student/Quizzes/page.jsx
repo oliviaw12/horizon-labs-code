@@ -38,7 +38,16 @@ const Section = ({ title, description, quizzes, emptyMessage, onSelect }) => (
               {quiz.name || "Untitled Quiz"}
             </h3>
             <p className={`text-sm text-gray-600 mb-3 ${poppins.className}`}>
-              {(quiz.metadata?.description || "Instructor will provide details before launch.").slice(0, 120)}
+              {(() => {
+                const metadata = quiz.metadata || {};
+                const description =
+                  typeof metadata.description === "string" ? metadata.description.trim() : "";
+                const fallbackDescription =
+                  quiz.default_mode === "assessment"
+                    ? "Quiz generated from your course material."
+                    : "Practice quiz generated from your course material.";
+                return (description || fallbackDescription).slice(0, 120);
+              })()}
             </p>
             <div className="flex flex-wrap gap-3 text-xs text-gray-500">
               {quiz.source_filename ? (
