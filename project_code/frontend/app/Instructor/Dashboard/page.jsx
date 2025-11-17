@@ -57,9 +57,26 @@ const MOCK_PRACTICE_QUIZ_ANALYTICS = {
   ],
 };
 
+// Generate mock daily data for the past 30 days
+const generateMockDailyData = () => {
+  const days = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
+    // Random but realistic data
+    const good = Math.floor(Math.random() * 15) + 5;
+    const needs = Math.floor(Math.random() * 8) + 2;
+    days.push({ date: dateStr, good, needs_focusing: needs });
+  }
+  return days;
+};
+
 const MOCK_CHAT_ANALYTICS = {
   generated_at: new Date().toISOString(),
   totals: { good: 36, needs_focusing: 12 },
+  daily_data: generateMockDailyData(),
 };
 
 // Fetch placeholder - simulates async operation with mock data
@@ -135,6 +152,7 @@ export default function InstructorDashboard() {
   const [chatStats, setChatStats] = useState(null);
   const [isChatLoading, setIsChatLoading] = useState(true);
   const [chatError, setChatError] = useState(null);
+  const [chatViewMode, setChatViewMode] = useState("week"); // "week" or "month"
 
   useEffect(() => {
     let isMounted = true;
@@ -162,12 +180,33 @@ export default function InstructorDashboard() {
     };
   }, []);
 
+  const filteredDailyData = useMemo(() => {
+    if (!chatStats?.daily_data) return [];
+    const data = chatStats.daily_data;
+    if (chatViewMode === "week") {
+      return data.slice(-7); // Last 7 days
+    }
+    return data; // All 30 days for month view
+  }, [chatStats, chatViewMode]);
+
   const chatTotals = useMemo(() => {
-    const good = chatStats?.totals?.good ?? 0;
-    const needs = chatStats?.totals?.needs_focusing ?? 0;
+    // Calculate cumulative totals based on filtered daily data
+    if (filteredDailyData.length === 0) {
+      return { good: 0, needs: 0, total: 0, goodPercent: 0 };
+    }
+    const good = filteredDailyData.reduce((sum, day) => sum + (day.good || 0), 0);
+    const needs = filteredDailyData.reduce((sum, day) => sum + (day.needs_focusing || 0), 0);
     const total = good + needs;
     return { good, needs, total, goodPercent: total ? Math.round((good / total) * 100) : 0 };
-  }, [chatStats]);
+  }, [filteredDailyData]);
+
+  const maxDailyValue = useMemo(() => {
+    if (filteredDailyData.length === 0) return 1;
+    return Math.max(
+      ...filteredDailyData.map((d) => (d.good || 0) + (d.needs_focusing || 0)),
+      1,
+    );
+  }, [filteredDailyData]);
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -328,10 +367,10 @@ export default function InstructorDashboard() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className={`text-xl font-semibold text-gray-900 ${poppins.className}`}>
-                      Adaptive Chat Quality
+                      Adaptive Chat Quality (Cumulative)
                     </h2>
                     <p className={`text-sm text-gray-500 ${poppins.className}`}>
-                      Good vs. needs_focusing classifications across recent chat sessions.
+                      Cumulative totals of good vs. needs_focusing classifications for the last {chatViewMode === "week" ? "7 days" : "30 days"}.
                     </p>
                   </div>
                   <div className="text-sm text-gray-500">
@@ -407,6 +446,96 @@ export default function InstructorDashboard() {
                       <div className="flex items-center gap-2 text-gray-500">
                         <span className="inline-block h-3 w-3 rounded-full bg-slate-300" />
                         <span>Total labeled turns: {isChatLoading ? "--" : chatTotals.total}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Daily Bar Chart */}
+                {!chatError && !isChatLoading && (
+                  <div className="mt-8 w-full">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className={`text-lg font-semibold text-gray-900 ${poppins.className}`}>
+                        Daily Turn Classifications
+                      </h3>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setChatViewMode("week")}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            chatViewMode === "week"
+                              ? "bg-blue-600 text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          } ${poppins.className}`}
+                        >
+                          Week
+                        </button>
+                        <button
+                          onClick={() => setChatViewMode("month")}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            chatViewMode === "month"
+                              ? "bg-blue-600 text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          } ${poppins.className}`}
+                        >
+                          Month
+                        </button>
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-6">
+                      {isChatLoading ? (
+                        <div className="text-sm text-gray-500 text-center py-8">Loading daily data…</div>
+                      ) : filteredDailyData.length === 0 ? (
+                        <div className="text-sm text-gray-500 text-center py-8">No daily data available.</div>
+                      ) : (
+                        <div className="flex h-64 items-end gap-2 overflow-x-auto overflow-y-visible pb-4 pt-8">
+                          {filteredDailyData.map((day) => {
+                            const good = day.good || 0;
+                            const needs = day.needs_focusing || 0;
+                            const maxBarHeight = 200; // Fixed max height in pixels
+                            const goodHeight = maxDailyValue > 0 ? (good / maxDailyValue) * maxBarHeight : 0;
+                            const needsHeight = maxDailyValue > 0 ? (needs / maxDailyValue) * maxBarHeight : 0;
+                            const date = new Date(day.date);
+                            const dateLabel =
+                              chatViewMode === "week"
+                                ? date.toLocaleDateString("en-US", { weekday: "short" })
+                                : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+                            return (
+                              <div key={day.date} className="flex flex-col items-center flex-1 min-w-[60px] gap-2">
+                                <div className="relative w-full h-52 flex items-end justify-center gap-1.5 bg-gradient-to-t from-gray-50 to-white rounded-xl border border-gray-100 p-2">
+                                  {/* Good bar */}
+                                  <div className="flex flex-col items-center justify-end flex-1 h-full relative">
+                                    <span className="text-xs font-medium text-gray-600 text-center">{good}</span>
+                                    <div
+                                      className="w-full rounded-t-lg bg-gradient-to-t from-emerald-500 to-emerald-400 shadow-sm transition-all duration-300 hover:opacity-90"
+                                      style={{ height: `${Math.max(goodHeight, good > 0 ? 8 : 0)}px` }}
+                                    />
+                                  </div>
+                                  {/* Needs focusing bar */}
+                                  <div className="flex flex-col items-center justify-end flex-1 h-full relative">
+                                    <span className="text-xs font-medium text-gray-600 text-center">{needs}</span>
+                                    <div
+                                      className="w-full rounded-t-lg bg-gradient-to-t from-amber-500 to-amber-400 shadow-sm transition-all duration-300 hover:opacity-90"
+                                      style={{ height: `${Math.max(needsHeight, needs > 0 ? 8 : 0)}px` }}
+                                      title={`Needs focusing: ${needs}`}
+                                    />
+                                  </div>
+                                </div>
+                                <span className="text-xs font-medium text-gray-600 text-center">{dateLabel}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-block h-3 w-3 rounded bg-emerald-500" />
+                          <span>Good turns</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-block h-3 w-3 rounded bg-amber-500" />
+                          <span>Needs focusing</span>
+                        </div>
                       </div>
                     </div>
                   </div>
