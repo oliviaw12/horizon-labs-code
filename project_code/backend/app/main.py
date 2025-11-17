@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import AsyncGenerator, Dict, List
+from datetime import datetime
 
 import logging
 
@@ -546,20 +547,30 @@ def _serialize_history_item(summary: Dict[str, object]) -> QuizSessionHistoryIte
     )
 
 
-def _serialize_attempt_detail(payload: Dict[str, object]) -> QuizAttemptReviewResponse:
-    return QuizAttemptReviewResponse(
-        question_id=str(payload.get("question_id")),
-        prompt=str(payload.get("prompt", "")),
-        choices=list(payload.get("choices", []) or []),
-        topic=str(payload.get("topic", "")),
-        difficulty=str(payload.get("difficulty", "medium")),  # type: ignore[arg-type]
-        selected_answer=str(payload.get("selected_answer", "")),
-        correct_answer=str(payload.get("correct_answer", "")),
-        is_correct=bool(payload.get("is_correct", False)),
-        rationale=payload.get("rationale"),
-        correct_rationale=str(payload.get("correct_rationale", "")),
-        incorrect_rationales=dict(payload.get("incorrect_rationales", {}) or {}),
-        source_metadata=payload.get("source_metadata"),
-        submitted_at=payload.get("submitted_at"),
-        response_ms=payload.get("response_ms"),
-    )
+
+# ---------------------------------------------------------------------------
+# Instructor analytics endpoints (placeholder data for dashboard)
+# ---------------------------------------------------------------------------
+_DASHBOARD_PERCENTILE_BUCKETS = [
+    {"percentile": "0-10%", "count": 2},
+    {"percentile": "11-20%", "count": 4},
+    {"percentile": "21-30%", "count": 6},
+    {"percentile": "31-40%", "count": 9},
+    {"percentile": "41-50%", "count": 12},
+    {"percentile": "51-60%", "count": 18},
+    {"percentile": "61-70%", "count": 25},
+    {"percentile": "71-80%", "count": 16},
+    {"percentile": "81-90%", "count": 10},
+    {"percentile": "91-100%", "count": 5},
+]
+
+
+@app.get("/analytics/quiz-percentiles")
+def analytics_quiz_percentiles() -> dict[str, object]:
+    """Return percentile distribution data for instructor dashboard visuals."""
+    total_students = sum(bucket["count"] for bucket in _DASHBOARD_PERCENTILE_BUCKETS)
+    return {
+        "buckets": _DASHBOARD_PERCENTILE_BUCKETS,
+        "total_students": total_students,
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+    }
