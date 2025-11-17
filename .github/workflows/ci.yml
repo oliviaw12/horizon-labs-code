@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - demo-2
+      - demo-3
       - feature/**
   pull_request:
   workflow_dispatch:
@@ -47,6 +48,56 @@ jobs:
         run: |
           echo "Running pytest for backend with coverage"
           pytest
+
+      - name: Publish backend coverage summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          report_path = "coverage.xml"
+          if not os.path.exists(report_path):
+              raise SystemExit(f"coverage report '{report_path}' not found")
+
+          tree = ET.parse(report_path)
+          root = tree.getroot()
+
+          def _percent(value: str | None) -> str:
+              if not value:
+                  return "n/a"
+              rate = float(value)
+              return f"{rate * 100:.2f}%"
+
+          line_rate = _percent(root.get("line-rate"))
+          branch_rate = _percent(root.get("branch-rate"))
+          lines_covered = root.get("lines-covered", "0")
+          lines_valid = root.get("lines-valid", "0")
+
+          summary_lines = [
+              "## Backend Test Coverage",
+              "",
+              f"- Line coverage: {line_rate}",
+          ]
+          if branch_rate != "n/a":
+              summary_lines.append(f"- Branch coverage: {branch_rate}")
+          summary_lines.append(f"- Lines covered: {lines_covered} / {lines_valid}")
+
+          summary_text = "\n".join(summary_lines) + "\n"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write(summary_text)
+
+          with open("coverage-summary.txt", "w", encoding="utf-8") as handle:
+              handle.write(summary_text)
+          PY
+
+      - name: Upload backend coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-summary
+          path: project_code/backend/coverage-summary.txt
+          if-no-files-found: error
 
       - name: Upload backend coverage report
         if: always()
