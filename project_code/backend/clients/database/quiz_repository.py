@@ -346,9 +346,6 @@ class QuizRepository(Protocol):
     def delete_session(self, session_id: str) -> None:
         ...
 
-    def list_sessions(self, *, quiz_id: Optional[str] = None, user_id: Optional[str] = None) -> List[QuizSessionRecord]:
-        ...
-
 
 class FirestoreQuizRepository:
     """Firestore-backed implementation."""
@@ -465,23 +462,6 @@ class FirestoreQuizRepository:
         for doc in query.stream():
             doc.reference.delete()
 
-    def list_sessions(self, *, quiz_id: Optional[str] = None, user_id: Optional[str] = None) -> List[QuizSessionRecord]:
-        query = self._sessions
-        if quiz_id:
-            query = query.where("quiz_id", "==", quiz_id)
-        if user_id:
-            query = query.where("user_id", "==", user_id)
-
-        records: List[QuizSessionRecord] = []
-        for doc in query.stream():
-            data = doc.to_dict() or {}
-            payload = {**data}
-            payload.setdefault("session_id", doc.id)
-            records.append(QuizSessionRecord.from_dict(payload))
-
-        records.sort(key=lambda record: record.started_at, reverse=True)
-        return records
-
     def _definition_questions(self, quiz_id: str):
         return self._definitions.document(quiz_id).collection(self._question_subcollection)
 
@@ -583,17 +563,6 @@ class InMemoryQuizRepository:
             for sid, payload in self._sessions.items()
             if payload.get("quiz_id") != quiz_id
         }
-
-    def list_sessions(self, *, quiz_id: Optional[str] = None, user_id: Optional[str] = None) -> List[QuizSessionRecord]:
-        records: List[QuizSessionRecord] = []
-        for payload in self._sessions.values():
-            if quiz_id and payload.get("quiz_id") != quiz_id:
-                continue
-            if user_id and payload.get("user_id") != user_id:
-                continue
-            records.append(QuizSessionRecord.from_dict(payload))
-        records.sort(key=lambda record: record.started_at, reverse=True)
-        return records
 
 
 def _firestore_available() -> bool:
