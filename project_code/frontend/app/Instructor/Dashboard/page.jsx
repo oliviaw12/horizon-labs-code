@@ -15,6 +15,15 @@ const CHAT_ANALYTICS_ENDPOINT = `${API_BASE_URL}/analytics/chats`;
 const heroTitleClasses = `text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 ${poppins.className}`;
 const heroSubtitleClasses = `text-base sm:text-lg text-gray-500 ${poppins.className}`;
 
+const MAX_MONTH_HISTORY = 4;
+
+const normaliseUTCDate = (date) => new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+const getDateKey = (date) => {
+  const normalised = normaliseUTCDate(date);
+  return normalised.toISOString().split("T")[0];
+};
+
 const formatDateShort = (date) =>
   date.toLocaleDateString("en-US", {
     month: "short",
@@ -148,24 +157,55 @@ export default function InstructorDashboard() {
   }, []);
 
   const processedDailyTrend = useMemo(() => {
-    if (!Array.isArray(chatAnalytics?.daily_trend)) {
+    if (!chatAnalytics) {
       return [];
     }
-    return chatAnalytics.daily_trend
+    const sourceTrend = Array.isArray(chatAnalytics.daily_trend) ? chatAnalytics.daily_trend : [];
+    const normalisedDays = sourceTrend
       .map((day) => {
         const dateObj = new Date(day.date);
         if (Number.isNaN(dateObj.getTime())) {
           return null;
         }
         const totalTurns = typeof day.total === "number" ? day.total : (day.good || 0) + (day.needs_focusing || 0);
+        const normalisedDate = normaliseUTCDate(dateObj);
         return {
           ...day,
-          dateObj,
+          dateObj: normalisedDate,
           total: totalTurns,
         };
       })
       .filter(Boolean)
       .sort((a, b) => a.dateObj - b.dateObj);
+
+    const daysByKey = new Map();
+    normalisedDays.forEach((day) => {
+      daysByKey.set(getDateKey(day.dateObj), day);
+    });
+
+    const today = normaliseUTCDate(new Date());
+    const latestRecorded = normalisedDays.length ? normalisedDays[normalisedDays.length - 1].dateObj : null;
+    const rangeEnd = latestRecorded && latestRecorded > today ? latestRecorded : today;
+    const rangeStart = new Date(Date.UTC(rangeEnd.getUTCFullYear(), rangeEnd.getUTCMonth() - MAX_MONTH_HISTORY, 1));
+
+    const filledDays = [];
+    for (let cursor = new Date(rangeStart); cursor <= rangeEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+      const cursorDate = normaliseUTCDate(cursor);
+      const key = getDateKey(cursorDate);
+      const existing = daysByKey.get(key);
+      if (existing) {
+        filledDays.push(existing);
+        continue;
+      }
+      filledDays.push({
+        date: key,
+        good: 0,
+        needs_focusing: 0,
+        total: 0,
+        dateObj: cursorDate,
+      });
+    }
+    return filledDays;
   }, [chatAnalytics]);
 
   const weeklyBuckets = useMemo(() => {
@@ -220,7 +260,7 @@ export default function InstructorDashboard() {
         map.set(key, {
           key,
           monthDate,
-          label: monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+          label: monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }),
           weeks: [],
         });
       }
