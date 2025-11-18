@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, timezone
 import logging
+from pathlib import Path
 import time
 from typing import Any, AsyncGenerator, DefaultDict, Dict, List, Optional
+from uuid import uuid4
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
@@ -15,8 +17,8 @@ from ..database.chat_repository import (
     ChatSessionRecord,
     FirestoreChatRepository,
     InMemoryChatRepository,
-    ChatSessionSummary,
 )
+from ..ingestion import IngestionResult, SlideIngestionPipeline
 from .classifier import ClassificationResult, TurnClassifier
 from .settings import Settings, get_settings
 from .telemetry import TelemetryEvent, TelemetryLogger
@@ -40,7 +42,10 @@ class LLMService:
         self._friction_min_words = settings.friction_min_words
         self._telemetry = TelemetryLogger(settings)
         self._repository: ChatRepository = repository or self._select_repository()
-        self._classifier = TurnClassifier(settings)
+        self._classifier: Optional[TurnClassifier] = None
+        self._session_cache_order: "OrderedDict[str, None]" = OrderedDict()
+        self._max_cached_sessions = settings.max_cached_sessions or 0
+        self._ingestion_pipeline: Optional[SlideIngestionPipeline] = None
 
     async def stream_chat(
         self,
@@ -182,6 +187,37 @@ class LLMService:
         )
         self._telemetry.record(event)
 
+    async def ingest_upload(
+        self,
+        *,
+        session_id: str,
+        file_bytes: bytes,
+        filename: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> IngestionResult:
+        pipeline = self._get_ingestion_pipeline()
+        base_metadata: Dict[str, Any] = dict(metadata or {})
+        base_metadata.setdefault("session_id", session_id)
+        base_metadata.setdefault("source_filename", filename)
+
+        document_id = str(
+            base_metadata.get("document_id")
+            or self._derive_document_id(filename=filename, session_id=session_id)
+        )
+
+        return await pipeline.ingest(
+            document_id=document_id,
+            file_bytes=file_bytes,
+            filename=filename,
+            metadata=base_metadata,
+        )
+
+    async def delete_document(self, document_id: str) -> None:
+        if not document_id:
+            return
+        pipeline = self._get_ingestion_pipeline()
+        pipeline.delete_document(document_id)
+
     @staticmethod
     def _build_prompt(
         question: str,
@@ -208,7 +244,13 @@ class LLMService:
         learner_text: str,
         session_history: List[HumanMessage | AIMessage],
     ) -> ClassificationResult:
-        result = await self._classifier.classify(
+        classifier = self._get_classifier()
+        if classifier is None:
+            result = TurnClassifier._heuristic_label(learner_text, self._friction_min_words)
+            self._last_classifications[session_id] = result
+            return result
+
+        result = await classifier.classify(
             session_id=session_id,
             learner_text=learner_text,
             conversation=session_history,
@@ -217,12 +259,41 @@ class LLMService:
         self._last_classifications[session_id] = result
         return result
 
+    def _get_classifier(self) -> Optional[TurnClassifier]:
+        if not self._settings.turn_classifier_enabled:
+            return None
+        if self._classifier is None:
+            self._classifier = TurnClassifier(self._settings)
+        return self._classifier
+
     def _select_repository(self) -> ChatRepository:
         try:
             return FirestoreChatRepository()
         except RuntimeError as exc:
             logger.warning("Firestore unavailable (%s); falling back to in-memory chat repository.", exc)
             return InMemoryChatRepository()
+
+    def _get_ingestion_pipeline(self) -> SlideIngestionPipeline:
+        if self._ingestion_pipeline is None:
+            try:
+                self._ingestion_pipeline = SlideIngestionPipeline(self._settings)
+            except RuntimeError as exc:  # pragma: no cover - defensive logging
+                logger.exception("Unable to initialise ingestion pipeline")
+                raise RuntimeError(str(exc)) from exc
+        return self._ingestion_pipeline
+
+    @staticmethod
+    def _derive_document_id(*, filename: str, session_id: str) -> str:
+        def _slug(value: str) -> str:
+            sanitized = [ch if ch.isalnum() else "-" for ch in value.lower()]
+            collapsed = "".join(sanitized)
+            collapsed = "-".join(part for part in collapsed.split("-") if part)
+            return collapsed or "document"
+
+        name_slug = _slug(Path(filename).stem or "document")
+        session_slug = _slug(session_id)
+        base = f"{name_slug}-{session_slug}".strip("-")
+        return base or f"document-{uuid4().hex[:8]}"
 
     def _ensure_session_loaded(self, session_id: str) -> None:
         try:
@@ -231,14 +302,10 @@ class LLMService:
             logger.exception("Failed loading session %s from Firestore", session_id)
             raise
         if record is None:
-            self._conversations.pop(session_id, None)
-            self._friction_progress.pop(session_id, None)
-            self._session_modes.pop(session_id, None)
-            self._last_prompts.pop(session_id, None)
-            self._guidance_ready.pop(session_id, None)
-            self._last_classifications.pop(session_id, None)
+            self._remove_session_from_cache(session_id)
         else:
             self._hydrate_session_from_record(record)
+            self._mark_session_accessed(session_id)
 
     def _hydrate_session_from_record(self, record: ChatSessionRecord) -> None:
         session_messages: List[HumanMessage | AIMessage | SystemMessage] = []
@@ -294,12 +361,36 @@ class LLMService:
 
     def _persist_session(self, session_id: str) -> None:
         try:
+            self._mark_session_accessed(session_id)
             # Always persist the latest turn so refreshes and multi-device sessions stay in sync.
             record = self._build_session_record(session_id)
             self._repository.save_session(record)
         except Exception:
             logger.exception("Unable to persist session %s to Firestore", session_id)
             raise
+
+    def _mark_session_accessed(self, session_id: str) -> None:
+        if not self._max_cached_sessions:
+            return
+        self._session_cache_order.pop(session_id, None)
+        self._session_cache_order[session_id] = None
+        self._evict_session_cache()
+
+    def _evict_session_cache(self) -> None:
+        if not self._max_cached_sessions:
+            return
+        while len(self._session_cache_order) > self._max_cached_sessions:
+            stale_session, _ = self._session_cache_order.popitem(last=False)
+            self._remove_session_from_cache(stale_session)
+
+    def _remove_session_from_cache(self, session_id: str) -> None:
+        self._session_cache_order.pop(session_id, None)
+        self._conversations.pop(session_id, None)
+        self._friction_progress.pop(session_id, None)
+        self._session_modes.pop(session_id, None)
+        self._last_prompts.pop(session_id, None)
+        self._guidance_ready.pop(session_id, None)
+        self._last_classifications.pop(session_id, None)
 
     def _build_session_record(self, session_id: str) -> ChatSessionRecord:
         history = self._conversations.get(session_id, [])
@@ -410,12 +501,7 @@ class LLMService:
         except Exception:
             logger.exception("Failed deleting session %s from Firestore", session_id)
             raise
-        self._conversations.pop(session_id, None)
-        self._session_modes.pop(session_id, None)
-        self._last_prompts.pop(session_id, None)
-        self._friction_progress.pop(session_id, None)
-        self._guidance_ready.pop(session_id, None)
-        self._last_classifications.pop(session_id, None)
+        self._remove_session_from_cache(session_id)
 
     def get_session_state(self, session_id: str) -> Dict[str, Any]:
         self._ensure_session_loaded(session_id)
@@ -458,9 +544,6 @@ class LLMService:
                 "the learner's (HumanMessage) prior reasoning while confirming key concepts. If the learner is stuck, " \
                 "offer a direct answer with context and examples (ONLY ON PREVIOUSLY DISCUSSED TOPICS). " \
                 "At the end, suggest 2 to 3 follow-ups to deepen understanding."
-            ),
-            "quiz": SystemMessage(
-                "You are Horizon Labs' learning coach. Create quizzes that assess understanding."
             ),
         }
 
