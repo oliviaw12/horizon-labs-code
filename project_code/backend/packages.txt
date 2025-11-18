@@ -7,6 +7,7 @@ langchain-text-splitters
 langchain-community==1.0.0a1
 langchain[google-genai]
 langchain-openai==1.0.0a4
+# sentence-transformers (heavy) removed for production; install in dev environment if needed
 langchain-google-genai
 langchain-core==1.0.0a8
 google-cloud-firestore
