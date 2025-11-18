@@ -15,6 +15,28 @@ const CHAT_ANALYTICS_ENDPOINT = `${API_BASE_URL}/analytics/chats`;
 const heroTitleClasses = `text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 ${poppins.className}`;
 const heroSubtitleClasses = `text-base sm:text-lg text-gray-500 ${poppins.className}`;
 
+const formatDateShort = (date) =>
+  date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+
+const formatDateRangeLabel = (start, end) => {
+  if (!(start instanceof Date) || Number.isNaN(start.getTime())) return "--";
+  if (!(end instanceof Date) || Number.isNaN(end.getTime())) return formatDateShort(start);
+  const startLabel = formatDateShort(start);
+  const endLabel = formatDateShort(end);
+  return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
+};
+
+const getStartOfWeek = (date) => {
+  const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const dayOfWeek = utcDate.getUTCDay();
+  utcDate.setUTCDate(utcDate.getUTCDate() - dayOfWeek);
+  return utcDate;
+};
+
+
 const formatPercent = (value) => {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return 0;
@@ -90,6 +112,8 @@ export default function InstructorDashboard() {
   const [isChatLoading, setIsChatLoading] = useState(true);
   const [chatError, setChatError] = useState(null);
   const [chatViewMode, setChatViewMode] = useState("week");
+  const [weekCursor, setWeekCursor] = useState(0);
+  const [monthCursor, setMonthCursor] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -144,20 +168,129 @@ export default function InstructorDashboard() {
       .sort((a, b) => a.dateObj - b.dateObj);
   }, [chatAnalytics]);
 
-  const filteredDailyData = useMemo(() => {
+  const weeklyBuckets = useMemo(() => {
     if (processedDailyTrend.length === 0) {
       return [];
     }
-    const latestEntry = processedDailyTrend[processedDailyTrend.length - 1];
-    const windowSize = chatViewMode === "week" ? 7 : 30;
-    const startDate = new Date(latestEntry.dateObj);
-    startDate.setDate(startDate.getDate() - (windowSize - 1));
+    const map = new Map();
+    processedDailyTrend.forEach((day) => {
+      const weekStart = getStartOfWeek(day.dateObj);
+      const key = weekStart.toISOString();
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          startDate: weekStart,
+          endDate: weekStart,
+          days: [],
+        });
+      }
+      const bucket = map.get(key);
+      bucket.days.push(day);
+      if (day.dateObj > bucket.endDate) {
+        bucket.endDate = day.dateObj;
+      }
+    });
+    const buckets = Array.from(map.values());
+    buckets.forEach((bucket) => bucket.days.sort((a, b) => a.dateObj - b.dateObj));
+    buckets.sort((a, b) => b.startDate - a.startDate);
+    return buckets;
+  }, [processedDailyTrend]);
 
-    return processedDailyTrend.filter((day) => day.dateObj >= startDate && day.dateObj <= latestEntry.dateObj);
-  }, [processedDailyTrend, chatViewMode]);
+  const monthlyBuckets = useMemo(() => {
+    if (weeklyBuckets.length === 0) {
+      return [];
+    }
+    const map = new Map();
+    weeklyBuckets.forEach((week) => {
+      const monthDistribution = week.days.reduce((acc, day) => {
+        const monthKey = `${day.dateObj.getUTCFullYear()}-${day.dateObj.getUTCMonth()}`;
+        acc[monthKey] = (acc[monthKey] || 0) + 1;
+        return acc;
+      }, {});
+      const [primaryMonthKey] = Object.entries(monthDistribution).sort((a, b) => {
+        if (b[1] === a[1]) {
+          return b[0].localeCompare(a[0]);
+        }
+        return b[1] - a[1];
+      })[0] || [`${week.startDate.getUTCFullYear()}-${week.startDate.getUTCMonth()}`];
+      const [primaryYear, primaryMonth] = primaryMonthKey.split("-").map((part) => Number(part));
+      const monthDate = new Date(Date.UTC(primaryYear, primaryMonth, 1));
+      const key = monthDate.toISOString();
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          monthDate,
+          label: monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+          weeks: [],
+        });
+      }
+      const good = week.days.reduce((sum, day) => sum + (day.good || 0), 0);
+      const needs = week.days.reduce((sum, day) => sum + (day.needs_focusing || 0), 0);
+      map.get(key).weeks.push({
+        key: `${week.startDate.toISOString()}-${week.endDate.toISOString()}`,
+        label: formatDateRangeLabel(week.startDate, week.endDate),
+        startDate: week.startDate,
+        endDate: week.endDate,
+        good,
+        needs_focusing: needs,
+        total: good + needs,
+      });
+    });
+    const months = Array.from(map.values());
+    months.forEach((month) => month.weeks.sort((a, b) => a.startDate - b.startDate));
+    months.sort((a, b) => b.monthDate - a.monthDate);
+    return months;
+  }, [weeklyBuckets]);
+
+  useEffect(() => {
+    setWeekCursor(0);
+  }, [weeklyBuckets.length]);
+
+  useEffect(() => {
+    setMonthCursor(0);
+  }, [monthlyBuckets.length]);
+
+  useEffect(() => {
+    if (chatViewMode === "week") {
+      setWeekCursor(0);
+    } else {
+      setMonthCursor(0);
+    }
+  }, [chatViewMode]);
+
+  const currentWeek = weeklyBuckets[weekCursor] || null;
+  const currentMonth = monthlyBuckets[monthCursor] || null;
+
+  const weekChartData = useMemo(() => {
+    if (!currentWeek) {
+      return [];
+    }
+    return currentWeek.days.map((day) => ({
+      key: day.date,
+      label: formatDateShort(day.dateObj),
+      good: day.good || 0,
+      needs_focusing: day.needs_focusing || 0,
+      total: day.total || 0,
+    }));
+  }, [currentWeek]);
+
+  const monthChartData = useMemo(() => {
+    if (!currentMonth) {
+      return [];
+    }
+    return currentMonth.weeks.map((week) => ({
+      key: week.key,
+      label: week.label,
+      good: week.good,
+      needs_focusing: week.needs_focusing,
+      total: week.total,
+    }));
+  }, [currentMonth]);
+
+  const chartBarData = chatViewMode === "week" ? weekChartData : monthChartData;
 
   const chatTotals = useMemo(() => {
-    if (filteredDailyData.length === 0) {
+    if (chartBarData.length === 0) {
       const fallbackTotals = chatAnalytics?.totals;
       if (fallbackTotals) {
         const total = fallbackTotals.good + fallbackTotals.needs_focusing;
@@ -171,16 +304,51 @@ export default function InstructorDashboard() {
       return { good: 0, needs: 0, total: 0, goodPercent: 0 };
     }
 
-    const good = filteredDailyData.reduce((sum, day) => sum + (day.good || 0), 0);
-    const needs = filteredDailyData.reduce((sum, day) => sum + (day.needs_focusing || 0), 0);
+    const good = chartBarData.reduce((sum, entry) => sum + (entry.good || 0), 0);
+    const needs = chartBarData.reduce((sum, entry) => sum + (entry.needs_focusing || 0), 0);
     const total = good + needs;
     return { good, needs, total, goodPercent: total ? Math.round((good / total) * 100) : 0 };
-  }, [filteredDailyData, chatAnalytics]);
+  }, [chartBarData, chatAnalytics]);
 
   const maxDailyValue = useMemo(() => {
-    if (filteredDailyData.length === 0) return 1;
-    return Math.max(...filteredDailyData.map((day) => (typeof day.total === "number" ? day.total : (day.good || 0) + (day.needs_focusing || 0))), 1);
-  }, [filteredDailyData]);
+    if (chartBarData.length === 0) return 1;
+    return Math.max(
+      ...chartBarData.map((entry) =>
+        typeof entry.total === "number" ? entry.total : (entry.good || 0) + (entry.needs_focusing || 0)
+      ),
+      1
+    );
+  }, [chartBarData]);
+
+  const rangeLabel = useMemo(() => {
+    if (chatViewMode === "week") {
+      return currentWeek ? `Week of ${formatDateRangeLabel(currentWeek.startDate, currentWeek.endDate)}` : "No week data";
+    }
+    return currentMonth ? currentMonth.label : "No month data";
+  }, [chatViewMode, currentWeek, currentMonth]);
+
+  const canGoOlderWeek = weekCursor < weeklyBuckets.length - 1;
+  const canGoNewerWeek = weekCursor > 0;
+  const canGoOlderMonth = monthCursor < monthlyBuckets.length - 1;
+  const canGoNewerMonth = monthCursor > 0;
+
+  const goPreviousRange = () => {
+    if (chatViewMode === "week" && canGoOlderWeek) {
+      setWeekCursor((prev) => Math.min(prev + 1, weeklyBuckets.length - 1));
+    }
+    if (chatViewMode === "month" && canGoOlderMonth) {
+      setMonthCursor((prev) => Math.min(prev + 1, monthlyBuckets.length - 1));
+    }
+  };
+
+  const goNextRange = () => {
+    if (chatViewMode === "week" && canGoNewerWeek) {
+      setWeekCursor((prev) => Math.max(prev - 1, 0));
+    }
+    if (chatViewMode === "month" && canGoNewerMonth) {
+      setMonthCursor((prev) => Math.max(prev - 1, 0));
+    }
+  };
 
   const chatSessionCount = chatAnalytics?.session_count ?? 0;
   const classifiedTurns = chatAnalytics?.classified_turns ?? 0;
@@ -195,11 +363,13 @@ export default function InstructorDashboard() {
         <div className="flex-1 bg-white relative z-10">
           <div className="min-h-[calc(100vh-4rem)] flex flex-col px-6 py-10 sm:px-10 lg:px-16">
             <div className="flex flex-col max-w-5xl pt-10 sm:pt-12 lg:pt-16 gap-6">
-              <div>
-                <h1 className={heroTitleClasses}>Analytics Dashboard</h1>
-                <p className={heroSubtitleClasses}>
-                  Track practice quiz performance alongside adaptive chat quality to guide instruction.
-                </p>
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <h1 className={heroTitleClasses}>Analytics Dashboard</h1>
+                  <p className={heroSubtitleClasses}>
+                    Track practice quiz performance alongside adaptive chat quality to guide instruction.
+                  </p>
+                </div>
               </div>
 
               <div className="grid gap-6 lg:grid-cols-4">
@@ -430,45 +600,79 @@ export default function InstructorDashboard() {
 
                 {!chatError && !isChatLoading && (
                   <div className="mt-8 w-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className={`text-lg font-semibold text-gray-900 ${poppins.className}`}>
-                        Daily Turn Classifications
-                      </h3>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setChatViewMode("week")}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            chatViewMode === "week" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          } ${poppins.className}`}
-                        >
-                          Week
-                        </button>
-                        <button
-                          onClick={() => setChatViewMode("month")}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            chatViewMode === "month" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          } ${poppins.className}`}
-                        >
-                          Month
-                        </button>
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+                      <div>
+                        <h3 className={`text-lg font-semibold text-gray-900 ${poppins.className}`}>
+                          Daily Turn Classifications
+                        </h3>
+                        <p className="text-xs text-gray-500">Swipe between live week slices or month aggregates.</p>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setChatViewMode("week")}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              chatViewMode === "week" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            } ${poppins.className}`}
+                          >
+                            Week
+                          </button>
+                          <button
+                            onClick={() => setChatViewMode("month")}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              chatViewMode === "month" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            } ${poppins.className}`}
+                          >
+                            Month
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 text-sm text-gray-600">
+                          <button
+                            type="button"
+                            onClick={goPreviousRange}
+                            disabled={chatViewMode === "week" ? !canGoOlderWeek : !canGoOlderMonth}
+                            className={`h-9 w-9 rounded-full border border-gray-200 flex items-center justify-center transition-colors ${
+                              (chatViewMode === "week" ? !canGoOlderWeek : !canGoOlderMonth)
+                                ? "text-gray-300"
+                                : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                            aria-label="View previous interval"
+                          >
+                            ←
+                          </button>
+                          <span className="min-w-[140px] text-right text-xs sm:text-sm font-medium text-gray-700">
+                            {rangeLabel}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={goNextRange}
+                            disabled={chatViewMode === "week" ? !canGoNewerWeek : !canGoNewerMonth}
+                            className={`h-9 w-9 rounded-full border border-gray-200 flex items-center justify-center transition-colors ${
+                              (chatViewMode === "week" ? !canGoNewerWeek : !canGoNewerMonth)
+                                ? "text-gray-300"
+                                : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                            aria-label="View next interval"
+                          >
+                            →
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <div className="rounded-2xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-6">
-                      {filteredDailyData.length === 0 ? (
+                      {chartBarData.length === 0 ? (
                         <div className="text-sm text-gray-500 text-center py-8">No daily data available.</div>
                       ) : (
                         <div className="flex h-64 items-end gap-2 overflow-x-auto overflow-y-visible pb-4 pt-8">
-                          {filteredDailyData.map((day) => {
-                            const good = day.good || 0;
-                            const needs = day.needs_focusing || 0;
+                          {chartBarData.map((entry) => {
+                            const good = entry.good || 0;
+                            const needs = entry.needs_focusing || 0;
                             const maxBarHeight = 200;
                             const goodHeight = maxDailyValue > 0 ? (good / maxDailyValue) * maxBarHeight : 0;
                             const needsHeight = maxDailyValue > 0 ? (needs / maxDailyValue) * maxBarHeight : 0;
-                            const date = day.dateObj instanceof Date ? day.dateObj : new Date(day.date);
-                            const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
                             return (
-                              <div key={day.date} className="flex flex-col items-center flex-1 min-w-[60px] gap-2">
+                              <div key={entry.key} className="flex flex-col items-center flex-1 min-w-[60px] gap-2">
                                 <div className="relative w-full h-52 flex items-end justify-center gap-1.5 bg-gradient-to-t from-gray-50 to-white rounded-xl border border-gray-100 p-2">
                                   <div className="flex flex-col items-center justify-end flex-1 h-full relative">
                                     <span className="text-xs font-medium text-gray-600 text-center">{good}</span>
@@ -487,7 +691,7 @@ export default function InstructorDashboard() {
                                     />
                                   </div>
                                 </div>
-                                <span className="text-xs font-medium text-gray-600 text-center">{dateLabel}</span>
+                                <span className="text-xs font-medium text-gray-600 text-center">{entry.label}</span>
                               </div>
                             );
                           })}
@@ -501,10 +705,6 @@ export default function InstructorDashboard() {
                         <div className="flex items-center gap-2">
                           <span className="inline-block h-3 w-3 rounded bg-amber-500" />
                           <span>Needs focusing</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="inline-block h-3 w-3 rounded bg-slate-300" />
-                          <span>Relative scale</span>
                         </div>
                       </div>
                     </div>
