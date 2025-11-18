@@ -123,17 +123,38 @@ export default function InstructorDashboard() {
     };
   }, []);
 
-  const dailyTrend = Array.isArray(chatAnalytics?.daily_trend) ? chatAnalytics.daily_trend : [];
-
-  const filteredDailyData = useMemo(() => {
-    if (dailyTrend.length === 0) {
+  const processedDailyTrend = useMemo(() => {
+    if (!Array.isArray(chatAnalytics?.daily_trend)) {
       return [];
     }
-    if (chatViewMode === "week") {
-      return dailyTrend.slice(-7);
+    return chatAnalytics.daily_trend
+      .map((day) => {
+        const dateObj = new Date(day.date);
+        if (Number.isNaN(dateObj.getTime())) {
+          return null;
+        }
+        const totalTurns = typeof day.total === "number" ? day.total : (day.good || 0) + (day.needs_focusing || 0);
+        return {
+          ...day,
+          dateObj,
+          total: totalTurns,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.dateObj - b.dateObj);
+  }, [chatAnalytics]);
+
+  const filteredDailyData = useMemo(() => {
+    if (processedDailyTrend.length === 0) {
+      return [];
     }
-    return dailyTrend;
-  }, [dailyTrend, chatViewMode]);
+    const latestEntry = processedDailyTrend[processedDailyTrend.length - 1];
+    const windowSize = chatViewMode === "week" ? 7 : 30;
+    const startDate = new Date(latestEntry.dateObj);
+    startDate.setDate(startDate.getDate() - (windowSize - 1));
+
+    return processedDailyTrend.filter((day) => day.dateObj >= startDate && day.dateObj <= latestEntry.dateObj);
+  }, [processedDailyTrend, chatViewMode]);
 
   const chatTotals = useMemo(() => {
     if (filteredDailyData.length === 0) {
@@ -158,10 +179,7 @@ export default function InstructorDashboard() {
 
   const maxDailyValue = useMemo(() => {
     if (filteredDailyData.length === 0) return 1;
-    return Math.max(
-      ...filteredDailyData.map((day) => (typeof day.total === "number" ? day.total : (day.good || 0) + (day.needs_focusing || 0))),
-      1,
-    );
+    return Math.max(...filteredDailyData.map((day) => (typeof day.total === "number" ? day.total : (day.good || 0) + (day.needs_focusing || 0))), 1);
   }, [filteredDailyData]);
 
   const chatSessionCount = chatAnalytics?.session_count ?? 0;
@@ -446,11 +464,8 @@ export default function InstructorDashboard() {
                             const maxBarHeight = 200;
                             const goodHeight = maxDailyValue > 0 ? (good / maxDailyValue) * maxBarHeight : 0;
                             const needsHeight = maxDailyValue > 0 ? (needs / maxDailyValue) * maxBarHeight : 0;
-                            const date = new Date(day.date);
-                            const dateLabel =
-                              chatViewMode === "week"
-                                ? date.toLocaleDateString("en-US", { weekday: "short" })
-                                : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                            const date = day.dateObj instanceof Date ? day.dateObj : new Date(day.date);
+                            const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
                             return (
                               <div key={day.date} className="flex flex-col items-center flex-1 min-w-[60px] gap-2">
