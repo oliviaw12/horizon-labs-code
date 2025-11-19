@@ -95,7 +95,7 @@ class Settings(BaseModel):
         description="Expected dimensionality of vectors stored in the Pinecone index",
     )
     max_cached_sessions: int = Field(
-        default=200,
+        default=25,
         ge=0,
         description="Maximum number of chat sessions to keep in memory (0 disables eviction)",
     )
@@ -116,7 +116,7 @@ def get_settings() -> Settings:
         raise RuntimeError("OPENROUTER_API_KEY is required but missing")
 
     cache_limit_raw = os.environ.get("LLM_MAX_CACHED_SESSIONS")
-    cache_limit = int(cache_limit_raw) if cache_limit_raw is not None else 200
+    cache_limit = int(cache_limit_raw) if cache_limit_raw is not None else 25
     if cache_limit < 0:
         cache_limit = 0
     ingest_batch_size = int(os.environ.get("INGEST_BATCH_SIZE", "64"))
