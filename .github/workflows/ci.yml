@@ -47,7 +47,11 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/project_code/backend
         run: |
           echo "Running pytest for backend with coverage"
-          pytest
+          pytest \
+            --cov=app \
+            --cov=clients \
+            --cov-report=term-missing \
+            --cov-report=xml
 
       - name: Publish backend coverage summary
         if: always()

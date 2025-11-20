@@ -1,0 +1,17 @@
+# Python build artifacts
+__pycache__/
+*.pyc
+
+# Node dependencies
+node_modules/
+
+# Virtual environments
+.venv/
+
+# Coverage reports
+project_code/backend/.coverage
+project_code/backend/coverage.xml
+project_code/backend/htmlcov/
+
+# pytest cache
+project_code/backend/.pytest_cache/
