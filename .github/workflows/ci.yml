@@ -50,6 +50,7 @@ jobs:
           pytest \
             --cov=app \
             --cov=clients \
+            --cov-branch \
             --cov-report=term-missing \
             --cov-report=xml
 
