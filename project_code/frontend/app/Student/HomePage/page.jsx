@@ -146,8 +146,11 @@ export default function StudentHomePage() {
                   </div>
                   <div className="flex-1">
                     <h2 className={`text-2xl font-bold text-emerald-900 mb-2 ${poppins.className}`}>
-                      Flashcards Lab (Preview)
+                      Flashcards Lab
                     </h2>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 mb-2">
+                      Preview
+                    </span>
                     <p className={`text-base text-gray-600 ${poppins.className}`}>
                       Generate decks from course files and rehearse with active recall.
                     </p>

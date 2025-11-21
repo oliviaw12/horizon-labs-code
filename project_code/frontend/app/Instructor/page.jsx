@@ -39,22 +39,20 @@ export default function InstructorPage() {
         {/* Main Content Area */}
         <div className="flex-1 bg-white relative z-10">
           <div className="min-h-[calc(100vh-4rem)] flex flex-col px-6 py-10 sm:px-10 lg:px-16">
-            <div className="flex flex-col max-w-3xl pt-10 sm:pt-12 lg:pt-16">
-              <div className="mb-8 sm:mb-10">
+            <div className="flex flex-col max-w-4xl pt-10 sm:pt-12 lg:pt-16">
+              <div className="mb-8 sm:mb-10 space-y-2">
                 <h1
-                  className={`text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 ${poppins.className}`}
+                  className={`text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 ${poppins.className}`}
                 >
                   Welcome Instructor
                 </h1>
-                <p
-                  className={`text-base sm:text-lg text-gray-500 ${poppins.className}`}
-                  style={{ marginLeft: 5, paddingLeft: 0 }}
-                >
+                <p className={`text-base sm:text-lg text-gray-500 ${poppins.className}`}>
                   {formattedDate}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              {/* Options Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <button
                   onClick={handleQuizGenerator}
                   className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl transition-all duration-300 hover:scale-105"
@@ -97,7 +95,20 @@ export default function InstructorPage() {
                   className="group relative flex flex-col items-start gap-4 p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <img src="/Qbubble.png" alt="Analytics Dashboard" className="w-8 h-8" />
+                    <svg
+                      className="w-8 h-8"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                    </svg>
                   </div>
                   <div className="flex-1">
                     <h2
@@ -152,16 +163,19 @@ export default function InstructorPage() {
                     <h2
                       className={`text-2xl font-bold text-green-900 mb-2 ${poppins.className}`}
                     >
-                      Policy & Services
+                      AI & Content Scope
                     </h2>
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 mb-2">
+                      Preview
+                    </span>
                     <p
                       className={`text-base text-gray-600 ${poppins.className}`}
                     >
-                      Access platform policies, terms of service, and support resources.
+                      Configure assistant guardrails, allowed content sources, and institution policy alignment for your class.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-green-600 font-semibold">
-                    <span className={poppins.className}>View Details</span>
+                    <span className={poppins.className}>Open Settings</span>
                     <svg
                       className="w-5 h-5 group-hover:translate-x-1 transition-transform"
                       fill="none"
