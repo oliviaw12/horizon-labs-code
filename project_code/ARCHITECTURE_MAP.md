@@ -1,6 +1,6 @@
 # Repository & Architecture Map
 
-This file mirrors the repository layout and shows how requests flow through the stack (frontend → FastAPI backend → LLM/vendor services → databases), matching the architecture diagram you shared.
+This file mirrors the repository layout and shows how requests flow through the tech stack (frontend → FastAPI backend → LLM/vendor services → databases).
 
 ## Directory Guide
 
@@ -53,7 +53,7 @@ project_code/
   - Health/ping: `GET /health`, `HEAD /` for Render/Vercel probes; optional lightweight `/ping` app in `backend/ping_app.py`.
 
 - **Hosting/tests**
-  - Frontend: Next.js app (UI in `frontend/app`) deployable to Vercel; front-end testing with Playwright under `frontend/tests/`.
+  - Frontend: Next.js app (UI in `frontend/app`) deployable to Vercel; front-end testing with Jest under `frontend/tests/`.
   - Backend: FastAPI app (in `backend/app/main.py`) deployable to Render; backend tests in `backend/tests/` (pytest).
   - LLM vendor: OpenRouter (`OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`) using Gemini model by default; embeddings via Google Generative AI (`GOOGLE_API_KEY`).
   - Datastores: Firestore for chat transcripts (optional, else in-memory) and Pinecone for semantic search over ingested slides.
