@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Covers slide ingestion pipeline wiring with stubbed extractors and repository."""
+
 import asyncio
 from types import SimpleNamespace
 

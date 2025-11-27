@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Ensures all backend modules import cleanly for packaging and typing checks."""
+
 import importlib
 import pkgutil
 

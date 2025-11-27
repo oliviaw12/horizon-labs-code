@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Verifies quiz question generation JSON parsing and LLM interactions."""
+
 import json
 from types import SimpleNamespace
 
