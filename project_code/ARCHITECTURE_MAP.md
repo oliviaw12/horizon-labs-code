@@ -28,7 +28,7 @@ project_code/
     └── public/             # Static assets (icons, gradients, buttons)
 ```
 
-## How Things Connect (compressed)
+## How Things Connect
 
 - **Chat**: `frontend/app/Student/chat/page.jsx` → `/chat/stream|history|sessions|reset|debug/friction-state` → `clients/llm/service.py` (+ `classifier.py`, `telemetry.py`) → Firestore/in-memory via `clients/database/chat_repository.py`, `firebase.py`.
 - **Ingestion**: `frontend/app/Instructor/QuizGenerator/page.jsx` → `/ingest/upload`, `/ingest/document/{id}` → `clients/ingestion/pipeline.py` (extract/chunk/embed) → Pinecone (`clients/database/pinecone.py`; config in `clients/llm/settings.py`).
@@ -38,10 +38,10 @@ project_code/
 
 ## Key Files by Area
 
-- Backend API: `backend/app/main.py` (routes), `backend/app/schemas.py` (models), CORS/bootstrap in same file; pytest config `backend/pytest.ini`.
-- Chat: `clients/llm/service.py`, `clients/llm/classifier.py`, `clients/llm/settings.py`, `clients/llm/telemetry.py`; storage `clients/database/chat_repository.py`, `firebase.py`.
-- Ingestion: `clients/ingestion/pipeline.py`; vectors `clients/database/pinecone.py`.
-- Quizzes: `clients/quiz/service.py`, `clients/quiz/generator.py`, `clients/rag/retriever.py`, `clients/database/quiz_repository.py`.
-- Frontend entrypoints: `frontend/app/page.jsx`, `frontend/app/Student/HomePage/page.jsx`, `frontend/app/Student/chat/page.jsx`, `frontend/app/Student/Quizzes/...`, `frontend/app/Instructor/QuizGenerator/page.jsx`, `frontend/app/Instructor/Practice|Assessment/page.jsx`, `frontend/app/Instructor/Dashboard/page.jsx`.
-- Frontend scaffolding: `frontend/app/layout.jsx`, `frontend/app/globals.css`, shared UI `frontend/app/components`, flags `frontend/lib/flag.js`, assets `frontend/public/`.
+- Backend API: `backend/app/main.py` (routes + CORS/bootstrap), `backend/app/schemas.py` (models), `backend/pytest.ini`.
+- Chat: `clients/llm/service.py` (prompts/streaming), `clients/llm/classifier.py`, `clients/llm/settings.py`, `clients/llm/telemetry.py`; storage `clients/database/chat_repository.py`, `firebase.py`.
+- Ingestion: `clients/ingestion/pipeline.py` (extract/chunk/embed/upsert), vectors `clients/database/pinecone.py`.
+- Quizzes: `clients/quiz/service.py` (sessions), `clients/quiz/generator.py` (LLM questions), `clients/rag/retriever.py` (Pinecone context), `clients/database/quiz_repository.py` (store).
+- Frontend screens: `frontend/app/page.jsx` (role pick), `frontend/app/Student/HomePage/page.jsx`, `frontend/app/Student/chat/page.jsx`, `frontend/app/Student/Quizzes/...`, `frontend/app/Instructor/QuizGenerator/page.jsx`, `frontend/app/Instructor/Practice|Assessment/page.jsx`, `frontend/app/Instructor/Dashboard/page.jsx`.
+- Frontend scaffold: `frontend/app/layout.jsx`, `frontend/app/globals.css`, shared UI `frontend/app/components`, flags `frontend/lib/flag.js`, assets `frontend/public/`.
 - Config: `backend/.env` (OpenRouter, Google API, Pinecone, Firestore, friction/classifier), `frontend/.env.local` (`NEXT_PUBLIC_BACKEND_URL`).
