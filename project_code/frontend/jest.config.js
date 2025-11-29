@@ -6,6 +6,18 @@
 module.exports = {
   // Automatically clear mock calls and instances between every test
   clearMocks: true,
+  transform: {
+    "^.+\\.(js|jsx|ts|tsx)$": [
+      "babel-jest",
+      {
+        presets: [
+          ["@babel/preset-env", { targets: { node: "current" } }],
+          "@babel/preset-typescript",
+          ["@babel/preset-react", { runtime: "automatic" }],
+        ],
+      },
+    ],
+  },
 
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
