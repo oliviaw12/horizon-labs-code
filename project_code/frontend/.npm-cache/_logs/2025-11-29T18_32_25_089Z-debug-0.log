@@ -1,0 +1,1110 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.17.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/.npmrc
+5 silly config load:file:/Users/olivia/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install" "--include" "dev"
+9 verbose logfile logs-max:10 dir:/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/.npm-cache/_logs/2025-11-29T18_32_25_089Z-
+10 verbose logfile /Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/.npm-cache/_logs/2025-11-29T18_32_25_089Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile done cleaning log files
+13 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with ENOTFOUND
+14 silly idealTree buildDeps
+15 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+16 silly reify mark retired [
+16 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-jest'
+16 silly reify ]
+17 silly reify mark retired [
+17 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-istanbul'
+17 silly reify ]
+18 silly reify mark retired [
+18 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-jest-hoist'
+18 silly reify ]
+19 silly reify mark retired [
+19 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-corejs2'
+19 silly reify ]
+20 silly reify mark retired [
+20 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-corejs3'
+20 silly reify ]
+21 silly reify mark retired [
+21 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-regenerator'
+21 silly reify ]
+22 silly reify mark retired [
+22 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-preset-jest'
+22 silly reify ]
+23 silly reify mark retired [
+23 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/baseline-browser-mapping'
+23 silly reify ]
+24 silly reify mark retired [
+24 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/browserslist'
+24 silly reify ]
+25 silly reify mark retired [
+25 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/caniuse-lite'
+25 silly reify ]
+26 silly reify mark retired [
+26 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/ci-info'
+26 silly reify ]
+27 silly reify mark retired [
+27 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/cjs-module-lexer'
+27 silly reify ]
+28 silly reify mark retired [
+28 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/collect-v8-coverage'
+28 silly reify ]
+29 silly reify mark retired [
+29 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/core-js-compat'
+29 silly reify ]
+30 silly reify mark retired [
+30 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/cssstyle'
+30 silly reify ]
+31 silly reify mark retired [
+31 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/data-urls'
+31 silly reify ]
+32 silly reify mark retired [
+32 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/decimal.js'
+32 silly reify ]
+33 silly reify mark retired [
+33 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/dedent'
+33 silly reify ]
+34 silly reify mark retired [
+34 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/electron-to-chromium'
+34 silly reify ]
+35 silly reify mark retired [
+35 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/entities'
+35 silly reify ]
+36 silly reify mark retired [
+36 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/error-ex'
+36 silly reify ]
+37 silly reify mark retired [
+37 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/expect'
+37 silly reify ]
+38 silly reify mark retired [
+38 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/glob'
+38 silly reify ]
+39 silly reify mark retired [
+39 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/html-encoding-sniffer'
+39 silly reify ]
+40 silly reify mark retired [
+40 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/http-proxy-agent'
+40 silly reify ]
+41 silly reify mark retired [
+41 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/iconv-lite'
+41 silly reify ]
+42 silly reify mark retired [
+42 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/is-potential-custom-element-name'
+42 silly reify ]
+43 silly reify mark retired [
+43 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/istanbul-reports'
+43 silly reify ]
+44 silly reify mark retired [
+44 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest'
+44 silly reify ]
+45 silly reify mark retired [
+45 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-changed-files'
+45 silly reify ]
+46 silly reify mark retired [
+46 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-circus'
+46 silly reify ]
+47 silly reify mark retired [
+47 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-cli'
+47 silly reify ]
+48 silly reify mark retired [
+48 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-diff'
+48 silly reify ]
+49 silly reify mark retired [
+49 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-docblock'
+49 silly reify ]
+50 silly reify mark retired [
+50 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-each'
+50 silly reify ]
+51 silly reify mark retired [
+51 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-environment-jsdom'
+51 silly reify ]
+52 silly reify mark retired [
+52 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-environment-node'
+52 silly reify ]
+53 silly reify mark retired [
+53 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-haste-map'
+53 silly reify ]
+54 silly reify mark retired [
+54 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-matcher-utils'
+54 silly reify ]
+55 silly reify mark retired [
+55 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-leak-detector'
+55 silly reify ]
+56 silly reify mark retired [
+56 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-mock'
+56 silly reify ]
+57 silly reify mark retired [
+57 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-message-util'
+57 silly reify ]
+58 silly reify mark retired [
+58 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-resolve'
+58 silly reify ]
+59 silly reify mark retired [
+59 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-resolve-dependencies'
+59 silly reify ]
+60 silly reify mark retired [
+60 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-runner'
+60 silly reify ]
+61 silly reify mark retired [
+61 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-runtime'
+61 silly reify ]
+62 silly reify mark retired [
+62 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-snapshot'
+62 silly reify ]
+63 silly reify mark retired [
+63 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-util'
+63 silly reify ]
+64 silly reify mark retired [
+64 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-validate'
+64 silly reify ]
+65 silly reify mark retired [
+65 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-watcher'
+65 silly reify ]
+66 silly reify mark retired [
+66 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-worker'
+66 silly reify ]
+67 silly reify mark retired [
+67 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jsdom'
+67 silly reify ]
+68 silly reify mark retired [
+68 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-darwin-x64'
+68 silly reify ]
+69 silly reify mark retired [
+69 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-freebsd-x64'
+69 silly reify ]
+70 silly reify mark retired [
+70 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm-gnueabihf'
+70 silly reify ]
+71 silly reify mark retired [
+71 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm64-gnu'
+71 silly reify ]
+72 silly reify mark retired [
+72 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm64-musl'
+72 silly reify ]
+73 silly reify mark retired [
+73 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-x64-gnu'
+73 silly reify ]
+74 silly reify mark retired [
+74 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-x64-musl'
+74 silly reify ]
+75 silly reify mark retired [
+75 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-win32-arm64-msvc'
+75 silly reify ]
+76 silly reify mark retired [
+76 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-win32-x64-msvc'
+76 silly reify ]
+77 silly reify mark retired [
+77 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/node-releases'
+77 silly reify ]
+78 silly reify mark retired [
+78 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/nwsapi'
+78 silly reify ]
+79 silly reify mark retired [
+79 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/parse5'
+79 silly reify ]
+80 silly reify mark retired [
+80 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regenerate'
+80 silly reify ]
+81 silly reify mark retired [
+81 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regenerate-unicode-properties'
+81 silly reify ]
+82 silly reify mark retired [
+82 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regexpu-core'
+82 silly reify ]
+83 silly reify mark retired [
+83 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regjsgen'
+83 silly reify ]
+84 silly reify mark retired [
+84 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regjsparser'
+84 silly reify ]
+85 silly reify mark retired [
+85 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/rrweb-cssom'
+85 silly reify ]
+86 silly reify mark retired [
+86 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/saxes'
+86 silly reify ]
+87 silly reify mark retired [
+87 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/strip-ansi'
+87 silly reify ]
+88 silly reify mark retired [
+88 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/symbol-tree'
+88 silly reify ]
+89 silly reify mark retired [
+89 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tldts'
+89 silly reify ]
+90 silly reify mark retired [
+90 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tldts-core'
+90 silly reify ]
+91 silly reify mark retired [
+91 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tough-cookie'
+91 silly reify ]
+92 silly reify mark retired [
+92 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tr46'
+92 silly reify ]
+93 silly reify mark retired [
+93 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-canonical-property-names-ecmascript'
+93 silly reify ]
+94 silly reify mark retired [
+94 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-match-property-ecmascript'
+94 silly reify ]
+95 silly reify mark retired [
+95 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-match-property-value-ecmascript'
+95 silly reify ]
+96 silly reify mark retired [
+96 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-property-aliases-ecmascript'
+96 silly reify ]
+97 silly reify mark retired [
+97 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/update-browserslist-db'
+97 silly reify ]
+98 silly reify mark retired [
+98 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/w3c-xmlserializer'
+98 silly reify ]
+99 silly reify mark retired [
+99 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/webidl-conversions'
+99 silly reify ]
+100 silly reify mark retired [
+100 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-encoding'
+100 silly reify ]
+101 silly reify mark retired [
+101 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-mimetype'
+101 silly reify ]
+102 silly reify mark retired [
+102 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-url'
+102 silly reify ]
+103 silly reify mark retired [
+103 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/xml-name-validator'
+103 silly reify ]
+104 silly reify mark retired [
+104 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/xmlchars'
+104 silly reify ]
+105 silly reify mark retired [
+105 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@asamuzakjp/css-color'
+105 silly reify ]
+106 silly reify mark retired [
+106 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/compat-data'
+106 silly reify ]
+107 silly reify mark retired [
+107 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/core'
+107 silly reify ]
+108 silly reify mark retired [
+108 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/generator'
+108 silly reify ]
+109 silly reify mark retired [
+109 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-annotate-as-pure'
+109 silly reify ]
+110 silly reify mark retired [
+110 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-create-class-features-plugin'
+110 silly reify ]
+111 silly reify mark retired [
+111 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-create-regexp-features-plugin'
+111 silly reify ]
+112 silly reify mark retired [
+112 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-define-polyfill-provider'
+112 silly reify ]
+113 silly reify mark retired [
+113 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-member-expression-to-functions'
+113 silly reify ]
+114 silly reify mark retired [
+114 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-module-transforms'
+114 silly reify ]
+115 silly reify mark retired [
+115 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-optimise-call-expression'
+115 silly reify ]
+116 silly reify mark retired [
+116 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-remap-async-to-generator'
+116 silly reify ]
+117 silly reify mark retired [
+117 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-replace-supers'
+117 silly reify ]
+118 silly reify mark retired [
+118 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-skip-transparent-expression-wrappers'
+118 silly reify ]
+119 silly reify mark retired [
+119 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-validator-identifier'
+119 silly reify ]
+120 silly reify mark retired [
+120 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-wrap-function'
+120 silly reify ]
+121 silly reify mark retired [
+121 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helpers'
+121 silly reify ]
+122 silly reify mark retired [
+122 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/parser'
+122 silly reify ]
+123 silly reify mark retired [
+123 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-firefox-class-in-computed-class-key'
+123 silly reify ]
+124 silly reify mark retired [
+124 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-safari-class-field-initializer-scope'
+124 silly reify ]
+125 silly reify mark retired [
+125 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression'
+125 silly reify ]
+126 silly reify mark retired [
+126 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining'
+126 silly reify ]
+127 silly reify mark retired [
+127 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly'
+127 silly reify ]
+128 silly reify mark retired [
+128 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-proposal-private-property-in-object'
+128 silly reify ]
+129 silly reify mark retired [
+129 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-syntax-import-assertions'
+129 silly reify ]
+130 silly reify mark retired [
+130 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-syntax-unicode-sets-regex'
+130 silly reify ]
+131 silly reify mark retired [
+131 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-arrow-functions'
+131 silly reify ]
+132 silly reify mark retired [
+132 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-async-generator-functions'
+132 silly reify ]
+133 silly reify mark retired [
+133 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-async-to-generator'
+133 silly reify ]
+134 silly reify mark retired [
+134 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-block-scoped-functions'
+134 silly reify ]
+135 silly reify mark retired [
+135 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-block-scoping'
+135 silly reify ]
+136 silly reify mark retired [
+136 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-class-properties'
+136 silly reify ]
+137 silly reify mark retired [
+137 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-class-static-block'
+137 silly reify ]
+138 silly reify mark retired [
+138 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-classes'
+138 silly reify ]
+139 silly reify mark retired [
+139 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-computed-properties'
+139 silly reify ]
+140 silly reify mark retired [
+140 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-destructuring'
+140 silly reify ]
+141 silly reify mark retired [
+141 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-dotall-regex'
+141 silly reify ]
+142 silly reify mark retired [
+142 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-duplicate-keys'
+142 silly reify ]
+143 silly reify mark retired [
+143 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-duplicate-named-capturing-groups-regex'
+143 silly reify ]
+144 silly reify mark retired [
+144 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-dynamic-import'
+144 silly reify ]
+145 silly reify mark retired [
+145 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-explicit-resource-management'
+145 silly reify ]
+146 silly reify mark retired [
+146 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-exponentiation-operator'
+146 silly reify ]
+147 silly reify mark retired [
+147 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-export-namespace-from'
+147 silly reify ]
+148 silly reify mark retired [
+148 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-for-of'
+148 silly reify ]
+149 silly reify mark retired [
+149 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-function-name'
+149 silly reify ]
+150 silly reify mark retired [
+150 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-json-strings'
+150 silly reify ]
+151 silly reify mark retired [
+151 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-literals'
+151 silly reify ]
+152 silly reify mark retired [
+152 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-logical-assignment-operators'
+152 silly reify ]
+153 silly reify mark retired [
+153 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-member-expression-literals'
+153 silly reify ]
+154 silly reify mark retired [
+154 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-amd'
+154 silly reify ]
+155 silly reify mark retired [
+155 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-commonjs'
+155 silly reify ]
+156 silly reify mark retired [
+156 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-systemjs'
+156 silly reify ]
+157 silly reify mark retired [
+157 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-umd'
+157 silly reify ]
+158 silly reify mark retired [
+158 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-named-capturing-groups-regex'
+158 silly reify ]
+159 silly reify mark retired [
+159 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-new-target'
+159 silly reify ]
+160 silly reify mark retired [
+160 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-nullish-coalescing-operator'
+160 silly reify ]
+161 silly reify mark retired [
+161 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-numeric-separator'
+161 silly reify ]
+162 silly reify mark retired [
+162 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-object-rest-spread'
+162 silly reify ]
+163 silly reify mark retired [
+163 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-object-super'
+163 silly reify ]
+164 silly reify mark retired [
+164 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-optional-catch-binding'
+164 silly reify ]
+165 silly reify mark retired [
+165 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-optional-chaining'
+165 silly reify ]
+166 silly reify mark retired [
+166 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-parameters'
+166 silly reify ]
+167 silly reify mark retired [
+167 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-private-methods'
+167 silly reify ]
+168 silly reify mark retired [
+168 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-private-property-in-object'
+168 silly reify ]
+169 silly reify mark retired [
+169 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-property-literals'
+169 silly reify ]
+170 silly reify mark retired [
+170 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-display-name'
+170 silly reify ]
+171 silly reify mark retired [
+171 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-jsx'
+171 silly reify ]
+172 silly reify mark retired [
+172 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-jsx-development'
+172 silly reify ]
+173 silly reify mark retired [
+173 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-pure-annotations'
+173 silly reify ]
+174 silly reify mark retired [
+174 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-regenerator'
+174 silly reify ]
+175 silly reify mark retired [
+175 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-regexp-modifiers'
+175 silly reify ]
+176 silly reify mark retired [
+176 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-shorthand-properties'
+176 silly reify ]
+177 silly reify mark retired [
+177 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-reserved-words'
+177 silly reify ]
+178 silly reify mark retired [
+178 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-spread'
+178 silly reify ]
+179 silly reify mark retired [
+179 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-sticky-regex'
+179 silly reify ]
+180 silly reify mark retired [
+180 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-template-literals'
+180 silly reify ]
+181 silly reify mark retired [
+181 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-typescript'
+181 silly reify ]
+182 silly reify mark retired [
+182 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-typeof-symbol'
+182 silly reify ]
+183 silly reify mark retired [
+183 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-escapes'
+183 silly reify ]
+184 silly reify mark retired [
+184 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-property-regex'
+184 silly reify ]
+185 silly reify mark retired [
+185 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-sets-regex'
+185 silly reify ]
+186 silly reify mark retired [
+186 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-env'
+186 silly reify ]
+187 silly reify mark retired [
+187 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-modules'
+187 silly reify ]
+188 silly reify mark retired [
+188 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-react'
+188 silly reify ]
+189 silly reify mark retired [
+189 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-typescript'
+189 silly reify ]
+190 silly reify mark retired [
+190 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-regex'
+190 silly reify ]
+191 silly reify mark retired [
+191 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/traverse'
+191 silly reify ]
+192 silly reify mark retired [
+192 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/types'
+192 silly reify ]
+193 silly reify mark retired [
+193 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/color-helpers'
+193 silly reify ]
+194 silly reify mark retired [
+194 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-calc'
+194 silly reify ]
+195 silly reify mark retired [
+195 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-color-parser'
+195 silly reify ]
+196 silly reify mark retired [
+196 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-parser-algorithms'
+196 silly reify ]
+197 silly reify mark retired [
+197 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-tokenizer'
+197 silly reify ]
+198 silly reify mark retired [
+198 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-darwin-x64'
+198 silly reify ]
+199 silly reify mark retired [
+199 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-darwin-x64'
+199 silly reify ]
+200 silly reify mark retired [
+200 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-arm'
+200 silly reify ]
+201 silly reify mark retired [
+201 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-arm64'
+201 silly reify ]
+202 silly reify mark retired [
+202 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-ppc64'
+202 silly reify ]
+203 silly reify mark retired [
+203 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-s390x'
+203 silly reify ]
+204 silly reify mark retired [
+204 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-x64'
+204 silly reify ]
+205 silly reify mark retired [
+205 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linuxmusl-arm64'
+205 silly reify ]
+206 silly reify mark retired [
+206 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linuxmusl-x64'
+206 silly reify ]
+207 silly reify mark retired [
+207 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-arm'
+207 silly reify ]
+208 silly reify mark retired [
+208 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-arm64'
+208 silly reify ]
+209 silly reify mark retired [
+209 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-ppc64'
+209 silly reify ]
+210 silly reify mark retired [
+210 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-s390x'
+210 silly reify ]
+211 silly reify mark retired [
+211 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-x64'
+211 silly reify ]
+212 silly reify mark retired [
+212 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linuxmusl-arm64'
+212 silly reify ]
+213 silly reify mark retired [
+213 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linuxmusl-x64'
+213 silly reify ]
+214 silly reify mark retired [
+214 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-wasm32'
+214 silly reify ]
+215 silly reify mark retired [
+215 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-arm64'
+215 silly reify ]
+216 silly reify mark retired [
+216 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-ia32'
+216 silly reify ]
+217 silly reify mark retired [
+217 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-x64'
+217 silly reify ]
+218 silly reify mark retired [
+218 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/console'
+218 silly reify ]
+219 silly reify mark retired [
+219 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/core'
+219 silly reify ]
+220 silly reify mark retired [
+220 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/environment'
+220 silly reify ]
+221 silly reify mark retired [
+221 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/environment-jsdom-abstract'
+221 silly reify ]
+222 silly reify mark retired [
+222 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/expect'
+222 silly reify ]
+223 silly reify mark retired [
+223 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/expect-utils'
+223 silly reify ]
+224 silly reify mark retired [
+224 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/fake-timers'
+224 silly reify ]
+225 silly reify mark retired [
+225 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/get-type'
+225 silly reify ]
+226 silly reify mark retired [
+226 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/globals'
+226 silly reify ]
+227 silly reify mark retired [
+227 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/reporters'
+227 silly reify ]
+228 silly reify mark retired [
+228 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/snapshot-utils'
+228 silly reify ]
+229 silly reify mark retired [
+229 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/test-result'
+229 silly reify ]
+230 silly reify mark retired [
+230 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/test-sequencer'
+230 silly reify ]
+231 silly reify mark retired [
+231 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/transform'
+231 silly reify ]
+232 silly reify mark retired [
+232 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/types'
+232 silly reify ]
+233 silly reify mark retired [
+233 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-darwin-x64'
+233 silly reify ]
+234 silly reify mark retired [
+234 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-arm64-gnu'
+234 silly reify ]
+235 silly reify mark retired [
+235 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-arm64-musl'
+235 silly reify ]
+236 silly reify mark retired [
+236 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-x64-gnu'
+236 silly reify ]
+237 silly reify mark retired [
+237 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-x64-musl'
+237 silly reify ]
+238 silly reify mark retired [
+238 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-win32-x64-msvc'
+238 silly reify ]
+239 silly reify mark retired [
+239 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-win32-arm64-msvc'
+239 silly reify ]
+240 silly reify mark retired [
+240 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@sinclair/typebox'
+240 silly reify ]
+241 silly reify mark retired [
+241 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-android-arm64'
+241 silly reify ]
+242 silly reify mark retired [
+242 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-darwin-x64'
+242 silly reify ]
+243 silly reify mark retired [
+243 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-freebsd-x64'
+243 silly reify ]
+244 silly reify mark retired [
+244 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm-gnueabihf'
+244 silly reify ]
+245 silly reify mark retired [
+245 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm64-gnu'
+245 silly reify ]
+246 silly reify mark retired [
+246 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm64-musl'
+246 silly reify ]
+247 silly reify mark retired [
+247 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-x64-gnu'
+247 silly reify ]
+248 silly reify mark retired [
+248 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-x64-musl'
+248 silly reify ]
+249 silly reify mark retired [
+249 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-wasm32-wasi'
+249 silly reify ]
+250 silly reify mark retired [
+250 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-win32-arm64-msvc'
+250 silly reify ]
+251 silly reify mark retired [
+251 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-win32-x64-msvc'
+251 silly reify ]
+252 silly reify mark retired [
+252 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@testing-library/user-event'
+252 silly reify ]
+253 silly reify mark retired [
+253 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/jsdom'
+253 silly reify ]
+254 silly reify mark retired [
+254 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/yargs'
+254 silly reify ]
+255 silly reify mark retired [
+255 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-android-arm-eabi'
+255 silly reify ]
+256 silly reify mark retired [
+256 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-android-arm64'
+256 silly reify ]
+257 silly reify mark retired [
+257 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-darwin-x64'
+257 silly reify ]
+258 silly reify mark retired [
+258 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-freebsd-x64'
+258 silly reify ]
+259 silly reify mark retired [
+259 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm-gnueabihf'
+259 silly reify ]
+260 silly reify mark retired [
+260 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm-musleabihf'
+260 silly reify ]
+261 silly reify mark retired [
+261 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm64-gnu'
+261 silly reify ]
+262 silly reify mark retired [
+262 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm64-musl'
+262 silly reify ]
+263 silly reify mark retired [
+263 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-ppc64-gnu'
+263 silly reify ]
+264 silly reify mark retired [
+264 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-riscv64-gnu'
+264 silly reify ]
+265 silly reify mark retired [
+265 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-riscv64-musl'
+265 silly reify ]
+266 silly reify mark retired [
+266 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-s390x-gnu'
+266 silly reify ]
+267 silly reify mark retired [
+267 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-x64-gnu'
+267 silly reify ]
+268 silly reify mark retired [
+268 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-wasm32-wasi'
+268 silly reify ]
+269 silly reify mark retired [
+269 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-x64-musl'
+269 silly reify ]
+270 silly reify mark retired [
+270 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-arm64-msvc'
+270 silly reify ]
+271 silly reify mark retired [
+271 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-ia32-msvc'
+271 silly reify ]
+272 silly reify mark retired [
+272 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-x64-msvc'
+272 silly reify ]
+273 silly reify mark retired [
+273 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/esprima',
+273 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/esparse',
+273 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/esvalidate'
+273 silly reify ]
+274 silly reify mark retired [
+274 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/import-local',
+274 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/import-local-fixture'
+274 silly reify ]
+275 silly reify mark retired [
+275 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jsesc',
+275 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/jsesc'
+275 silly reify ]
+276 silly reify mark retired [
+276 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lz-string',
+276 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/lz-string'
+276 silly reify ]
+277 silly reify mark retired [
+277 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/wrap-ansi/node_modules/ansi-styles'
+277 silly reify ]
+278 silly reify mark retired [
+278 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/semver',
+278 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/.bin/semver'
+278 silly reify ]
+279 silly reify mark retired [
+279 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml'
+279 silly reify ]
+280 silly reify moves {
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-jest': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-jest-EtT8KdSE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-istanbul': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-plugin-istanbul-ioPy3CBj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-jest-hoist': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-plugin-jest-hoist-0RW6qmiE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-corejs2': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-plugin-polyfill-corejs2-cWpOU8BQ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-corejs3': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-plugin-polyfill-corejs3-QW8yZ1uB',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-plugin-polyfill-regenerator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-plugin-polyfill-regenerator-2CMdFCmv',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/babel-preset-jest': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.babel-preset-jest-fgvwikE2',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/baseline-browser-mapping': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.baseline-browser-mapping-YvVzrOeK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/browserslist': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.browserslist-y646lEPf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/caniuse-lite': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.caniuse-lite-9A5NS4Ps',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/ci-info': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.ci-info-U4bu8euM',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/cjs-module-lexer': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.cjs-module-lexer-U4o8Ydou',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/collect-v8-coverage': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.collect-v8-coverage-NOgW75aC',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/core-js-compat': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.core-js-compat-eqGjZ6A1',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/cssstyle': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.cssstyle-Bu3by4gs',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/data-urls': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.data-urls-4Gn1KqXV',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/decimal.js': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.decimal.js-CKRkrZ8I',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/dedent': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.dedent-6Gwshxdz',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/electron-to-chromium': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.electron-to-chromium-IunMarfd',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/entities': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.entities-Z7R7lSBd',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/error-ex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.error-ex-CYkaBSvF',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/expect': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.expect-3bHDAjcv',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/glob': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.glob-LiGYeQys',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/html-encoding-sniffer': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.html-encoding-sniffer-qd36brvC',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/http-proxy-agent': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.http-proxy-agent-Z6TniT5M',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/iconv-lite': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.iconv-lite-X2dQ0hqC',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/is-potential-custom-element-name': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.is-potential-custom-element-name-ZdY9bFFQ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/istanbul-reports': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.istanbul-reports-WJzeUwJT',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-ZAD2K3il',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-changed-files': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-changed-files-6bVjJjJm',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-circus': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-circus-gV1Kb2vB',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-cli': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-cli-Sj2K3aSy',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-diff': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-diff-T6EabAB1',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-docblock': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-docblock-NRD0xzPF',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-each': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-each-PqQ1FXK5',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-environment-jsdom': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-environment-jsdom-61A6mu8C',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-environment-node': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-environment-node-WyOcoshY',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-haste-map': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-haste-map-Ei9XJrW6',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-matcher-utils': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-matcher-utils-O8SX14Me',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-leak-detector': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-leak-detector-QFmuwiD6',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-mock': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-mock-q83MOIyt',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-message-util': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-message-util-o14sstfA',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-resolve': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-resolve-hLNA7IOn',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-resolve-dependencies': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-resolve-dependencies-sMubscU1',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-runner': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-runner-f2U8b9UI',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-runtime': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-runtime-j8no0kDs',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-snapshot': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-snapshot-h2WPucIq',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-util': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-util-XCvtyFsC',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-validate': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-validate-y5HmZlq9',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-watcher': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-watcher-EvnSEFvt',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jest-worker': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jest-worker-MWiD0oNK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jsdom': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jsdom-ZGFdBReh',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-darwin-x64-iEuXy1gl',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-freebsd-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-freebsd-x64-keF8tsuW',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm-gnueabihf': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-linux-arm-gnueabihf-4jqTDqwy',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-linux-arm64-gnu-FG6NcYlp',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-arm64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-linux-arm64-musl-mUpWOO4p',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-x64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-linux-x64-gnu-MO10qXQ7',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-linux-x64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-linux-x64-musl-pNAhAt3P',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-win32-arm64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-win32-arm64-msvc-NyeMWbFg',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lightningcss-win32-x64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lightningcss-win32-x64-msvc-Linp97sn',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/node-releases': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.node-releases-PS3I4njX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/nwsapi': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.nwsapi-pyRWOTMn',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/parse5': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.parse5-MJljIkUa',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regenerate': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.regenerate-8FK7X49G',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regenerate-unicode-properties': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.regenerate-unicode-properties-ZdbYRshw',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regexpu-core': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.regexpu-core-K3Wamfi2',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regjsgen': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.regjsgen-ixYBVbv0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/regjsparser': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.regjsparser-54wQz5JN',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/rrweb-cssom': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.rrweb-cssom-dj9fQFIJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/saxes': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.saxes-FtqJMPIP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/strip-ansi': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.strip-ansi-FRkNCRvk',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/symbol-tree': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.symbol-tree-OTYLrX3E',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tldts': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.tldts-t4BekwqY',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tldts-core': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.tldts-core-HBpAySlf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tough-cookie': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.tough-cookie-mZPkGUb8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/tr46': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.tr46-jcZONWvp',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-canonical-property-names-ecmascript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.unicode-canonical-property-names-ecmascript-eP1eeZOW',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-match-property-ecmascript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.unicode-match-property-ecmascript-sNJVEkeB',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-match-property-value-ecmascript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.unicode-match-property-value-ecmascript-FBWvqfaZ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/unicode-property-aliases-ecmascript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.unicode-property-aliases-ecmascript-njBaEdLX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/update-browserslist-db': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.update-browserslist-db-8GkVZa7g',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/w3c-xmlserializer': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.w3c-xmlserializer-glMqWTxU',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/webidl-conversions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.webidl-conversions-gx2aYKzm',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-encoding': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.whatwg-encoding-BEM1pmE2',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-mimetype': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.whatwg-mimetype-dISCNgXX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/whatwg-url': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.whatwg-url-J5u1D2ck',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/xml-name-validator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.xml-name-validator-ygm4SWY3',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/xmlchars': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.xmlchars-v09xv7c0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@asamuzakjp/css-color': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@asamuzakjp/.css-color-mvfdyh1I',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/compat-data': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.compat-data-CbKyADzZ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/core': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.core-f9gO2Z9c',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/generator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.generator-rg9oZ7Ke',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-annotate-as-pure': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-annotate-as-pure-DYFzPMnZ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-create-class-features-plugin': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-create-class-features-plugin-d50KBV8g',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-create-regexp-features-plugin': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-create-regexp-features-plugin-cAXNlYL3',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-define-polyfill-provider': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-define-polyfill-provider-km2xVOw8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-member-expression-to-functions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-member-expression-to-functions-DjSoKxaq',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-module-transforms': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-module-transforms-N3DgecQp',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-optimise-call-expression': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-optimise-call-expression-8Z5vddIE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-remap-async-to-generator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-remap-async-to-generator-LkjztR4E',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-replace-supers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-replace-supers-hhGGMDWc',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-skip-transparent-expression-wrappers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-skip-transparent-expression-wrappers-G18p5a80',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-validator-identifier': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-validator-identifier-Tm5m0ML2',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-wrap-function': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helper-wrap-function-QvZwvcoI',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helpers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.helpers-G2hKPttN',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/parser': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.parser-5thh9LMB',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-firefox-class-in-computed-class-key': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-bugfix-firefox-class-in-computed-class-key-DH0E321W',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-safari-class-field-initializer-scope': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-bugfix-safari-class-field-initializer-scope-zHhSwUDI',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-bugfix-safari-id-destructuring-collision-in-function-expression-oCQVM30H',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-bugfix-v8-spread-parameters-in-optional-chaining-4jpnczT4',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-bugfix-v8-static-class-fields-redefine-readonly-bcD0G4fE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-proposal-private-property-in-object': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-proposal-private-property-in-object-rdn0bmZm',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-syntax-import-assertions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-syntax-import-assertions-LYhDm3r7',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-syntax-unicode-sets-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-syntax-unicode-sets-regex-BDqBV5vi',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-arrow-functions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-arrow-functions-kwjquydL',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-async-generator-functions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-async-generator-functions-kgCyB62C',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-async-to-generator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-async-to-generator-xOj3RLBT',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-block-scoped-functions': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-block-scoped-functions-uwg1k6c0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-block-scoping': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-block-scoping-4IfmZBbO',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-class-properties': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-class-properties-nQ0PyaRR',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-class-static-block': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-class-static-block-lHW5fb5d',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-classes': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-classes-2BjAfOEo',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-computed-properties': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-computed-properties-xCTHSVcf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-destructuring': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-destructuring-HWVxYz2G',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-dotall-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-dotall-regex-yRMPSma8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-duplicate-keys': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-duplicate-keys-4X3Z23YA',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-duplicate-named-capturing-groups-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-duplicate-named-capturing-groups-regex-Enh1FfS1',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-dynamic-import': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-dynamic-import-WyMzZQM0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-explicit-resource-management': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-explicit-resource-management-mvUS0h0G',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-exponentiation-operator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-exponentiation-operator-EBFlSIXR',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-export-namespace-from': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-export-namespace-from-210WbLtn',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-for-of': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-for-of-4tts7wO4',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-function-name': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-function-name-3TxpOOL6',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-json-strings': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-json-strings-33ubm3JM',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-literals': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-literals-FfjE5paL',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-logical-assignment-operators': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-logical-assignment-operators-wxnmsbJ9',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-member-expression-literals': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-member-expression-literals-TXxhXfhh',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-amd': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-modules-amd-bCIFJGAI',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-commonjs': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-modules-commonjs-IJjEqRkc',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-systemjs': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-modules-systemjs-uiWPuiOJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-modules-umd': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-modules-umd-LCei9E8s',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-named-capturing-groups-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-named-capturing-groups-regex-xDMi3i9z',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-new-target': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-new-target-WkIVRmRb',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-nullish-coalescing-operator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-nullish-coalescing-operator-sC4HxBum',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-numeric-separator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-numeric-separator-jA7MFndW',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-object-rest-spread': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-object-rest-spread-9T2DYSqE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-object-super': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-object-super-DumZeOMj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-optional-catch-binding': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-optional-catch-binding-JVi4VGVX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-optional-chaining': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-optional-chaining-BFE1rjco',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-parameters': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-parameters-rhJVNry0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-private-methods': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-private-methods-65CjfkFr',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-private-property-in-object': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-private-property-in-object-vOs1JW82',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-property-literals': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-property-literals-k1MQM0JD',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-display-name': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-react-display-name-QqhZLWpE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-jsx': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-react-jsx-OX9OAjDw',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-jsx-development': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-react-jsx-development-yoUxmxY6',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-react-pure-annotations': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-react-pure-annotations-XgVPtILj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-regenerator': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-regenerator-ScMYNjr3',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-regexp-modifiers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-regexp-modifiers-qfnN7cgy',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-shorthand-properties': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-shorthand-properties-L1sf6LJP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-reserved-words': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-reserved-words-3bQfXcBW',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-spread': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-spread-wyG1KB3i',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-sticky-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-sticky-regex-S9A1pbV9',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-template-literals': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-template-literals-gahN8nZr',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-typescript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-typescript-C3UF5x72',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-typeof-symbol': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-typeof-symbol-wQXnIrKL',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-escapes': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-unicode-escapes-wT9ViOKi',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-property-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-unicode-property-regex-O1xLLIob',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-sets-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-unicode-sets-regex-Lksl9ayf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-env': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.preset-env-G2qTCRuo',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-modules': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.preset-modules-mBkjaKZJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-react': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.preset-react-5Fjp2gvt',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/preset-typescript': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.preset-typescript-XaTQG8mx',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/plugin-transform-unicode-regex': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.plugin-transform-unicode-regex-nLSt4Fnt',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/traverse': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.traverse-jCNx9O5e',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/types': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/.types-VqB5ryNo',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/color-helpers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/.color-helpers-doyprn0l',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-calc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/.css-calc-fz0I8Yod',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-color-parser': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/.css-color-parser-zfnHTNg9',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-parser-algorithms': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/.css-parser-algorithms-kLWXY52k',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/css-tokenizer': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@csstools/.css-tokenizer-PdJfc51l',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-darwin-x64-xIfPlNi4',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-darwin-x64-wPbyh5CM',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-arm': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linux-arm-pinHoYyb',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linux-arm64-hATXY5xP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-ppc64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linux-ppc64-1n2GRtXi',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-s390x': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linux-s390x-vPBZv5fK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linux-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linux-x64-SkSEd3Ya',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linuxmusl-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linuxmusl-arm64-4PPwJbXl',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-libvips-linuxmusl-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-libvips-linuxmusl-x64-x5TMBimE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-arm': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linux-arm-7Bm3TxRj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linux-arm64-ZYKoDymD',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-ppc64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linux-ppc64-XZVUtUjK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-s390x': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linux-s390x-szEttmLj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linux-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linux-x64-NqEb8YCJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linuxmusl-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linuxmusl-arm64-RMbXTR2b',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-linuxmusl-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-linuxmusl-x64-jt7RWDrW',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-wasm32': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-wasm32-BVem9R8i',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-win32-arm64-8Id5VdoX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-ia32': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-win32-ia32-CE0OqXv8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/sharp-win32-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@img/.sharp-win32-x64-IdOW9gUd',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/console': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.console-KL0XJLFT',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/core': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.core-Wt47ve1u',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/environment': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.environment-UnytqCJ0',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/environment-jsdom-abstract': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.environment-jsdom-abstract-ZR42BP8v',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/expect': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.expect-EkiTKYn8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/expect-utils': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.expect-utils-uL9rbOZU',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/fake-timers': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.fake-timers-BjQ1SXcE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/get-type': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.get-type-s1K48kwz',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/globals': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.globals-zFrAmSpb',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/reporters': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.reporters-ttEFr95y',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/snapshot-utils': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.snapshot-utils-ABHAg1ei',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/test-result': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.test-result-exIIXXhP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/test-sequencer': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.test-sequencer-R6LpWcjc',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/transform': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.transform-2RYIbcNE',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/types': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@jest/.types-CiW9J43W',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-darwin-x64-sUfIeI5Q',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-arm64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-linux-arm64-gnu-p9YRuRDt',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-arm64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-linux-arm64-musl-IOnp3qhK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-x64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-linux-x64-gnu-VAFfrm8P',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-linux-x64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-linux-x64-musl-Uy4XApqr',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-win32-x64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-win32-x64-msvc-abS46aCg',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/swc-win32-arm64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@next/.swc-win32-arm64-msvc-VQpPO42O',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@sinclair/typebox': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@sinclair/.typebox-8FJn2eAu',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-android-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-android-arm64-WVSVrCNV',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-darwin-x64-Ju6fiRob',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-freebsd-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-freebsd-x64-Lcpb7PHX',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm-gnueabihf': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-linux-arm-gnueabihf-RTGllDGS',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-linux-arm64-gnu-jLPRZR5w',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-arm64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-linux-arm64-musl-eDjtbzzZ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-x64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-linux-x64-gnu-oYeWgL0H',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-linux-x64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-linux-x64-musl-6T0gjTPJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-wasm32-wasi': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-wasm32-wasi-ArpTTW8u',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-win32-arm64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-win32-arm64-msvc-MXj85loZ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/oxide-win32-x64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@tailwindcss/.oxide-win32-x64-msvc-hfeuc9gJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@testing-library/user-event': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@testing-library/.user-event-fVn6Evih',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/jsdom': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/.jsdom-8cX6j6SP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/yargs': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@types/.yargs-JswYWBPv',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-android-arm-eabi': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-android-arm-eabi-v7CVH7vR',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-android-arm64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-android-arm64-dUDkLWpr',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-darwin-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-darwin-x64-bL1yj3tA',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-freebsd-x64': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-freebsd-x64-mBfj3bPS',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm-gnueabihf': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-arm-gnueabihf-L4psCqTy',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm-musleabihf': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-arm-musleabihf-OIXOvg9G',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-arm64-gnu-sthbtOVP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-arm64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-arm64-musl-uDtQzqzv',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-ppc64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-ppc64-gnu-7VXSBjft',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-riscv64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-riscv64-gnu-32vFeM91',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-riscv64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-riscv64-musl-RwGYGvok',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-s390x-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-s390x-gnu-0yiSs8vT',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-x64-gnu': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-x64-gnu-uG5GfbtC',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-wasm32-wasi': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-wasm32-wasi-DFqiL22X',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-linux-x64-musl': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-linux-x64-musl-abtgLTEw',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-arm64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-win32-arm64-msvc-FtnMoliK',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-ia32-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-win32-ia32-msvc-eIzvCJA4',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/resolver-binding-win32-x64-msvc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@unrs/.resolver-binding-win32-x64-msvc-ZcfW3lDf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/esprima': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.esprima-Q5JQQG4i',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/esparse': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/.esparse-0IRb2nou',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/esvalidate': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/.esvalidate-Chg0Xraa',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/import-local': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.import-local-IFeNszZf',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/import-local-fixture': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/.import-local-fixture-T2LT7DjP',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/jsesc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.jsesc-8fpxeILL',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/jsesc': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/.jsesc-rxtn0JQJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/lz-string': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.lz-string-j6HFooL8',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/lz-string': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.bin/.lz-string-oGzpCqPo',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/wrap-ansi/node_modules/ansi-styles': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/wrap-ansi/node_modules/.ansi-styles-Hm5IidVJ',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/semver': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/.semver-0QEhwrIg',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/.bin/semver': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@babel/helper-compilation-targets/node_modules/.bin/.semver-TP2QOSpj',
+280 silly reify   '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml': '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/@istanbuljs/load-nyc-config/node_modules/.js-yaml-YjbI1ysq'
+280 silly reify }
+281 verbose stack Error: ENOTEMPTY: directory not empty, rename '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/caniuse-lite' -> '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.caniuse-lite-9A5NS4Ps'
+281 verbose stack     at async Object.rename (node:internal/fs/promises:782:10)
+281 verbose stack     at async moveFile (/usr/local/lib/node_modules/npm/node_modules/@npmcli/fs/lib/move-file.js:30:5)
+281 verbose stack     at async Promise.allSettled (index 9)
+281 verbose stack     at async [reifyPackages] (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:325:11)
+281 verbose stack     at async Arborist.reify (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:142:5)
+281 verbose stack     at async Install.exec (/usr/local/lib/node_modules/npm/lib/commands/install.js:150:5)
+281 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:207:9)
+281 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:74:5)
+282 error code ENOTEMPTY
+283 error syscall rename
+284 error path /Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/caniuse-lite
+285 error dest /Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.caniuse-lite-9A5NS4Ps
+286 error errno -66
+287 error ENOTEMPTY: directory not empty, rename '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/caniuse-lite' -> '/Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/node_modules/.caniuse-lite-9A5NS4Ps'
+288 silly unfinished npm timer reify 1764441145242
+289 silly unfinished npm timer reify:retireShallow 1764441145597
+290 verbose cwd /Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend
+291 verbose os Darwin 21.5.0
+292 verbose node v20.17.0
+293 verbose npm  v10.8.2
+294 verbose exit -66
+295 verbose code -66
+296 error A complete log of this run can be found in: /Users/olivia/Desktop/csc491/horizon-labs-code/project_code/frontend/.npm-cache/_logs/2025-11-29T18_32_25_089Z-debug-0.log
