@@ -11,7 +11,7 @@ module.exports = {
   collectCoverage: true,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "frontend",
+  coverageDirectory: "coverage",
 
   // Force coverage summary to be displayed even if tests fail
   forceExit: false,
@@ -54,7 +54,7 @@ module.exports = {
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
   // setupFiles: ['./jest.setup.ts'],
-//   setupFiles: ["<rootDir>/__mocks__/localStorageMock.ts", "<rootDir>/__mocks__/cryptoMock.ts", "<rootDir>/__mocks__/@ceridianhcm/components/_resizeObserver.ts", "jest-canvas-mock", "<rootDir>/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 
   // The test environment that will be used for testing
   testEnvironment: "jsdom",
