@@ -139,3 +139,53 @@ jobs:
 
       - name: Verify build
         run: npm run build
+
+      - name: Run frontend tests
+        env:
+          CI: "true"
+        run: npm run test:ci
+
+      - name: Publish frontend coverage summary
+        if: always()
+        run: |
+          node - <<'JS'
+          const fs = require("fs");
+          const path = "coverage/coverage-summary.json";
+          if (!fs.existsSync(path)) {
+            throw new Error(`coverage summary not found at ${path}`);
+          }
+          const data = JSON.parse(fs.readFileSync(path, "utf8"));
+          const total = data.total || {};
+          const format = (section) => {
+            const pct = section?.pct;
+            return typeof pct === "number" ? `${pct.toFixed(2)}%` : "n/a";
+          };
+          const summary = [
+            "## Frontend Test Coverage",
+            "",
+            `- Statements: ${format(total.statements)}`,
+            `- Branches: ${format(total.branches)}`,
+            `- Functions: ${format(total.functions)}`,
+            `- Lines: ${format(total.lines)}`
+          ].join("\n") + "\n";
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary, "utf8");
+          fs.writeFileSync("coverage-summary-frontend.txt", summary, "utf8");
+          JS
+
+      - name: Upload frontend coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-summary
+          path: project_code/frontend/coverage-summary-frontend.txt
+          if-no-files-found: error
+
+      - name: Upload frontend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: |
+            project_code/frontend/coverage/coverage-summary.json
+            project_code/frontend/coverage/lcov.info
+          if-no-files-found: error
