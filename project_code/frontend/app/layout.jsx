@@ -1,3 +1,4 @@
+import React from "react";
 import "./globals.css";
 import ConditionalHeader from "./components/ConditionalHeader";
 import ConditionalBody from "./components/ConditionalBody";
