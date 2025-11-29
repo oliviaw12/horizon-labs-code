@@ -154,18 +154,21 @@ jobs:
           const path = "coverage/coverage-summary.json";
           const data = JSON.parse(fs.readFileSync(path, "utf8"));
           const total = data.total || {};
-          const format = (section) => {
-            const pct = section?.pct;
-            return typeof pct === "number" ? `${pct.toFixed(2)}%` : "n/a";
-          };
+
+          const fmt = (section) => (typeof section?.pct === "number" ? `${section.pct.toFixed(2)}%` : "n/a");
+          const linesCovered = total.lines?.covered ?? "n/a";
+          const linesTotal = total.lines?.total ?? "n/a";
+
           const summary = [
             "## Frontend Test Coverage",
             "",
-            `- Statements: ${format(total.statements)}`,
-            `- Branches: ${format(total.branches)}`,
-            `- Functions: ${format(total.functions)}`,
-            `- Lines: ${format(total.lines)}`
+            `- Statements: ${fmt(total.statements)}`,
+            `- Branches: ${fmt(total.branches)}`,
+            `- Functions: ${fmt(total.functions)}`,
+            `- Lines: ${fmt(total.lines)}`,
+            `- Lines covered: ${linesCovered} / ${linesTotal}`,
           ].join("\n") + "\n";
+
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary, "utf8");
           fs.writeFileSync("coverage-summary-frontend.txt", summary, "utf8");
           JS
