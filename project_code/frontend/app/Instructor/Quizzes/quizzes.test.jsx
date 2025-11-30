@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import InstructorQuizzesPage from "./quizzes";
+import InstructorQuizzesPage from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),

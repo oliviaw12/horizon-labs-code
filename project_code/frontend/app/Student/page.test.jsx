@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import StudentIndexPage from "./page1";
+import StudentIndexPage from "./page";
 
 jest.mock("./HomePage/page", () => () => <div data-testid="home">Student Home</div>, {
   virtual: true,

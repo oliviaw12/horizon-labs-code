@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import PracticePage from "./practice";
+import PracticePage from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import PolicyPage from "./policy";
+import PolicyPage from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),

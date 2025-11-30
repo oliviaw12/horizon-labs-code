@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import QuizGenerator2Page from "./assessment";
+import QuizGenerator2Page from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),

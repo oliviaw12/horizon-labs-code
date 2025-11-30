@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import PolicyTestPage from "./test";
+import PolicyTestPage from "./page";
 
 // Mock Next.js hooks
 jest.mock("next/navigation", () => ({

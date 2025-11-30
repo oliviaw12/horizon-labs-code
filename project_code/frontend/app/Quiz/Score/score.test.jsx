@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import ScorePage from "./score";
+import ScorePage from "./page";
 
 jest.mock("next/navigation", () => ({
   useSearchParams: () => ({

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import InstructorDashboard from "./dashboard";
+import InstructorDashboard from "./page";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
