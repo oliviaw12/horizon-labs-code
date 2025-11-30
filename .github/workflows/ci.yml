@@ -147,42 +147,54 @@ jobs:
         run: npm run test:ci
 
       - name: Publish frontend coverage summary
-        if: always() && steps.frontend_tests.outcome == 'success' && hashFiles('coverage/coverage-summary.json') != ''
+        if: always()
         run: |
           node - <<'JS'
           const fs = require("fs");
-          const path = "coverage/coverage-summary.json";
-          const data = JSON.parse(fs.readFileSync(path, "utf8"));
+          const reportPath = "coverage/coverage-summary.json";
+          if (!fs.existsSync(reportPath)) {
+            throw new Error(`coverage report '${reportPath}' not found`);
+          }
+
+          const data = JSON.parse(fs.readFileSync(reportPath, "utf8"));
           const total = data.total || {};
 
-          const fmt = (section) => (typeof section?.pct === "number" ? `${section.pct.toFixed(2)}%` : "n/a");
-          const linesCovered = total.lines?.covered ?? "n/a";
-          const linesTotal = total.lines?.total ?? "n/a";
+          const percent = (section) =>
+            typeof section?.pct === "number" ? `${section.pct.toFixed(2)}%` : "n/a";
 
-          const summary = [
+          const lineCoverage = percent(total.lines);
+          const branchCoverage = percent(total.branches);
+          const linesCovered = total.lines?.covered ?? "0";
+          const linesTotal = total.lines?.total ?? "0";
+
+          const summaryLines = [
             "## Frontend Test Coverage",
             "",
-            `- Statements: ${fmt(total.statements)}`,
-            `- Branches: ${fmt(total.branches)}`,
-            `- Functions: ${fmt(total.functions)}`,
-            `- Lines: ${fmt(total.lines)}`,
-            `- Lines covered: ${linesCovered} / ${linesTotal}`,
-          ].join("\n") + "\n";
+            `- Line coverage: ${lineCoverage}`,
+          ];
+
+          if (branchCoverage !== "n/a") {
+            summaryLines.push(`- Branch coverage: ${branchCoverage}`);
+          }
+
+          summaryLines.push(`- Lines covered: ${linesCovered} / ${linesTotal}`);
+
+          const summary = summaryLines.join("\n") + "\n";
 
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary, "utf8");
-          fs.writeFileSync("coverage-summary-frontend.txt", summary, "utf8");
+          fs.writeFileSync("coverage-summary.txt", summary, "utf8");
           JS
 
       - name: Upload frontend coverage summary
-        if: always() && steps.frontend_tests.outcome == 'success' && hashFiles('coverage-summary-frontend.txt') != ''
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage-summary
-          path: project_code/frontend/coverage-summary-frontend.txt
+          path: project_code/frontend/coverage-summary.txt
           if-no-files-found: error
 
       - name: Upload frontend coverage report
-        if: always() && steps.frontend_tests.outcome == 'success' && hashFiles('project_code/frontend/coverage/coverage-summary.json') != ''
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
