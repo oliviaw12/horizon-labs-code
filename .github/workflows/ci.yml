@@ -151,11 +151,70 @@ jobs:
         run: |
           node - <<'JS'
           const fs = require("fs");
-          const reportPath = "coverage/coverage-summary.json";
-          const summaryFile = "coverage-summary.txt";
+          const path = require("path");
+          const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+          const cwd = process.cwd();
 
-          const missing = !fs.existsSync(reportPath);
-          const data = missing ? null : JSON.parse(fs.readFileSync(reportPath, "utf8"));
+          const toCwd = (relativePath) => path.join(cwd, relativePath);
+          const findExisting = (relativePath) => {
+            const candidates = [
+              path.join(cwd, relativePath),
+              path.join(workspace, relativePath),
+              path.join(workspace, "project_code/frontend", relativePath),
+            ];
+            return candidates.find((p) => fs.existsSync(p));
+          };
+
+          const reportPath = toCwd("coverage/coverage-summary.json");
+          const summaryFile = "coverage-summary.txt";
+          const coverageFinalPath = toCwd("coverage/coverage-final.json");
+
+          const ensureCoverageSummary = () => {
+            const existingSummary = findExisting("coverage/coverage-summary.json");
+            if (existingSummary) {
+              if (existingSummary !== reportPath) {
+                fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+                fs.copyFileSync(existingSummary, reportPath);
+              }
+              return JSON.parse(fs.readFileSync(reportPath, "utf8"));
+            }
+
+            const existingFinal = findExisting("coverage/coverage-final.json");
+            if (!existingFinal) {
+              return null;
+            }
+
+            try {
+              // Build summary from coverage-final using istanbul utilities
+              const { createCoverageMap } = require("istanbul-lib-coverage");
+              const map = createCoverageMap(
+                JSON.parse(fs.readFileSync(existingFinal, "utf8"))
+              );
+              const summary = map.getCoverageSummary().toJSON();
+              const section = (key) => summary[key] ?? {};
+              const total = {
+                lines: section("lines"),
+                branches: section("branches"),
+                statements: section("statements"),
+                functions: section("functions"),
+              };
+
+              const data = { total };
+              if (existingFinal !== coverageFinalPath) {
+                fs.mkdirSync(path.dirname(coverageFinalPath), { recursive: true });
+                fs.copyFileSync(existingFinal, coverageFinalPath);
+              }
+              fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+              fs.writeFileSync(reportPath, JSON.stringify(data, null, 2));
+              return data;
+            } catch (error) {
+              console.warn("Failed to synthesize coverage summary:", error);
+              return null;
+            }
+          };
+
+          const data = ensureCoverageSummary();
+          const missing = !data;
           const total = data?.total || {};
 
           const percent = (section) =>
@@ -166,11 +225,12 @@ jobs:
           const linesCovered = total.lines?.covered ?? "0";
           const linesTotal = total.lines?.total ?? "0";
 
+          const missingMessage = `- Coverage report '${reportPath}' not found (also checked '${coverageFinalPath}')`;
           const summaryLines = [
             "## Frontend Test Coverage",
             "",
             missing
-              ? `- Coverage report '${reportPath}' not found`
+              ? missingMessage
               : `- Line coverage: ${lineCoverage}`,
           ];
 
