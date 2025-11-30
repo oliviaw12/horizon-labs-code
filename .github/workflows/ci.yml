@@ -147,17 +147,16 @@ jobs:
         run: npm run test:ci
 
       - name: Publish frontend coverage summary
-        if: always()
+        if: always() && steps.frontend_tests.outcome == 'success'
         run: |
           node - <<'JS'
           const fs = require("fs");
           const reportPath = "coverage/coverage-summary.json";
-          if (!fs.existsSync(reportPath)) {
-            throw new Error(`coverage report '${reportPath}' not found`);
-          }
+          const summaryFile = "coverage-summary.txt";
 
-          const data = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-          const total = data.total || {};
+          const missing = !fs.existsSync(reportPath);
+          const data = missing ? null : JSON.parse(fs.readFileSync(reportPath, "utf8"));
+          const total = data?.total || {};
 
           const percent = (section) =>
             typeof section?.pct === "number" ? `${section.pct.toFixed(2)}%` : "n/a";
@@ -170,23 +169,27 @@ jobs:
           const summaryLines = [
             "## Frontend Test Coverage",
             "",
-            `- Line coverage: ${lineCoverage}`,
+            missing
+              ? `- Coverage report '${reportPath}' not found`
+              : `- Line coverage: ${lineCoverage}`,
           ];
 
-          if (branchCoverage !== "n/a") {
+          if (!missing && branchCoverage !== "n/a") {
             summaryLines.push(`- Branch coverage: ${branchCoverage}`);
           }
 
-          summaryLines.push(`- Lines covered: ${linesCovered} / ${linesTotal}`);
+          if (!missing) {
+            summaryLines.push(`- Lines covered: ${linesCovered} / ${linesTotal}`);
+          }
 
           const summary = summaryLines.join("\n") + "\n";
 
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary, "utf8");
-          fs.writeFileSync("coverage-summary.txt", summary, "utf8");
+          fs.writeFileSync(summaryFile, summary, "utf8");
           JS
 
       - name: Upload frontend coverage summary
-        if: always()
+        if: always() && hashFiles('project_code/frontend/coverage-summary.txt') != ''
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage-summary
@@ -194,7 +197,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload frontend coverage report
-        if: always()
+        if: always() && hashFiles('project_code/frontend/coverage/coverage-summary.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
