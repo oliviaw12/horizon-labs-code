@@ -103,3 +103,4 @@ npm test
 ## Notes
 - The `backend/test_frontend` harness is a lightweight HTML/JS tool used to exercise backend APIs while the UI was in progress; not a frontend test suite.
 - More detail: see [backend/README.md](backend/README.md) for backend specifics and [frontend/README.md](frontend/README.md) for frontend specifics.
+- Architecture reference: see [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md) for a file-level tech usage map showing where each core library/service is wired.
