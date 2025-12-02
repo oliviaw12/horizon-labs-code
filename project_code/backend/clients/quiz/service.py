@@ -1,3 +1,6 @@
+"""Quiz service orchestrating definitions, sessions, question generation, retrieval grounding,
+grading, and analytics across assessment and practice modes."""
+
 from __future__ import annotations
 
 import logging
@@ -98,6 +101,7 @@ class QuizService:
         is_published: bool,
         metadata: Optional[Dict[str, object]],
     ) -> QuizDefinitionRecord:
+        """Create or update a quiz definition (metadata, topics, defaults, embedding doc)."""
         cleaned_topics = [topic.strip() for topic in topics if topic and topic.strip()]
         if not cleaned_topics:
             cleaned_topics = ["General"]
@@ -129,15 +133,18 @@ class QuizService:
         return record
 
     def get_quiz_definition(self, quiz_id: str) -> QuizDefinitionRecord:
+        """Fetch a quiz definition or raise if missing."""
         definition = self._repository.load_quiz_definition(quiz_id)
         if definition is None:
             raise QuizDefinitionNotFoundError(f"Quiz {quiz_id} not found.")
         return definition
 
     def list_quiz_definitions(self) -> List[QuizDefinitionRecord]:
+        """Return all quiz definitions."""
         return self._repository.list_quiz_definitions()
 
     def delete_quiz_definition(self, quiz_id: str) -> None:
+        """Delete a quiz definition and associated artifacts."""
         self._repository.delete_quiz_definition(quiz_id)
 
     # ------------------------------------------------------------------
@@ -153,6 +160,7 @@ class QuizService:
         initial_difficulty: Optional[DifficultyLevel] = None,
         is_preview: bool = False,
     ) -> QuizSessionRecord:
+        """Start a learner session, validate quiz mode/timing, and persist initial session state."""
         existing = self._repository.load_session(session_id)
         if existing and existing.status == "in_progress":
             raise QuizSessionConflictError("A quiz session with this identifier is already in progress.")
@@ -220,6 +228,7 @@ class QuizService:
         topic_override: Optional[str] = None,
         difficulty_override: Optional[DifficultyLevel] = None,
     ) -> QuizQuestionRecord:
+        """Serve the next quiz question, preferring existing banked items before generation."""
         record = self._load_session(session_id)
         record = self._enforce_time_constraints(record)
 
@@ -354,6 +363,7 @@ class QuizService:
         question_id: str,
         selected_answer: str,
     ) -> Dict[str, object]:
+        """Grade a submitted answer, update streaks/difficulty, and persist session progress."""
         record = self._load_session(session_id)
         record = self._enforce_time_constraints(record)
 
@@ -476,6 +486,7 @@ class QuizService:
         return response
 
     def end_session(self, session_id: str) -> Dict[str, object]:
+        """Mark a session complete, persist summary, and clean up preview sessions."""
         record = self._load_session(session_id)
         updated_record = record
         if updated_record.status == "in_progress":
@@ -498,6 +509,7 @@ class QuizService:
         user_id: Optional[str] = None,
         limit: int = 20,
     ) -> List[Dict[str, object]]:
+        """List historical sessions (non-preview, completed) for a quiz/user."""
         sessions = self._repository.list_sessions(quiz_id=quiz_id, user_id=user_id, limit=limit)
         summaries: List[Dict[str, object]] = []
         for record in sessions:
@@ -514,6 +526,7 @@ class QuizService:
         *,
         user_id: Optional[str] = None,
     ) -> Dict[str, object]:
+        """Return summary plus attempt-by-attempt review for a completed session."""
         record = self._load_session(session_id)
         if user_id and record.user_id != user_id:
             raise QuizSessionConflictError("Session does not belong to this learner.")
@@ -530,6 +543,7 @@ class QuizService:
         *,
         user_id: Optional[str] = None,
     ) -> None:
+        """Delete a stored session (requires matching user unless preview)."""
         record = self._load_session(session_id)
         if user_id and record.user_id != user_id:
             raise QuizSessionConflictError("Session does not belong to this learner.")
@@ -550,6 +564,7 @@ class QuizService:
         topic_override: Optional[str] = None,
         difficulty_override: Optional[DifficultyLevel] = None,
     ) -> tuple[QuizQuestionRecord, QuizSessionRecord]:
+        """Generate a question (with retrieval grounding) and attach it to the session."""
         order = len(existing_questions) + 1
         if session.is_preview:
             order = len(session.asked_question_ids) + 1
@@ -683,6 +698,7 @@ class QuizService:
         next_source_value: str,
         next_cursor_value: int,
     ) -> QuizSessionRecord:
+        """Proactively queue the next generated question to avoid latency on subsequent turns."""
         if (
             record.is_preview
             or record.status != "in_progress"
@@ -730,6 +746,7 @@ class QuizService:
         *,
         preferred_topic: Optional[str] = None,
     ) -> Optional[QuizQuestionRecord]:
+        """Pick an existing question, optionally matching the preferred topic."""
         if not candidates:
             return None
         if preferred_topic:
@@ -745,6 +762,7 @@ class QuizService:
         used_existing: bool,
         remaining_existing: List[QuizQuestionRecord],
     ) -> str:
+        """Decide whether the next question should come from the bank or be generated."""
         if record.is_preview:
             return "generated"
         if used_existing:
@@ -850,6 +868,7 @@ class QuizService:
         correct_streak: int,
         incorrect_streak: int,
     ) -> DifficultyLevel:
+        """Adjust practice difficulty based on streaks, with bounds."""
         index = DifficultyRank[current]
         if correct_streak >= self._increase_threshold and index < len(DifficultySequence) - 1:
             return DifficultySequence[index + 1]
@@ -858,6 +877,7 @@ class QuizService:
         return current
 
     def _enforce_time_constraints(self, record: QuizSessionRecord) -> QuizSessionRecord:
+        """Enforce assessment deadline; mark timed out if past due."""
         if record.mode != "assessment":
             return record
         if record.status != "in_progress":
@@ -868,6 +888,7 @@ class QuizService:
         return record
 
     def _mark_completed(self, record: QuizSessionRecord, *, status: str) -> QuizSessionRecord:
+        """Return a copy of the record marked complete with no active question queued."""
         return replace(
             record,
             status=status,  # type: ignore[arg-type]
@@ -878,6 +899,7 @@ class QuizService:
         )
 
     def _build_summary(self, record: QuizSessionRecord) -> Dict[str, object]:
+        """Aggregate per-session performance metrics (totals, accuracy, streaks, per-topic)."""
         total_questions = len(record.attempts)
         correct_answers = sum(1 for attempt in record.attempts if attempt.is_correct)
         accuracy = (correct_answers / total_questions) if total_questions else 0.0
@@ -921,6 +943,7 @@ class QuizService:
         }
 
     def _build_attempt_review(self, record: QuizSessionRecord) -> List[Dict[str, object]]:
+        """Construct attempt-by-attempt review payloads."""
         attempts: List[Dict[str, object]] = []
         for attempt in record.attempts:
             question = self._repository.get_quiz_question(
@@ -958,11 +981,13 @@ class QuizService:
         return updated_record, summary
 
     def _cleanup_preview(self, record: QuizSessionRecord) -> None:
+        """Delete preview-only questions and session artifacts."""
         for question_id in record.preview_question_ids:
             self._repository.delete_quiz_question(question_id, quiz_id=record.quiz_id)
         self._repository.delete_session(record.session_id)
 
     def _duplicate_question_for_review(self, question: QuizQuestionRecord) -> QuizQuestionRecord:
+        """Clone a question so review mode uses a separate record."""
         clone = QuizQuestionRecord(
             quiz_id=question.quiz_id,
             question_id=str(uuid.uuid4()),
@@ -994,6 +1019,7 @@ class QuizService:
         quiz_id: Optional[str] = None,
         user_id: Optional[str] = None,
     ) -> List[QuizSessionRecord]:
+        """List sessions from the repository filtered by quiz/user."""
         return self._repository.list_sessions(quiz_id=quiz_id, user_id=user_id)
 
     def get_quiz_analytics(
@@ -1002,6 +1028,7 @@ class QuizService:
         quiz_id: Optional[str] = None,
         user_id: Optional[str] = None,
     ) -> Dict[str, object]:
+        """Compute aggregate quiz analytics (sessions, accuracy, per-topic metrics)."""
         definitions = {
             record.quiz_id: record
             for record in self._repository.list_quiz_definitions()
@@ -1165,6 +1192,7 @@ class QuizService:
         return record
 
     def _select_repository(self) -> QuizRepository:
+        """Choose Firestore repository when available; fall back to in-memory otherwise."""
         try:
             from clients.database.quiz_repository import FirestoreQuizRepository
 
@@ -1174,6 +1202,7 @@ class QuizService:
             return InMemoryQuizRepository()
 
     def _select_generator(self) -> Optional[QuizQuestionGenerator]:
+        """Instantiate the quiz question generator (LLM-backed); fallback to None on failure."""
         try:
             return QuizQuestionGenerator()
         except Exception as exc:  # pragma: no cover - configuration fallback
@@ -1184,6 +1213,7 @@ class QuizService:
             return None
 
     def _get_context_retriever(self) -> Optional[SlideContextRetriever]:
+        """Lazily initialize the slide context retriever unless prior initialization failed."""
         if self._context_retriever is not None:
             return self._context_retriever
         if self._retriever_failed:
@@ -1196,6 +1226,7 @@ class QuizService:
         return retriever
 
     def _select_retriever(self) -> Optional[SlideContextRetriever]:
+        """Construct a SlideContextRetriever if Google embeddings are configured."""
         try:
             settings = get_llm_settings()
             if not settings.google_api_key:
