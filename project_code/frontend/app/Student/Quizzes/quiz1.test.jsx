@@ -1,4 +1,4 @@
-// Top-level tests for the student quizzes list page.
+// File-level: checks student quizzes list loading, empty state messaging, and router navigation.
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import StudentQuizzesPage from "./page";

@@ -1,4 +1,4 @@
-// Top-level tests for the instructor quizzes listing and navigation page.
+// File-level: checks instructor quizzes list loading, empty states, and navigation to create/edit flows.
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import InstructorQuizzesPage from "./page";

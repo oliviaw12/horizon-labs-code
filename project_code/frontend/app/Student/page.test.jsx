@@ -1,4 +1,4 @@
-// Top-level tests for the student index page wrapper.
+// File-level: ensures the student index renders the delegated home page without extra wrappers.
 import { render, screen } from "@testing-library/react";
 import StudentIndexPage from "./page";
 

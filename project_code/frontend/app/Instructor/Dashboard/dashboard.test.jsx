@@ -1,4 +1,4 @@
-// Top-level tests for the instructor analytics dashboard page.
+// File-level: confirms analytics dashboard renders summaries, charts, and handles fetch lifecycle.
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import InstructorDashboard from "./page";
