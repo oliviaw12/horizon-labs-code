@@ -772,6 +772,7 @@ class QuizService:
         return "generated"
 
     def _calculate_max_streak(self, attempts: List[QuizAttemptRecord], *, target_correct: bool) -> int:
+        """Compute longest streak of correct/incorrect attempts."""
         best = 0
         current = 0
         for attempt in attempts:
@@ -785,6 +786,7 @@ class QuizService:
         return best
 
     def _extract_total_slide_count(self, metadata: Optional[Dict[str, object]]) -> Optional[int]:
+        """Extract total slide count from metadata keys if present."""
         if not metadata:
             return None
         for key in ("slide_count", "slides_count", "total_slides", "totalSlides", "slides", "numSlides"):
@@ -800,6 +802,7 @@ class QuizService:
         return None
 
     def _extract_slide_id(self, metadata: Optional[Dict[str, object]]) -> Optional[str]:
+        """Build a slide identifier from metadata (slide_id/number/title)."""
         if not isinstance(metadata, dict):
             return None
         slide_id = metadata.get("slide_id")
@@ -820,6 +823,7 @@ class QuizService:
         return None
 
     def _register_slide_usage(self, record: QuizSessionRecord, question: QuizQuestionRecord) -> QuizSessionRecord:
+        """Track slide usage so retrieval can rotate coverage."""
         slide_id = self._extract_slide_id(question.source_metadata)
         if not slide_id:
             return record
@@ -831,6 +835,7 @@ class QuizService:
         self,
         record: QuizSessionRecord,
     ) -> tuple[Optional[QuizQuestionRecord], QuizSessionRecord]:
+        """Serve a missed question after enough new questions have been answered."""
         if not record.missed_question_ids:
             return None, record
         if record.questions_since_review < self._missed_review_gap:
@@ -973,6 +978,7 @@ class QuizService:
         return attempts
 
     def _ensure_summary_cached(self, record: QuizSessionRecord) -> Tuple[QuizSessionRecord, Dict[str, object]]:
+        """Return a record with summary populated, saving back if newly computed."""
         if record.summary:
             return record, record.summary
         summary = self._build_summary(record)
@@ -1186,6 +1192,7 @@ class QuizService:
         }
 
     def _load_session(self, session_id: str) -> QuizSessionRecord:
+        """Load a session or raise if missing."""
         record = self._repository.load_session(session_id)
         if record is None:
             raise QuizSessionNotFoundError("Quiz session not found.")
