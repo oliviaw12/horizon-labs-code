@@ -1,3 +1,4 @@
+// Top-level tests for the login page routing and form interactions.
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";

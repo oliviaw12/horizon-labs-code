@@ -1,3 +1,4 @@
+// Top-level tests for the student flashcard walkthrough demo page.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import FlashcardWalkthroughPage from "./page";

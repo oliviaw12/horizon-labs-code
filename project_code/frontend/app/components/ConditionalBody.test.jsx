@@ -1,3 +1,4 @@
+// Top-level tests for the ConditionalBody layout background selection.
 import { render, screen } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import ConditionalBody from "./ConditionalBody";

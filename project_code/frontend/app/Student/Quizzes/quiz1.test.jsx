@@ -1,3 +1,4 @@
+// Top-level tests for the student quizzes list page.
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import StudentQuizzesPage from "./page";

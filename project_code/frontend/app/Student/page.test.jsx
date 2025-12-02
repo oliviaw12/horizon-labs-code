@@ -1,3 +1,4 @@
+// Top-level tests for the student index page wrapper.
 import { render, screen } from "@testing-library/react";
 import StudentIndexPage from "./page";
 

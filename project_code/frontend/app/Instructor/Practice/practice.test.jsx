@@ -1,3 +1,4 @@
+// Top-level tests for the instructor practice quiz builder UI.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import PracticePage from "./page";

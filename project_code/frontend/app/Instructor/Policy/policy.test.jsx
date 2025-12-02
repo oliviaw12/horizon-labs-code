@@ -1,3 +1,4 @@
+// Top-level tests for the instructor Policy configuration preview page.
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import PolicyPage from "./page";

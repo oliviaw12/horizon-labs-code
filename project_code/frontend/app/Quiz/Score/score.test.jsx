@@ -1,3 +1,4 @@
+// Top-level tests for the quiz score preview page and publish toggle.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import ScorePage from "./page";

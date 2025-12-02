@@ -1,3 +1,4 @@
+// Top-level tests for the ConditionalHeader role-aware navigation bar.
 import { render, screen } from "@testing-library/react";
 import { usePathname, useRouter } from "next/navigation";
 import ConditionalHeader from "./ConditionalHeader";

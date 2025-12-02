@@ -1,3 +1,4 @@
+// Top-level tests for the student home dashboard page.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import StudentHomePage from "./page";

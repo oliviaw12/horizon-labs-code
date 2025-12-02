@@ -1,3 +1,4 @@
+// Top-level tests for the instructor analytics dashboard page.
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import InstructorDashboard from "./page";
