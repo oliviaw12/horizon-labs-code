@@ -9,6 +9,9 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+/**
+ * Lightweight mock chat page to demonstrate how policy choices affect responses.
+ */
 export default function PolicyTestPage() {
   const router = useRouter();
   const [messages, setMessages] = useState([
@@ -18,6 +21,7 @@ export default function PolicyTestPage() {
   const [draft, setDraft] = useState("");
   const [responseIndex, setResponseIndex] = useState(0);
 
+  /** Predefined assistant replies that rotate to mimic policy-driven responses. */
   const cannedResponses = useMemo(
     () => [
       "Using this file: focus_1.pdf",
@@ -28,6 +32,7 @@ export default function PolicyTestPage() {
     []
   );
 
+  /** Appends the user's message and the next canned assistant response. */
   const handleSend = () => {
     const text = draft.trim();
     if (!text) return;

@@ -1,3 +1,4 @@
+// File-level: validates student home dashboard renders quick actions and routes via buttons.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import StudentHomePage from "./page";

@@ -1,3 +1,4 @@
+// File-level: exercises ConditionalHeader role persistence, avatar selection, and route-aware visibility.
 import { render, screen } from "@testing-library/react";
 import { usePathname, useRouter } from "next/navigation";
 import ConditionalHeader from "./ConditionalHeader";

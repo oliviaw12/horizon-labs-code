@@ -1,3 +1,4 @@
+// File-level: covers instructor QuizGenerator flow including mode toggles, file ingest validation, and routing.
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import QuizGeneratorPage from "./page";

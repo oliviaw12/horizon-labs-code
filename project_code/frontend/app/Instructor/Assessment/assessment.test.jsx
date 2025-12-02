@@ -1,3 +1,4 @@
+// File-level: checks assessment quiz builder renders required fields and navigation for instructors.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import QuizGenerator2Page from "./page";

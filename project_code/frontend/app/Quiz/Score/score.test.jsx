@@ -1,3 +1,4 @@
+// File-level: validates quiz score preview rendering, publish toggle flow, and router calls.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import ScorePage from "./page";

@@ -1,3 +1,4 @@
+// File-level: validates login form interactions and role-based routing for students vs instructors.
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";

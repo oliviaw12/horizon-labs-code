@@ -1,3 +1,4 @@
+// File-level: ensures the flashcard walkthrough demo renders deck info and reacts to router mocks.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import FlashcardWalkthroughPage from "./page";

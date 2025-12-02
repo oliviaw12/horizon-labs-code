@@ -1,3 +1,4 @@
+// File-level: verifies practice quiz builder renders core fields and navigation links for instructors.
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import PracticePage from "./page";

@@ -1,3 +1,4 @@
+// File-level: ensures the policy test chat preview sends canned replies, navigation works, and input handling is correct.
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import PolicyTestPage from "./page";

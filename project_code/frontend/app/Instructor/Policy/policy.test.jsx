@@ -1,3 +1,4 @@
+// File-level: validates the instructor policy preview page renders scopes, services, and toggles correctly.
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import PolicyPage from "./page";

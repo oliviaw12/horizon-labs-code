@@ -8,6 +8,9 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+/**
+ * Instructor landing hub that links to quiz creation, analytics, and policy tools.
+ */
 export default function InstructorPage() {
   const router = useRouter();
 
@@ -18,14 +21,17 @@ export default function InstructorPage() {
     year: "numeric",
   });
 
+  /** Sends the instructor to the quiz management area. */
   const handleQuizGenerator = () => {
     router.push("/Instructor/Quizzes");
   };
 
+  /** Opens the analytics dashboard page. */
   const handleDashboard = () => {
     router.push("/Instructor/Dashboard");
   };
 
+  /** Navigates to the AI/policy configuration preview. */
   const handlePolicyServices = () => {
     router.push("/Instructor/Policy");
   };

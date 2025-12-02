@@ -1,3 +1,4 @@
+// File-level: verifies ConditionalBody chooses the correct body background and wrapper based on route.
 import { render, screen } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import ConditionalBody from "./ConditionalBody";

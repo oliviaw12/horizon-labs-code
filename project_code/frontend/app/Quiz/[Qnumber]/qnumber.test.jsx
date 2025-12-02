@@ -1,3 +1,4 @@
+// File-level: covers instructor quiz preview runner loading, navigation, and button states.
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import QuizPage from "./page";

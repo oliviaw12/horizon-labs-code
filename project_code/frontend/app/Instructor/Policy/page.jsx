@@ -9,6 +9,9 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+/**
+ * Instructor policy configuration preview for toggling guidance, scope, and allowed content.
+ */
 export default function PolicyPage() {
   const router = useRouter();
   const [guidanceEnabled, setGuidanceEnabled] = useState(true);
@@ -42,6 +45,7 @@ export default function PolicyPage() {
   
   const frictionOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+  /** Updates the friction slider that tunes chat guardrails. */
   const handleFrictionSelect = (level) => {
     setFrictionLevel(level);
   };
@@ -65,11 +69,13 @@ export default function PolicyPage() {
     },
   ];
 
+  /** Toggles whether the assistant proactively provides guidance. */
   const handleToggleGuidance = () => {
     const nextEnabled = !guidanceEnabled;
     setGuidanceEnabled(nextEnabled);
   };
 
+  /** Toggles a service's inclusion in the active policy window. */
   const handleServiceToggle = (service) => {
     setPolicyForm((prev) => {
       const exists = prev.services.includes(service);
@@ -80,6 +86,7 @@ export default function PolicyPage() {
     });
   };
 
+  /** Validates and stores a policy window locally. */
   const handlePolicySubmit = () => {
     if (!policyForm.start || !policyForm.end || policyForm.services.length === 0) {
       return;
@@ -93,10 +100,12 @@ export default function PolicyPage() {
     setPolicyForm(emptyPolicyForm);
   };
 
+  /** Loads an existing policy into the editor for updates. */
   const handlePolicyEdit = (policy) => {
     setPolicyForm({ ...policy });
   };
 
+  /** Deletes a saved policy and clears the form if it was being edited. */
   const handlePolicyDelete = (id) => {
     setPolicies((prev) => prev.filter((p) => p.id !== id));
     if (policyForm.id === id) {
@@ -104,6 +113,7 @@ export default function PolicyPage() {
     }
   };
 
+  /** Simulates uploading a focus file and selects it by default. */
   const handleFocusFileUpload = () => {
     const nextIndex = focusFiles.length + 1;
     const newFile = {
@@ -114,6 +124,7 @@ export default function PolicyPage() {
     setSelectedFocusFiles(new Set([...selectedFocusFiles, newFile.id]));
   };
 
+  /** Simulates uploading a deny list file and selects it by default. */
   const handleDenyFileUpload = () => {
     const nextIndex = denyFiles.length + 1;
     const newFile = {
@@ -124,6 +135,7 @@ export default function PolicyPage() {
     setSelectedDenyFiles(new Set([...selectedDenyFiles, newFile.id]));
   };
 
+  /** Toggles a focus file selection. */
   const handleFocusFileToggle = (fileId) => {
     const newSelected = new Set(selectedFocusFiles);
     if (newSelected.has(fileId)) {
@@ -134,6 +146,7 @@ export default function PolicyPage() {
     setSelectedFocusFiles(newSelected);
   };
 
+  /** Toggles a deny file selection. */
   const handleDenyFileToggle = (fileId) => {
     const newSelected = new Set(selectedDenyFiles);
     if (newSelected.has(fileId)) {
@@ -144,6 +157,7 @@ export default function PolicyPage() {
     setSelectedDenyFiles(newSelected);
   };
 
+  /** Removes a focus file and unselects it. */
   const handleDeleteFocusFile = (fileId) => {
     setFocusFiles((prev) => prev.filter((file) => file.id !== fileId));
     setSelectedFocusFiles((prev) => {
@@ -153,6 +167,7 @@ export default function PolicyPage() {
     });
   };
 
+  /** Removes a deny file and unselects it. */
   const handleDeleteDenyFile = (fileId) => {
     setDenyFiles((prev) => prev.filter((file) => file.id !== fileId));
     setSelectedDenyFiles((prev) => {
@@ -162,6 +177,7 @@ export default function PolicyPage() {
     });
   };
 
+  /** Navigates to the policy test prompt page. */
   const handleRunTestPrompt = () => {
     router.push("/Instructor/Policy/Test");
   };
