@@ -71,6 +71,7 @@ class SlideContextRetriever:
                 return None
             return {"slide_id": {"$nin": clipped}}
 
+        # Core vector search against Pinecone to fetch slide/page chunks for question grounding.
         response = repository.query(
             vector=vector,
             top_k=limit,
@@ -145,7 +146,7 @@ class SlideContextRetriever:
     @staticmethod
     def _build_query(*, topic: str, difficulty: str) -> str:
         """Compose a retrieval prompt that conditions on topic and difficulty."""
-        base_topic = topic or "general computer science"
+        base_topic = topic or "general"
         base_difficulty = difficulty or "medium"
         return (
             f"{base_topic} key ideas suitable for a {base_difficulty} difficulty question. "

@@ -241,6 +241,7 @@ class SlideIngestionPipeline:
 
         for batch in self._batched(chunked, batch_size):
             texts = [chunk.text for chunk in batch]
+            # Generate embeddings and upsert to Pinecone so downstream chat/quiz can retrieve with citations.
             vectors = await self._embedding_service.embed(texts)
             if not vectors:
                 continue

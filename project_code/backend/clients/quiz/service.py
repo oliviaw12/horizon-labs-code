@@ -565,6 +565,7 @@ class QuizService:
         retriever = self._get_context_retriever()
         if retriever and definition.embedding_document_id:
             try:
+                # Retrieve relevant slide/page chunks from Pinecone to ground the generated question.
                 contexts, coverage_reset = retriever.fetch(
                     document_id=definition.embedding_document_id,
                     topic=topic,
@@ -592,6 +593,7 @@ class QuizService:
         generation_error: Optional[str] = None
         if self._generator is not None:
             try:
+                # Generate a new question using retrieved slide/page contexts (when available) as grounding.
                 generated = self._generator.generate(
                     topic=topic,
                     difficulty=difficulty,
