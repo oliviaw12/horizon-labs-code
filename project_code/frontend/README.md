@@ -57,5 +57,5 @@ npm test      # Jest tests co-located with pages/components
 - API base URL: set via `NEXT_PUBLIC_BACKEND_URL` in `.env.local`.
 
 ## Links
-- Project overview: `../README.md`
-- Backend docs: `../backend/README.md`
+- Project overview: [../README.md](../README.md)
+- Backend docs: [../backend/README.md](../backend/README.md)

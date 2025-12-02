@@ -74,5 +74,5 @@ pytest -q
 - **Incorrect citations on quiz questions**: Retrieval shuffles Pinecone matches for coverage (`clients/rag/retriever.py`), but `clients/quiz/service.py` stamps the question’s `source_metadata` with only the first (shuffled) context. This can point citations to the wrong slide/page. Potential fix: keep the shuffle but persist all contexts (or model-tagged one) on the question and render citations from that list; or stop shuffling and use score order if you only want the top match.
 
 ## Links
-- Project overview: `../README.md`
-- Frontend docs: `../frontend/README.md`
+- Project overview: [../README.md](../README.md)
+- Frontend docs: [../frontend/README.md](../frontend/README.md)
