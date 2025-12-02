@@ -9,6 +9,9 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+/**
+ * Student dashboard landing page linking to chat, quizzes, and flashcards.
+ */
 export default function StudentHomePage() {
   const router = useRouter();
   const currentDate = new Date();
@@ -18,14 +21,17 @@ export default function StudentHomePage() {
     year: "numeric",
   });
 
+  /** Routes the student to the chat assistant page. */
   const handleChat = () => {
     router.push("/Student/chat");
   };
 
+  /** Routes the student to the quizzes list page. */
   const handleQuiz = () => {
     router.push("/Student/Quizzes");
   };
 
+  /** Opens the flashcards experience for students. */
   const handleFlashcards = () => {
     router.push("/Student/Flashcards");
   };
