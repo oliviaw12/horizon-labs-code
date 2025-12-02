@@ -61,6 +61,7 @@ class TurnClassifier:
                 )
 
             # LLM-backed classification path (uses OpenRouter/OpenAI compatible ChatOpenAI).
+            # OpenRouter credentials/base URL come from Settings (openrouter_api_key/base_url).
             llm = ChatOpenAI(
                 model=self._model_name,
                 temperature=self._temperature,
