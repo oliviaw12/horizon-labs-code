@@ -628,6 +628,12 @@ class QuizService:
             raise QuizGenerationError(message)
 
         question_id = str(uuid.uuid4())
+        # NOTE (citation accuracy): We only persist the first retrieved context's metadata here,
+        # but retrieval shuffles for variety, so index 0 is random. This can stamp the question
+        # with the wrong slide/page and surface incorrect citations. To fix, persist the full set
+        # of contexts passed to the model (or whichever the model tagged), including ids/slide/page,
+        # and have the UI render citations from that stored list rather than assuming the first item
+        # is the true source.
         source_metadata_payload: Dict[str, object] = (
             contexts_payload[0].get("metadata") if contexts_payload else {}
         )
