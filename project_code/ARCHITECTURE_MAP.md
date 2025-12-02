@@ -1,47 +1,70 @@
-# Repository & Architecture Map
+# Core Tech Usage Map
 
-This file mirrors the repository layout and shows how requests flow through the tech stack (frontend → FastAPI backend → LLM/vendor services → databases).
+This map shows, at a file level, where each core library/framework is connected.
 
-## Directory Guide
+## Directory & Tech Map
 
 ```
 project_code/
-├── Makefile                # Dev/test shortcuts (npm install, pip install, run servers)
-├── README.md               # High-level project overview + setup
-├── backend/                # FastAPI service
-│   ├── app/                # API routes and request/response schemas
-│   ├── clients/            # Service layers and integrations
-│   │   ├── llm/            # Chat + prompt logic (LangChain/OpenRouter)
-│   │   ├── quiz/           # Quiz generation, grading, sessions
-│   │   ├── ingestion/      # Slide/PDF parsing → embeddings → Pinecone index
-│   │   ├── rag/            # Context retrieval from Pinecone for quizzes
-│   │   └── database/       # Firestore chat storage, Pinecone wrapper, quiz store
-│   ├── tests/              # Backend pytest suite
-│   └── test_frontend/      # Static SSE test harness for the API
-└── frontend/               # Next.js (App Router) UI
-    ├── app/                # Routes for student/instructor flows
-    │   ├── Student/        # Chat + quizzes UX
-    │   ├── Instructor/     # Uploads, quiz generator, dashboards
-    │   ├── Quiz/           # Shared quiz pages
-    │   └── components/     # Layout wrappers & shared UI pieces
-    ├── lib/                # Client-side helpers (feature flags, utilities)
-    └── public/             # Static assets (icons, gradients, buttons)
+├── frontend/  (Next.js + React)
+│   ├── app/
+│   │   ├── layout.jsx                  # Next.js app shell (React)
+│   │   ├── page.jsx                    # Role chooser (React)
+│   │   ├── Student/chat/page.jsx       # Chat UI calling FastAPI chat endpoints
+│   │   ├── Student/Quizzes/...         # Quiz UIs calling FastAPI quiz endpoints
+│   │   ├── Instructor/QuizGenerator/page.jsx   # Upload/ingest UI (calls /ingest)
+│   │   ├── Instructor/Dashboard/page.jsx       # Analytics UI (calls /analytics)
+│   │   └── Instructor/Practice|Assessment/...  # Quiz launch UIs
+│   ├── components/                     # Shared React components
+│   ├── app/globals.css                 # Tailwind-applied global styles
+│   ├── postcss.config.mjs              # Tailwind via @tailwindcss/postcss
+│   ├── tsconfig.json                   # TypeScript config
+│   ├── eslint.config.mjs               # ESLint + eslint-config-next
+│   ├── next.config.ts                  # Next.js/Babel presets (implicit)
+│   ├── jest.config.js / jest.setup.js  # Jest setup for frontend tests
+│   └── lib/flag.js                     # Client feature flags
+├── backend/  (Python FastAPI)
+│   ├── app/
+│   │   ├── main.py                     # FastAPI routes (chat, ingest, quiz, analytics)
+│   │   └── schemas.py                  # Pydantic request/response models
+│   ├── clients/
+│   │   ├── llm/
+│   │   │   ├── service.py              # LangChain ChatOpenAI (OpenRouter) chat streaming
+│   │   │   ├── classifier.py           # LangChain ChatOpenAI turn classifier
+│   │   │   ├── settings.py             # OpenRouter creds/base URL, model names
+│   │   │   └── telemetry.py            # Usage logging
+│   │   ├── quiz/
+│   │   │   ├── service.py              # Quiz lifecycle; calls retriever + generator
+│   │   │   ├── generator.py            # LangChain ChatOpenAI question generation
+│   │   │   └── settings.py             # Quiz tuning (streaks, retrieval sampling)
+│   │   ├── ingestion/
+│   │   │   └── pipeline.py             # LangChain GoogleGenerativeAIEmbeddings; Pinecone upsert
+│   │   ├── rag/
+│   │   │   └── retriever.py            # GoogleGenAI embeddings for queries; Pinecone search
+│   │   └── database/
+│   │       ├── chat_repository.py      # Firestore chat persistence
+│   │       ├── quiz_repository.py      # Firestore quiz defs/sessions/questions
+│   │       ├── pinecone.py             # Pinecone client wrapper
+│   │       └── firebase.py             # Firestore client bootstrap
+│   ├── ping_app.py                     # Lightweight /ping FastAPI app
+│   └── tests/                          # pytest suite
+└── ARCHITECTURE_MAP.md                 # (this file)
 ```
 
-## How Things Connect
+## How Each Technology Is Used
 
-- **Chat**: `frontend/app/Student/chat/page.jsx` → `/chat/stream|history|sessions|reset|debug/friction-state` → `clients/llm/service.py` (+ `classifier.py`, `telemetry.py`) → Firestore/in-memory via `clients/database/chat_repository.py`, `firebase.py`.
-- **Ingestion**: `frontend/app/Instructor/QuizGenerator/page.jsx` → `/ingest/upload`, `/ingest/document/{id}` → `clients/ingestion/pipeline.py` (extract/chunk/embed) → Pinecone (`clients/database/pinecone.py`; config in `clients/llm/settings.py`).
-- **Quizzes**: Instructor `frontend/app/Instructor/Practice|Assessment|Quizzes`, Student `frontend/app/Student/Quizzes/...` → `/quiz/definitions*`, `/quiz/session/*`, `/quiz/session/{id}/answer|next|end` → `clients/quiz/service.py`, `clients/quiz/generator.py`, `clients/rag/retriever.py` → `clients/database/quiz_repository.py`.
-- **Analytics/health**: `frontend/app/Instructor/Dashboard/page.jsx` → `/analytics/chats`, `/analytics/quizzes`, `/health`, optional `/ping` (`backend/ping_app.py`).
-- **Hosting/tests**: Frontend on Vercel with `frontend/tests/` (Jest + Playwright); Backend on Render with `backend/tests/` (pytest); Vendors: OpenRouter (Gemini), Google embeddings; data in Firestore + Pinecone.
-
-## Key Files by Area
-
-- **Backend API**: `backend/app/main.py` (routes + CORS/bootstrap), `backend/app/schemas.py` (models), `backend/pytest.ini`.
-- **Chat**: `clients/llm/service.py` (prompts/streaming), `clients/llm/classifier.py`, `clients/llm/settings.py`, `clients/llm/telemetry.py`; storage `clients/database/chat_repository.py`, `firebase.py`.
-- **Ingestion**: `clients/ingestion/pipeline.py` (extract/chunk/embed/upsert), vectors `clients/database/pinecone.py`.
-- **Quizzes**: `clients/quiz/service.py` (sessions), `clients/quiz/generator.py` (LLM questions), `clients/rag/retriever.py` (Pinecone context), `clients/database/quiz_repository.py` (store).
-- **Frontend screens**: `frontend/app/page.jsx` (role pick), `frontend/app/Student/HomePage/page.jsx`, `frontend/app/Student/chat/page.jsx`, `frontend/app/Student/Quizzes/...`, `frontend/app/Instructor/QuizGenerator/page.jsx`, `frontend/app/Instructor/Practice|Assessment/page.jsx`, `frontend/app/Instructor/Dashboard/page.jsx`.
-- **Frontend scaffold**: `frontend/app/layout.jsx`, `frontend/app/globals.css`, shared UI `frontend/app/components`, flags `frontend/lib/flag.js`, assets `frontend/public/`.
-- **Config**: `backend/.env` (OpenRouter, Google API, Pinecone, Firestore, friction/classifier), `frontend/.env.local` (`NEXT_PUBLIC_BACKEND_URL`).
+- **Next.js / React**: `frontend/app/*` pages/components render UI and call FastAPI endpoints for chat, ingestion, quizzes, and analytics.
+- **Tailwind CSS**: Applied via PostCSS plugin (`frontend/postcss.config.mjs`) and `app/globals.css`.
+- **TypeScript / ESLint / Babel (Next presets)**: TS config (`frontend/tsconfig.json`), lint (`frontend/eslint.config.mjs` with eslint-config-next), Next/Babel via `frontend/next.config.ts`.
+- **Frontend testing (Jest)**: Config/setup in `frontend/jest.config.js` and `frontend/jest.setup.js`; tests alongside pages/components.
+- **FastAPI backend**: Routes in `backend/app/main.py`, schemas in `backend/app/schemas.py`, optional ping app in `backend/ping_app.py`.
+- **LLM/AI (LangChain, OpenAI/OpenRouter, LangChain Google GenAI)**:
+  - Chat/streaming: `backend/clients/llm/service.py` (ChatOpenAI via OpenRouter).
+  - Turn classification: `backend/clients/llm/classifier.py` (ChatOpenAI via OpenRouter).
+  - Quiz generation: `backend/clients/quiz/generator.py` (ChatOpenAI via OpenRouter).
+  - Embeddings: `backend/clients/ingestion/pipeline.py` and `backend/clients/rag/retriever.py` (GoogleGenerativeAIEmbeddings via langchain-google-genai).
+  - Config (API keys, model names, base URLs): `backend/clients/llm/settings.py`.
+- **Data / Services**:
+  - Firestore: `backend/clients/database/chat_repository.py`, `quiz_repository.py`, bootstrap `firebase.py`.
+  - Pinecone: `backend/clients/database/pinecone.py`; ingestion/upsert in `ingestion/pipeline.py`; retrieval in `rag/retriever.py`.
+- **Backend testing (pytest)**: Config `backend/pytest.ini`; tests under `backend/tests/`.
